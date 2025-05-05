@@ -44,12 +44,12 @@ helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx -f nginx-ingres
 k get po,svc,cm -n ingress-nginx
 ```
 
-## Step 4: Install PgAdmin
+## Step 4: Install pgAdmin
 
 ```bash
 helm upgrade --install pgadmin4 runix/pgadmin4 -f pgadmin-values.yaml --namespace pgadmin4 --create-namespace
 
-# Check PgAdmin Pod is running
+# Check pgAdmin Pod is running
 k get po,svc -n pgadmin4
 ```
 
@@ -87,6 +87,8 @@ Error: INSTALLATION FAILED: 3 errors occurred:
 
 - ✅ **Kind Cluster**: If you're using Kind Cluster then you can use Metallb to expose your Nginx Ingress (Check [here](https://metallb.universe.tf/installation/#installation-with-helm))
 
-- ✅ **PgAdmin Ingress issue**: Nginx Ingress does not respect proper redirect for `/pgamin4`
+- ✅ **pgAdmin Ingress issue**: Nginx Ingress does not respect proper redirect for `/pgamin4` when you use NodePort for Nginx Ingress. \
+Hit `http://<nginx-ingress-node-ip>:32080/pgadmin4` \
+Upon entering logging details it redirects back to `http://<nginx-ingress-node-ip>/pgadmin4`. Port is missing. Try to add the port and it works.
 
 </details>
