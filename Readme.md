@@ -89,6 +89,10 @@ Error: INSTALLATION FAILED: 3 errors occurred:
 
 ![alt text](image.png)
 
+I have added all the respective headers. Not sure what is missing.
+
+![alt text](image-3.png)
+
 - ✅ **Kind Cluster**: If you're using Kind Cluster then you can use Metallb to expose your Nginx Ingress (Check [here](https://metallb.universe.tf/installation/#installation-with-helm))
 
 - ✅ **pgAdmin Ingress issue**: Nginx Ingress does not respect proper redirect for `/pgamin4` when you use NodePort for Nginx Ingress. \
