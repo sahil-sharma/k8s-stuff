@@ -1,0 +1,65 @@
+auth:
+  adminUser: admin
+  adminPassword: admin123
+
+postgresql:
+  enabled: false
+
+externalDatabase:
+  host: 192.168.56.12
+  port: 32432
+  user: keycloak
+  password: keycloakpassword
+  database: keycloakdb
+
+proxy: edge
+#proxyAddressForwarding: true
+#proxyHeaders: xforwarded
+
+extraEnvVars:
+  - name: KEYCLOAK_HOSTNAME
+    value: "keycloak.local"
+  - name: KEYCLOAK_FRONTEND_URL
+    value: "http://keycloak.local"
+  - name: KEYCLOAK_PROXY_ADDRESS_FORWARDING
+    value: "true"
+  - name: KC_HOSTNAME_STRICT_HTTPS
+    value: "false"
+  - name: KC_PROXY_HEADERS
+    value: "xforwarded"
+
+service:
+  http:
+    enabled: true
+
+startupProbe:
+  enabled: false
+livenessProbe:
+  enabled: false
+readinessProbe:
+  enabled: false
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  hostname: keycloak.local
+  annotations:
+    #nginx.ingress.kubernetes.io/configuration-snippet: |
+      #proxy_set_header X-Forwarded-Port 32080;
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: 128k
+    nginx.ingress.kubernetes.io/x-forwarded-proto: "http"
+    nginx.ingress.kubernetes.io/x-forwarded-host: "keycloak.local"
+    nginx.ingress.kubernetes.io/x-forwarded-port: "32080"
+    #nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+  rules:
+  - host: keycloak.local
+    http:
+      paths:
+      - pathType: ImplementationSpecific
+        path: "/*"
+        backend:
+          service:
+            name: keycloak
+            port:
+              name: http

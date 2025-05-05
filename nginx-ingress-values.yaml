@@ -1,0 +1,28 @@
+controller:
+  name: controller
+  kind: Deployment
+
+  service:
+    type: NodePort
+    nodePorts:
+      http: 32080
+      https: 32443
+      tcp:
+        5432: 32432  # PostgreSQL exposed on host:32432 -> pod:5432
+
+  ingressClassResource:
+    name: nginx
+    enabled: true
+    default: true
+
+  extraArgs:
+    tcp-services-configmap: "ingress-nginx/ingress-nginx-tcp"
+
+  metrics:
+    enabled: false
+
+  admissionWebhooks:
+    enabled: false
+
+defaultBackend:
+  enabled: true

@@ -1,0 +1,14 @@
+auth:
+  username: keycloak
+  password: keycloakpassword
+  database: keycloakdb
+
+image:
+  tag: 15.3.0  # Specific PostgreSQL version
+
+primary:
+  persistence:
+    enabled: false  # Use emptyDir for Kind (no dynamic PVs by default)
+  service:
+    type: ClusterIP                   # Internal service for NGINX TCP mapping
+    port: 5432
