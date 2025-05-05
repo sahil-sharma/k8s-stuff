@@ -33,6 +33,7 @@ helm upgrade --install postgres bitnami/postgresql -f postgres-values.yaml --nam
 # Check PGSQL Pod is running
 k get po,svc -n postgres
 ```
+![alt text](image-5.png)
 
 ## Step 3: Install Nginx Ingress
 
@@ -42,6 +43,7 @@ helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx -f nginx-ingres
 # Check Nginx Ingress Pod is running
 k get po,svc,cm -n ingress-nginx
 ```
+![alt text](image-6.png)
 
 ## Step 4: Install pgAdmin
 
@@ -51,6 +53,7 @@ helm upgrade --install pgadmin4 runix/pgadmin4 -f pgadmin-values.yaml --namespac
 # Check pgAdmin Pod is running
 k get po,svc -n pgadmin4
 ```
+![alt text](image-4.png)
 
 ## Step 5: Install Keycloak
 
@@ -58,8 +61,9 @@ k get po,svc -n pgadmin4
 helm upgrade --install keycloak bitnami/keycloak -f keycloak-values.yaml --namespace keycloak --create-namespace
 
 # Check Keycloak Pod is running
-k get po,svc -n keycloak
+k get po,svc,cm -n keycloak
 ```
+![alt text](image-7.png)
 
 <details>
 <summary>⚠️ Notes and Attention (click to expand)</summary>
