@@ -66,13 +66,14 @@ k get po,svc,cm -n keycloak
 ![alt text](image-7.png)
 
 <details>
+
 <summary>⚠️ Notes and Attention (click to expand)</summary>
 
 - ✅ **My set-up is 3 Virtual nodes using vagrant**: Check [this](https://github.com/techiescamp/vagrant-kubeadm-kubernetes/tree/main)
 
 ![alt text](image-2.png)
 
-- ✅ **Pass TCP port to Nginx Ingress during installation**: Nginx Ingress Chart does not respect tcp port in values file \
+- ✅ **Pass TCP port to Nginx Ingress during installation**: Nginx Ingress Chart does not respect tcp port in values file
 (read [here](https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/exposing-tcp-udp-services.md) and [here](https://github.com/kubernetes/ingress-nginx/blob/main/charts/ingress-nginx/values.yaml#L1218))
 
 ```bash
