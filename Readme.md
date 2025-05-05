@@ -93,7 +93,7 @@ I have added all the respective headers. Not sure what is missing.
 
 ![alt text](image-3.png)
 
-- ✅ **Kind Cluster**: If you're using Kind Cluster then you can use Metallb to expose your Nginx Ingress (Check [here](https://metallb.universe.tf/installation/#installation-with-helm))
+- ✅ **Kind Cluster**: If you're using Kind Cluster then you can use Metallb to expose your Nginx Ingress. (Check [here](https://metallb.universe.tf/installation/#installation-with-helm)). It comes up with its own complexity.
 
 - ✅ **pgAdmin Ingress issue**: Nginx Ingress does not respect proper redirect for `/pgamin4` when you use NodePort for Nginx Ingress. \
 Hit `http://<nginx-ingress-node-ip>:32080/pgadmin4` \
