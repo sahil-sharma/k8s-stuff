@@ -97,8 +97,7 @@ I have added all the respective headers. Not sure what is missing.
 
 - ✅ **pgAdmin Ingress issue**: Nginx Ingress does not respect proper redirect for `/pgamin4` when you use NodePort for Nginx Ingress. \
 Hit `http://<nginx-ingress-node-ip>:32080/pgadmin4` \
-Upon entering logging details it redirects back to `http://<nginx-ingress-node-ip>/pgadmin4`. Port is missing. Try to add the port and it works.
-
+Upon entering logging details it redirects back to `http://<nginx-ingress-node-ip>/pgadmin4`. Port is missing. Try to add the port and it works. \
 Also tried to add PGSQL DB details via pgadmin-values.yaml in `server` block (read [here](https://github.com/rowanruseler/helm-charts/blob/main/charts/pgadmin4/values.yaml#L100)) but it failed.
 
 - ✅ **Secret Management**: Secrets can be managed via External Secrets Operator (for AWS).
