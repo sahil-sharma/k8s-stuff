@@ -6,7 +6,7 @@ This guide walks you through deploying **PostgreSQL**,**Nginx Ingress**, **pgAdm
 
 ## Prerequisites
 
-- A running Kubernetes cluster (`kind` or `VM using kubeadm` (Check [this](https://github.com/techiescamp/vagrant-kubeadm-kubernetes/tree/main)))
+- A running Kubernetes cluster (`kind` or `VM using kubeadm`)
 - `kubectl` configured to access your cluster
 - [Helm 3.x](https://helm.sh/docs/intro/install/)
 - Custom `values.yaml` files:
@@ -64,6 +64,10 @@ k get po,svc -n keycloak
 
 <details>
 <summary>⚠️ Notes and Attention (click to expand)</summary>
+
+- ✅ **My set-up is 3 Virtual nodes using vagrant**: Check [this](https://github.com/techiescamp/vagrant-kubeadm-kubernetes/tree/main)
+
+![alt text](image-2.png)
 
 - ✅ **Pass TCP port to Nginx Ingress during installation**: Nginx Ingress Chart does not respect tcp port in values file \
 (read [here](https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/exposing-tcp-udp-services.md) and [here](https://github.com/kubernetes/ingress-nginx/blob/main/charts/ingress-nginx/values.yaml#L1218))
