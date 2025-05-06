@@ -107,3 +107,39 @@ Also tried to add PGSQL DB details via pgadmin-values.yaml in `server` block (re
 - ✅ **Secret Management**: Secrets can be managed via External Secrets Operator (for AWS).
 
 </details>
+
+# Install all the above charts with Helmfile
+
+## Step 1: Download the Latest Release
+
+```bash
+curl -LO https://github.com/helmfile/helmfile/releases/latest/download/helmfile_linux_amd64
+```
+
+## Step 2: Make It Executable
+```bash
+chmod +x helmfile_linux_amd64
+```
+
+## Step 3: Move It to a Directory in Your `PATH`
+```bash
+sudo mv helmfile_linux_amd64 /usr/local/bin/helmfile
+```
+
+## Step 4: Verify Installation
+```bash
+helmfile --version
+```
+
+## Step 5: Install All Charts Defined in Your helmfile.yaml
+```bash
+helmfile apply
+```
+> **ℹ️ Note:**  
+> Running `helmfile apply` will:
+>
+> - Add the chart repositories.
+> - Sync each release (performs `helm upgrade --install` behavior).
+> - Create namespaces if they don’t already exist.
+> - Apply each custom `values.yaml` file and any `--set` overrides.
+> - Dry Run with `helmfile diff`

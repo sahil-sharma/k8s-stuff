@@ -1,0 +1,47 @@
+# helmfile.yaml
+
+repositories:
+  - name: ingress-nginx
+    url: https://kubernetes.github.io/ingress-nginx
+
+  - name: bitnami
+    url: https://charts.bitnami.com/bitnami
+
+  - name: runix
+    url: https://helm.runix.net
+
+releases:
+  - name: postgres
+    namespace: postgres
+    createNamespace: true
+    chart: bitnami/postgresql
+    version: 16.6.6
+    values:
+      - postgres-values.yaml
+
+  - name: ingress-nginx
+    namespace: ingress-nginx
+    createNamespace: true
+    chart: ingress-nginx/ingress-nginx
+    version: 4.12.2
+    values:
+      - nginx-ingress-values.yaml
+    set:
+      - name: tcp.5432
+        value: "postgres/postgresql:5432"
+
+  - name: pgadmin4
+    namespace: pgadmin4
+    createNamespace: true
+    chart: runix/pgadmin4
+    version: 1.42.0
+    values:
+      - pgadmin-values.yaml
+
+  - name: keycloak
+    namespace: keycloak
+    createNamespace: true
+    chart: bitnami/keycloak
+    version: 24.6.3
+    values:
+      - keycloak-values.yaml
