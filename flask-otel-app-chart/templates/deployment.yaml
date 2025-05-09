@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ include "flask-crud-app.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "flask-crud-app.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "flask-crud-app.name" . }}
+    spec:
+      serviceAccountName: {{ .Release.Name }}
+      containers:
+        - name: {{ include "flask-crud-app.name" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 5000
+          env:
+            - name: FLASK_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}
+                  key: FLASK_ENV
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}
+                  key: flaskSecretKey
+          resources:
+            requests:
+              memory: {{ .Values.resources.requests.memory | default "256Mi" }}
+              cpu: {{ .Values.resources.requests.cpu | default "250m" }}
+            limits:
+              memory: {{ .Values.resources.limits.memory | default "512Mi" }}
+              cpu: {{ .Values.resources.limits.cpu | default "500m" }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.readinessProbe.path | default "/" }}
+              port: {{ .Values.readinessProbe.port | default 5000 }}
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds | default 5 }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds | default 5 }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold | default 3 }}
+            successThreshold: {{ .Values.readinessProbe.successThreshold | default 1 }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.livenessProbe.path | default "/" }}
+              port: {{ .Values.livenessProbe.port | default 5000 }}
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds | default 10 }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds | default 5 }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold | default 3 }}
+            successThreshold: {{ .Values.livenessProbe.successThreshold | default 1 }}

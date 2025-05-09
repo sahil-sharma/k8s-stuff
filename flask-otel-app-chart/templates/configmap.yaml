@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ include "flask-crud-app.name" . }}
+data:
+  FLASK_ENV: {{ .Values.config.environment }}
