@@ -1,6 +1,6 @@
-# Kubernetes Deployment with Helm: PostgreSQL, Nginx Ingress, pgAdmin, and Keycloak
+# Kubernetes Deployment with Helm: PostgreSQL, Nginx Ingress, pgAdmin, Keycloak, and ArgoCD
 
-This guide walks you through deploying **PostgreSQL**,**Nginx Ingress**, **pgAdmin**, and **Keycloak** in a Kubernetes cluster using Helm with custom `values.yaml` configuration files.
+This guide walks you through deploying **PostgreSQL**,**Nginx Ingress**, **pgAdmin**, **Keycloak**, and **ArgoCD**  in a Kubernetes cluster using Helm with custom `values.yaml` configuration files.
 
 ---
 
