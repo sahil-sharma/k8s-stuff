@@ -1,6 +1,10 @@
 controller:
   name: controller
   kind: Deployment
+  config:
+    use-forwarded-headers: "true"
+    compute-full-forwarded-for: "true"
+    forwarded-for-header: "X-Forwarded-For"
 
   service:
     type: NodePort

@@ -1,0 +1,70 @@
+crds:
+  install: true
+
+global:
+  domain: cd.local
+
+redis-ha:
+  enabled: false
+
+controller:
+  replicas: 1
+
+server:
+  replicas: 1
+  ingress:
+    enabled: true
+    tls: false
+    ingressClassName: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    rules:
+    - host: cd.local
+      http:
+        paths:
+        - pathType: Prefix
+          path: "/"
+          backend:
+          service:
+            name: argocd-server
+            port:
+              name: http
+  extraArgs:
+    - --insecure
+
+repoServer:
+  replicas: 1
+  # envFrom:
+  #   - secretRef:
+  #       name: private-repo-secret       # Private Repo secret name
+
+applicationSet:
+  replicas: 1
+
+configs:
+  repositories:
+    reloader-helm-repo:
+      type: helm
+      url: https://stakater.github.io/stakater-charts
+      name: reloader
+      project: default
+    bitnami-helm-repo:
+      type: helm
+      url: https://charts.bitnami.com/bitnami
+      name: bitnami
+      project: default
+    external-secrets-helm-repo:
+      type: helm
+      name: eso
+      url: https://charts.external-secrets.io
+    flask-app-repo:
+      type: git
+      url: https://github.com/sahil-sharma/flask-otel-app.git
+      name: flask-otel-app
+      project: default
+    # private-repo:
+    # url: https://github.com/<username><repo-name>
+    # name: private-repo
+    # project: default
+        
