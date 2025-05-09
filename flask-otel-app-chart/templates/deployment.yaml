@@ -42,7 +42,7 @@ spec:
                 configMapKeyRef:
                   name: {{ .Release.Name }}-config
                   key: pg_username
-            - name: JWT_SECRET_KEY
+            - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}-secrets
