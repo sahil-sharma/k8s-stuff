@@ -1,6 +1,7 @@
 # Kubernetes Deployment with Helm: PostgreSQL, Nginx Ingress, pgAdmin, Keycloak, and ArgoCD
 
-This guide walks you through deploying **PostgreSQL**,**Nginx Ingress**, **pgAdmin**, **Keycloak**, and **ArgoCD**  in a Kubernetes cluster using Helm with custom `values.yaml` configuration files.
+This guide walks you through deploying **PostgreSQL**,**Nginx Ingress**, **pgAdmin**, **Keycloak**, and **ArgoCD
+**  in a Kubernetes cluster using Helm with custom `values.yaml` configuration files.
 
 ---
 
@@ -34,7 +35,6 @@ helm upgrade --install postgres bitnami/postgresql -f postgres-values.yaml --nam
 # Check PGSQL Pod is running
 k get po,svc -n postgres
 ```
-![alt text](image-5.png)
 
 ## Step 3: Install Nginx Ingress
 
@@ -44,7 +44,6 @@ helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx -f nginx-ingres
 # Check Nginx Ingress Pod is running
 k get po,svc,cm -n ingress-nginx
 ```
-![alt text](image-6.png)
 
 ## Step 4: Install pgAdmin
 
@@ -54,7 +53,6 @@ helm upgrade --install pgadmin4 runix/pgadmin4 -f pgadmin-values.yaml --namespac
 # Check pgAdmin Pod is running
 k get po,svc -n pgadmin4
 ```
-![alt text](image-4.png)
 
 ## Step 5: Install Keycloak
 
@@ -64,7 +62,6 @@ helm upgrade --install keycloak bitnami/keycloak -f keycloak-values.yaml --names
 # Check Keycloak Pod is running
 k get po,svc,cm -n keycloak
 ```
-![alt text](image-7.png)
 
 ## Step 6: Install ArgoCD
 
