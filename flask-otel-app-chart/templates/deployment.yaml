@@ -22,16 +22,36 @@ spec:
           ports:
             - containerPort: 5000
           env:
-            - name: FLASK_ENV
+            - name: pg_host
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Release.Name }}
-                  key: FLASK_ENV
-            - name: SECRET_KEY
+                  name: {{ .Release.Name }}-config
+                  key: pg_host
+            - name: pg_port
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-config
+                  key: pg_port
+            - name: pg_db
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-config
+                  key: pg_db
+            - name: pg_username
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-config
+                  key: pg_username
+            - name: JWT_SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}
-                  key: flaskSecretKey
+                  name: {{ .Release.Name }}-secrets
+                  key: jwt_secret_key
+            - name: pg_password
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secrets
+                  key: pg_password
           resources:
             requests:
               memory: {{ .Values.resources.requests.memory | default "256Mi" }}

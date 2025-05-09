@@ -63,10 +63,14 @@ pdb:
   minAvailable: 1
 
 config:
-  environment: development
+  pg_host: postgres/postgresql
+  pg_port: 5432
+  pg_db: flaskdb
+  pg_username: flaskuser
 
-secret:
-  flaskSecretKey: your-super-secret-key
+secrets:
+  jwt_secret_key: jwtsecretkey
+  pg_password: flaskdbpassword
 
 serviceAccount:
   create: true
