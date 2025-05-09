@@ -63,6 +63,7 @@ configs:
       url: https://github.com/sahil-sharma/flask-otel-app.git
       name: flask-otel-app
       project: default
+    # How to add a Private Repo in ArgoCD
     # private-repo:
     # url: https://github.com/<username><repo-name>
     # name: private-repo
