@@ -14,7 +14,7 @@ This Helm chart deploys a simple Flask-based CRUD application to a Kubernetes cl
 
 ## Installation
 
-1. **Clone the repo:**
+1. **Install the Helm Chart:**
 
 ```bash
 helm upgrade --install my-app ./flask-otel-app-chart -namespace my-app --create-namespace
