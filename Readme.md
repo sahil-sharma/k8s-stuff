@@ -78,8 +78,6 @@ k get po,svc -n arogcd
 
 - ✅ **My set-up is 3 Virtual nodes using vagrant**: Check [this](https://github.com/techiescamp/vagrant-kubeadm-kubernetes/tree/main)
 
-![alt text](image-2.png)
-
 - ✅ **Pass TCP port to Nginx Ingress during installation**: Nginx Ingress Chart does not respect tcp port in values file
 (read [this](https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/exposing-tcp-udp-services.md) and [this](https://github.com/kubernetes/ingress-nginx/blob/main/charts/ingress-nginx/values.yaml#L1218))
 
@@ -98,11 +96,7 @@ Error: INSTALLATION FAILED: 3 errors occurred:
 ```
 - ✅ **Keycloak throws Error**: Keycloak Bitnami Chart (read [this](https://github.com/keycloak/keycloak/issues/33330) and [this](https://github.com/keycloak/keycloak/issues/30471))
 
-![alt text](image.png)
-
 I have added all the respective headers. Not sure what is missing.
-
-![alt text](image-3.png)
 
 - ✅ **Kind Cluster**: If you're using Kind Cluster then you can use Metallb to expose your Nginx Ingress. (Check [this](https://metallb.universe.tf/installation/#installation-with-helm)). It comes up with its own complexity.
 
