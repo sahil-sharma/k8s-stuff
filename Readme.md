@@ -22,6 +22,7 @@ This guide walks you through deploying **PostgreSQL**,**Nginx Ingress**, **pgAdm
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo add runix https://helm.runix.net
+help repo add argocd https://argoproj.github.io/argo-helm
 helm repo update
 ```
 
@@ -64,6 +65,15 @@ helm upgrade --install keycloak bitnami/keycloak -f keycloak-values.yaml --names
 k get po,svc,cm -n keycloak
 ```
 ![alt text](image-7.png)
+
+## Step 6: Install ArgoCD
+
+```bash
+helm upgrade --install argocd argocd/argo-cd -f argocd-values.yaml --namespace argocd --create-namespace
+
+# Check Keycloak Pod is running
+k get po,svc -n arogcd
+```
 
 <details>
 
