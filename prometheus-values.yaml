@@ -1,0 +1,37 @@
+alertmanager:
+  enabled: true
+  service:
+    type: ClusterIP
+  persistentVolume:
+    enabled: false
+
+nodeExporter:
+  enabled: true
+  service:
+    type: ClusterIP
+
+pushgateway:
+  enabled: false
+
+server:
+  persistentVolume:
+    enabled: false
+  service:
+    type: ClusterIP
+  resources:
+    requests:
+      memory: 200Mi
+      cpu: 100m
+    limits:
+      memory: 500Mi
+      cpu: 200m
+  ingress:
+    enabled: true
+    hosts:
+      - prometheus.local
+
+# Scrape configs can be added to target your Flask app
+additionalScrapeConfigs:
+  - job_name: 'flask-app'
+    static_configs:
+      - targets: ['flask-app.flask-app.svc.cluster.local:5000']
