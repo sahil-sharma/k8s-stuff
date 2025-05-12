@@ -23,10 +23,12 @@ ingress:
   ingressClassName: nginx
   annotations:
     kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "http://pgadmin.local"
     nginx.ingress.kubernetes.io/configuration-snippet: |
       proxy_set_header X-Script-Name /pgadmin4;
   hosts:
-    - host: ""
+    - host: "pgadmin.local"
       paths:
         - path: /pgadmin4
           pathType: Prefix
