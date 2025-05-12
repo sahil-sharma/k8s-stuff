@@ -5,7 +5,7 @@ metadata:
   labels:
     app: {{ include "flask-crud-app.name" . }}
 data:
-  pg_host: {{ .Values.config.pg_host | quote }}
-  pg_port: {{ .Values.config.pg_port | quote }}
-  pg_db: {{ .Values.config.pg_db | quote }}
-  pg_username: {{ .Values.config.pg_username | quote }}
+  DB_HOST: {{ .Values.config.DB_HOST | quote }}
+  DB_PORT: {{ .Values.config.DB_PORT | quote }}
+  DB_NAME: {{ .Values.config.DB_NAME | quote }}
+  DB_USER: {{ .Values.config.DB_USER | quote }}
