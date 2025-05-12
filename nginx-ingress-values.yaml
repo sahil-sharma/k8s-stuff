@@ -19,8 +19,8 @@ controller:
     enabled: true
     default: true
 
-  extraArgs:
-    tcp-services-configmap: "ingress-nginx/ingress-nginx-tcp"
+  # extraArgs:
+  #   tcp-services-configmap: "ingress-nginx/ingress-nginx-tcp"
 
   metrics:
     enabled: false
