@@ -22,36 +22,36 @@ spec:
           ports:
             - containerPort: 5000
           env:
-            - name: pg_host
+            - name: DB_HOST
               valueFrom:
                 configMapKeyRef:
                   name: {{ .Release.Name }}-config
-                  key: pg_host
-            - name: pg_port
+                  key: DB_HOST
+            - name: DB_PORT
               valueFrom:
                 configMapKeyRef:
                   name: {{ .Release.Name }}-config
-                  key: pg_port
-            - name: pg_db
+                  key: DB_PORT
+            - name: DB_NAME
               valueFrom:
                 configMapKeyRef:
                   name: {{ .Release.Name }}-config
-                  key: pg_db
-            - name: pg_username
+                  key: DB_NAME
+            - name: DB_USER
               valueFrom:
                 configMapKeyRef:
                   name: {{ .Release.Name }}-config
-                  key: pg_username
+                  key: DB_USER
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}-secrets
-                  key: jwt_secret_key
-            - name: pg_password
+                  key: JWT_SECRET
+            - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}-secrets
-                  key: pg_password
+                  key: DB_PASSWORD
           resources:
             requests:
               memory: {{ .Values.resources.requests.memory | default "256Mi" }}
