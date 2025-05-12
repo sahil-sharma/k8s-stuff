@@ -3,9 +3,6 @@ auth:
   password: keycloakpassword
   database: keycloakdb
 
-image:
-  tag: 15.3.0  # Specific PostgreSQL version
-
 primary:
   persistence:
     enabled: false  # Use emptyDir for Kind (no dynamic PVs by default)
