@@ -26,7 +26,7 @@ ingress:
     nginx.ingress.kubernetes.io/configuration-snippet: |
       proxy_set_header X-Script-Name /pgadmin4;
   hosts:
-    - host: "*"
+    - host: ""
       paths:
         - path: /pgadmin4
           pathType: Prefix
