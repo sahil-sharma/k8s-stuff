@@ -33,6 +33,10 @@ server:
   extraArgs:
     - --insecure
 
+rbac:
+  policy: |
+    g, argocd-admins, role:admin
+
 repoServer:
   replicas: 1
   # envFrom:
@@ -43,7 +47,16 @@ applicationSet:
   replicas: 1
 
 configs:
-  repositories:
+  clusterCredentials:
+    mycluster:
+      server: https://mycluster.example.com
+      labels: {}
+      annotations: {}
+      config:
+        bearerToken: "<authentication token>"
+        tlsClientConfig:
+          insecure: false
+          caData: "<base64 encoded certificate>"
     reloader-helm-repo:
       type: helm
       url: https://stakater.github.io/stakater-charts

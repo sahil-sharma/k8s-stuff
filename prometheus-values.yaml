@@ -26,12 +26,12 @@ server:
       memory: 500Mi
       cpu: 200m
   ingress:
-    enabled: true
+    enabled: false
     hosts:
       - prometheus.local
 
 # Scrape configs can be added to target your Flask app
 additionalScrapeConfigs:
-  - job_name: 'flask-app'
+  - job_name: 'python3-debian'
     static_configs:
-      - targets: ['flask-app.flask-app.svc.cluster.local:5000']
+       - targets: ['python3-debian.default.svc.cluster.local:8000']

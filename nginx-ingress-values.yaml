@@ -11,8 +11,8 @@ controller:
     nodePorts:
       http: 32080
       https: 32443
-      tcp:
-        5432: 32432  # PostgreSQL exposed on host:32432 -> pod:5432
+      #tcp:
+      #  5432: 32432  # PostgreSQL exposed on host:32432 -> pod:5432
 
   ingressClassResource:
     name: nginx

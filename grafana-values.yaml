@@ -29,7 +29,16 @@ datasources:
         type: prometheus
         access: proxy
         url: http://prometheus-server.prometheus.svc.cluster.local
+        isDefault: false
+      - name: Loki
+        type: loki
+        access: proxy
+        url: http://loki-gateway.loki.svc.cluster.local
         isDefault: true
+        jsonData:
+          httpHeaderName1: "X-Scope-OrgID"
+        secureJsonData:
+          httpHeaderValue1: "flask-app"
 
 dashboardProviders:
   dashboardproviders.yaml:
@@ -50,3 +59,7 @@ dashboards:
       gnetId: 11074  # Example dashboard ID for a Python app
       revision: 1
       datasource: Prometheus
+    flask-app-logs:
+      gnetId: 13639  # Grafana Loki Logs dashboard
+      revision: 1
+      datasource: Loki
