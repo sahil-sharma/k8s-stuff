@@ -9,3 +9,4 @@ data:
   DB_PORT: {{ .Values.config.DB_PORT | quote }}
   DB_NAME: {{ .Values.config.DB_NAME | quote }}
   DB_USER: {{ .Values.config.DB_USER | quote }}
+  OTLP_ENDPOINT: {{ .Values.config.OTLP_ENDPOINT | quote }}

@@ -1,9 +1,9 @@
-replicaCount: 2
+replicaCount: 1
 
 image:
   repository: bonyscott/flask-otel-app
-  tag: v1
-  pullPolicy: Always
+  tag: "c0cb08b"
+  pullPolicy: IfNotPresent
 
 service:
   type: ClusterIP
@@ -59,18 +59,19 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
 
 pdb:
-  enabled: true
+  enabled: false
   minAvailable: 1
 
 config:
-  DB_HOST: postgres/postgresql
+  DB_HOST: postgres-postgresql.postgres
   DB_PORT: 5432
   DB_NAME: flaskdb
   DB_USER: flaskuser
+  OTLP_ENDPOINT: http://open-telemetry-opentelemetry-collector.otel-collector:4318/v1/traces
 
 secrets:
   JWT_SECRET: jwtsecretkey
-  DB_PASSWORD: flaskdbpassword
+  DB_PASSWORD: flaskpassword
 
 serviceAccount:
   create: true
