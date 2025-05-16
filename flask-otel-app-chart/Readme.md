@@ -12,10 +12,14 @@ This Helm chart deploys a simple Flask-based CRUD application to a Kubernetes cl
 - Resource limits and requests
 - ServiceAccount for RBAC
 
+## Code for the Application
+
+You can read the code for the application [here](https://github.com/sahil-sharma/flask-otel-app/)
+
 ## Installation
 
 1. **Install the Helm Chart:**
 
 ```bash
-helm upgrade --install my-app ./flask-otel-app-chart -namespace my-app --create-namespace
+helm upgrade --install flask-app ./flask-otel-app-chart -namespace flask-app --create-namespace
 ```

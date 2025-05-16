@@ -1,7 +1,6 @@
-# Kubernetes Deployment with Helm: PostgreSQL, Nginx Ingress, pgAdmin, Keycloak, and ArgoCD
+# Kubernetes Deployment with Helm
 
-This guide walks you through deploying **PostgreSQL**,**Nginx Ingress**, **pgAdmin**, **Keycloak**, and **ArgoCD
-**  in a Kubernetes cluster using Helm with custom `values.yaml` configuration files.
+This guide walks you through deploying **PostgreSQL**,**Nginx Ingress**, **pgAdmin**, **Keycloak**, **Prometheus**, **Promtail**, **Loki**, **Tempo**, **OTEL-Collector**, **Grafana**, **Flask CRUD Application**, **Reloader**, and **ArgoCD**  in a Kubernetes cluster using Helm with custom `values.yaml` configuration files.
 
 ---
 
@@ -12,9 +11,16 @@ This guide walks you through deploying **PostgreSQL**,**Nginx Ingress**, **pgAdm
 - [Helm 3.x](https://helm.sh/docs/intro/install/)
 - Custom `values.yaml` files:
   - `postgres-values.yaml`
-  - `nginx-ingress-values.yaml`
   - `pgadmin-values.yaml`
+  - `prometheus-values.yaml`
+  - `loki-values.yaml`
+  - `promtail-values.yaml`
+  - `tempo-values.yaml`
+  - `otel-collector-values.yaml`
+  - `grafana-values.yaml`
   - `keycloak-values.yaml`
+  - `nginx-ingress-values.yaml`
+  - `argocd-values.yaml`
 ---
 
 ## Step 1: Add Helm Repositories
