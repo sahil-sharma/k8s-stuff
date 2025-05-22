@@ -33,7 +33,7 @@ readinessProbe:
   periodSeconds: 5
   failureThreshold: 3
   successThreshold: 1
-  path: "/"
+  path: "/healthz"
   port: 5000
 
 livenessProbe:
@@ -41,7 +41,7 @@ livenessProbe:
   periodSeconds: 5
   failureThreshold: 3
   successThreshold: 1
-  path: "/"
+  path: "/healthz"
   port: 5000
 
 resources:

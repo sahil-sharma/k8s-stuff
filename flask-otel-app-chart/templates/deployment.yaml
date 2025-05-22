@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ .Release.Name }}-deployment
   labels:
-    app: {{ include "flask-crud-app.name" . }}
+    app: {{ include "flask-app.name" . }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "flask-crud-app.name" . }}
+      app: {{ include "flask-app.name" . }}
   template:
     metadata:
       labels:
-        app: {{ include "flask-crud-app.name" . }}
+        app: {{ include "flask-app.name" . }}
     spec:
       serviceAccountName: {{ .Release.Name }}
       containers:
-        - name: {{ include "flask-crud-app.name" . }}
+        - name: {{ include "flask-app.name" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
