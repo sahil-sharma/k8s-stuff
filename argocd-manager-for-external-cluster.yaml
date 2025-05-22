@@ -1,4 +1,10 @@
 # Resources to create in Cluster-B so that ArgoCD can access it
+# SECRET_NAME=argocd-manager-token
+# NAMESPACE=kube-system
+# SERVER_ADDRESS=$(kubectl config view --kubeconfig .kube/config --minify -o jsonpath='{.clusters[0].cluster.server}')
+# TOKEN=$(kubectl get secret $SECRET_NAME -n $NAMESPACE -o jsonpath='{.data.token}' | base64 -d)
+# CA=$(kubectl get secret $SECRET_NAME -n $NAMESPACE -o jsonpath='{.data.ca\.crt}')
+
 ---
 apiVersion: v1
 kind: ServiceAccount
