@@ -1,4 +1,4 @@
-# Flask CRUD App Helm Chart
+# Flask App Helm Chart
 
 This Helm chart deploys a simple Flask-based CRUD application to a Kubernetes cluster. It includes resources such as Deployment, Service, Ingress, ConfigMap, Secret, HPA, PDB, and ServiceAccount.
 
