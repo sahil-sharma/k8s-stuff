@@ -48,15 +48,15 @@ applicationSet:
 
 configs:
   clusterCredentials:
-    mycluster:
+    app-cluster:
+      name: app-cluster
       server: https://mycluster.example.com
-      labels: {}
-      annotations: {}
       config:
         bearerToken: "<authentication token>"
         tlsClientConfig:
           insecure: false
           caData: "<base64 encoded certificate>"
+  repositories:
     reloader-helm-repo:
       type: helm
       url: https://stakater.github.io/stakater-charts
