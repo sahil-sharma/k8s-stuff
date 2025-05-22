@@ -1,0 +1,195 @@
+---
+# Install Nginx Ingress
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ingress-nginx
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    namespace: ingress-nginx
+    server: 'https://192.168.56.70:6443'
+  sources:
+    - repoURL: 'https://github.com/sahil-sharma/k8s-stuff'
+      targetRevision: main
+      ref: values
+    - repoURL: 'https://kubernetes.github.io/ingress-nginx'
+      chart: ingress-nginx
+      targetRevision: 4.12.2
+      helm:
+        valueFiles:
+          - $values/nginx-ingress-values.yaml
+        parameters:
+          - name: tcp.5432
+            value: "postgresql/postgresql:5432"
+  revisionHistoryLimit: 2
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+# Install Postgres
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: postgresql
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    namespace: postgresql
+    server: 'https://192.168.56.70:6443'
+  sources:
+    - repoURL: 'https://github.com/sahil-sharma/k8s-stuff'
+      targetRevision: main
+      ref: values
+    - repoURL: 'https://charts.bitnami.com/bitnami'
+      chart: postgresql
+      targetRevision: 16.6.7
+      helm:
+        valueFiles:
+          - $values/postgres-values.yaml
+  revisionHistoryLimit: 2
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+# Install pgAdmin
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: pgadmin
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    namespace: pgadmin4
+    server: 'https://192.168.56.70:6443'
+  sources:
+    - repoURL: 'https://github.com/sahil-sharma/k8s-stuff'
+      targetRevision: main
+      ref: values
+    - repoURL: 'https://helm.runix.net'
+      chart: pgadmin4
+      targetRevision: 1.42.0
+      helm:
+        valueFiles:
+          - $values/pgadmin-values.yaml
+  revisionHistoryLimit: 2
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+# Install Reloader
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: reloader
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    namespace: reloader
+    server: 'https://192.168.56.70:6443'
+  sources:
+    - repoURL: 'https://stakater.github.io/stakater-charts'
+      chart: reloader
+      targetRevision: 2.1.3
+  revisionHistoryLimit: 2
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+# Install Prometheus
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prometheus
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    namespace: prometheus
+    server: 'https://192.168.56.70:6443'
+  sources:
+    - repoURL: 'https://github.com/sahil-sharma/k8s-stuff'
+      targetRevision: main
+      ref: values
+    - repoURL: 'https://prometheus-community.github.io/helm-charts'
+      chart: prometheus
+      targetRevision: 27.13.0
+      helm:
+        valueFiles:
+          - $values/prometheus-values.yaml
+  revisionHistoryLimit: 2
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+# Install Grafana
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: grafana
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    namespace: grafana
+    server: 'https://192.168.56.70:6443'
+  sources:
+    - repoURL: 'https://github.com/sahil-sharma/k8s-stuff'
+      targetRevision: main
+      ref: values
+    - repoURL: 'https://grafana.github.io/helm-charts'
+      chart: grafana
+      targetRevision: 9.0.0
+      helm:
+        valueFiles:
+          - $values/grafana-values.yaml
+  revisionHistoryLimit: 2
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+# Install Flask APP
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: flask-app
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    namespace: flask-app
+    server: 'https://192.168.56.70:6443'
+  sources:
+    - repoURL: 'https://github.com/sahil-sharma/k8s-stuff'
+      path: flask-otel-app-chart
+      targetRevision: main
+  revisionHistoryLimit: 2
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
