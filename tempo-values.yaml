@@ -1,0 +1,19 @@
+traces:
+  otlp:
+    grpc:
+      enabled: true
+    http:
+      enabled: true
+
+tempo:
+  metricsGenerator:
+    enabled: true
+
+  storage:
+    trace:
+      backend: local
+      local:
+        path: /tmp/tempo
+
+service:
+  type: ClusterIP
