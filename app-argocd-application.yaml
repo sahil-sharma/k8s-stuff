@@ -1,5 +1,6 @@
 ---
 # Install Nginx Ingress
+
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -32,6 +33,7 @@ spec:
       - CreateNamespace=true
 ---
 # Install Postgres
+
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -61,6 +63,7 @@ spec:
       - CreateNamespace=true
 ---
 # Install pgAdmin
+
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -90,6 +93,7 @@ spec:
       - CreateNamespace=true
 ---
 # Install Reloader
+
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -113,6 +117,7 @@ spec:
       - CreateNamespace=true
 ---
 # Install Prometheus
+
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -141,7 +146,128 @@ spec:
     syncOptions:
       - CreateNamespace=true
 ---
+# Install Promtail
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: promtail
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    namespace: promtail
+    server: 'https://192.168.56.70:6443'
+  sources:
+    - repoURL: 'https://github.com/sahil-sharma/k8s-stuff'
+      targetRevision: main
+      ref: values
+    - repoURL: 'https://grafana.github.io/helm-charts'
+      chart: promtail
+      targetRevision: 6.16.6
+      helm:
+        valueFiles:
+          - $values/promtail-values.yaml
+  revisionHistoryLimit: 2
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+# Install Loki
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: loki
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    namespace: loki
+    server: 'https://192.168.56.70:6443'
+  sources:
+    - repoURL: 'https://github.com/sahil-sharma/k8s-stuff'
+      targetRevision: main
+      ref: values
+    - repoURL: 'https://grafana.github.io/helm-charts'
+      chart: loki
+      targetRevision: 6.30.0
+      helm:
+        valueFiles:
+          - $values/loki-values.yaml
+  revisionHistoryLimit: 2
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+# Install Tempo
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tempo
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    namespace: tempo
+    server: 'https://192.168.56.70:6443'
+  sources:
+    - repoURL: 'https://github.com/sahil-sharma/k8s-stuff'
+      targetRevision: main
+      ref: values
+    - repoURL: 'https://grafana.github.io/helm-charts'
+      chart: tempo
+      targetRevision: 1.21.1
+      helm:
+        valueFiles:
+          - $values/tempo-values.yaml
+  revisionHistoryLimit: 2
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+# Install OTEL-Collector
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: otel-collector
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    namespace: otel-collector
+    server: 'https://192.168.56.70:6443'
+  sources:
+    - repoURL: 'https://github.com/sahil-sharma/k8s-stuff'
+      targetRevision: main
+      ref: values
+    - repoURL: 'https://open-telemetry.github.io/opentelemetry-helm-charts'
+      chart: opentelemetry-collector
+      targetRevision: 0.125.0
+      helm:
+        valueFiles:
+          - $values/otel-collector-values.yaml
+  revisionHistoryLimit: 2
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
 # Install Grafana
+
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -171,6 +297,7 @@ spec:
       - CreateNamespace=true
 ---
 # Install Flask APP
+
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:

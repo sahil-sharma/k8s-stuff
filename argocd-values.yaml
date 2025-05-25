@@ -18,7 +18,7 @@ server:
     ingressClassName: nginx
     annotations:
       nginx.ingress.kubernetes.io/rewrite-target: /
-      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      #nginx.ingress.kubernetes.io/ssl-redirect: "true"
     rules:
     - host: cd.local
       http:
@@ -57,26 +57,47 @@ configs:
           insecure: false
           caData: "<base64 encoded certificate>"
   repositories:
-    reloader-helm-repo:
+    pgadmin:
+      type: helm
+      name: pgadmin
+      url: https://helm.runix.net
+    reloader:
       type: helm
       url: https://stakater.github.io/stakater-charts
       name: reloader
       project: default
-    bitnami-helm-repo:
+    bitnami:
       type: helm
       url: https://charts.bitnami.com/bitnami
       name: bitnami
       project: default
-    external-secrets-helm-repo:
+    external-secrets:
       type: helm
       name: eso
       url: https://charts.external-secrets.io
-    flask-app-repo:
+    ingress-nginx:
+      type: helm
+      name: ingress-nginx
+      url: https://kubernetes.github.io/ingress-nginx
+    grafana:
+      type: helm
+      name: grafana
+      url: https://grafana.github.io/helm-charts
+    prometheus:
+      type: helm
+      name: grafana
+      url: https://prometheus-community.github.io/helm-charts
+    otel-collector:
+      type: helm
+      name: otel-collector
+      url: https://open-telemetry.github.io/opentelemetry-helm-charts
+    flask-app:
       type: git
-      url: https://github.com/sahil-sharma/flask-otel-app.git
-      name: flask-otel-app
+      url: https://github.com/sahil-sharma/k8s-stuff.git
+      name: flask-app
       project: default
-    # How to add a Private Repo in ArgoCD
+
+# How to add a Private Repo in ArgoCD
     # private-repo:
     # url: https://github.com/<username><repo-name>
     # name: private-repo
