@@ -29,7 +29,7 @@ This guide walks you through deploying **PostgreSQL**,**Nginx Ingress**, **pgAdm
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo add runix https://helm.runix.net
-help repo add argocd https://argoproj.github.io/argo-helm
+helm repo add argocd https://argoproj.github.io/argo-helm
 helm repo update
 ```
 
