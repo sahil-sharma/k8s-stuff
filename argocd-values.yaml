@@ -2,13 +2,16 @@ crds:
   install: true
 
 global:
-  domain: cd.local
+  domain: cd.local.io
 
 redis-ha:
   enabled: false
 
 controller:
   replicas: 1
+
+dex:
+  enabled: false
 
 server:
   replicas: 1
@@ -20,7 +23,7 @@ server:
       nginx.ingress.kubernetes.io/rewrite-target: /
       #nginx.ingress.kubernetes.io/ssl-redirect: "true"
     rules:
-    - host: cd.local
+    - host: cd.local.io
       http:
         paths:
         - pathType: Prefix
@@ -35,7 +38,11 @@ server:
 
 rbac:
   policy: |
-    g, argocd-admins, role:admin
+    g, argocd, role:admin
+    p, role:admin, applications, *, */*, allow
+  groups.claim: groups
+  policy.default: role:readonly
+  scopes: "[openid profile email groups]"
 
 repoServer:
   replicas: 1
@@ -47,15 +54,26 @@ applicationSet:
   replicas: 1
 
 configs:
-  clusterCredentials:
-    app-cluster:
-      name: app-cluster
-      server: https://mycluster.example.com
-      config:
-        bearerToken: "<authentication token>"
-        tlsClientConfig:
-          insecure: false
-          caData: "<base64 encoded certificate>"
+  cm:
+    admin.enabled: false
+    url: http://cd.local.io:32080
+    oidc.config: |
+      name: Keycloak
+      issuer: https://keycloak.local.io:32443/realms/master
+      clientID: argocd
+      clientSecret: zPvVSmKP7QqK0ooWNZcsZtVpAfvPITbA
+      requestedScopes: ["openid", "profile", "email", "groups"]
+    oidc.tls.insecure.skip.verify: "true"
+
+  # clusterCredentials:
+  #   app-cluster:
+  #     name: app-cluster
+  #     server: https://mycluster.example.com
+  #     config:
+  #       bearerToken: "<authentication token>"
+  #       tlsClientConfig:
+  #         insecure: false
+  #         caData: "<base64 encoded certificate>"
   repositories:
     pgadmin:
       type: helm
@@ -96,7 +114,6 @@ configs:
       url: https://github.com/sahil-sharma/k8s-stuff.git
       name: flask-app
       project: default
-
 # How to add a Private Repo in ArgoCD
     # private-repo:
     # url: https://github.com/<username><repo-name>
