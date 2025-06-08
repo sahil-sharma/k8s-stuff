@@ -1,0 +1,102 @@
+crds:
+  install: true
+  keep: false
+
+controller:
+  enabled: true
+  workflowNamespaces:
+    - default
+  metrics:
+    enabled: true
+  serviceAccount:
+    create: true
+    name: argo-workflows-controller
+  metricsConfig:
+    enabled: true
+  podAnnotations:
+    prometheus.io/path: '/metrics'
+    prometheus.io/port: '9090'
+    prometheus.io/scrape: 'true'
+
+metrics:
+  enabled: true
+
+workflow:
+  serviceAccount:
+    create: false
+    name: argo-workflows
+    annotations:
+      workflows.argoproj.io/rbac-rule: "'argo-workflow-admin' in groups"
+      workflows.argoproj.io/rbac-rule-precedence: "1"
+  rbac:
+    create: true
+    serviceAccounts:
+      - name: read-only
+        annotations:
+          workflows.argoproj.io/rbac-rule: "true"
+          workflows.argoproj.io/rbac-rule-precedence: "0"
+      - name: argo-workflow-admin
+        annotations:
+          workflows.argoproj.io/rbac-rule: "'devops' in groups"
+          workflows.argoproj.io/rbac-rule-precedence: "1"
+        roles:
+          - apiGroups: ["argoproj.io"]
+            resources: ["workflows", "workflowtemplates"]
+            verbs: ["*"]
+      - name: argo-workflow-dev
+        annotations:
+          workflows.argoproj.io/rbac-rule: "'engineering' in groups"
+          workflows.argoproj.io/rbac-rule-precedence: "2"
+        roles:
+          - apiGroups: ["argoproj.io"]
+            resources: ["workflows", "workflowtemplates"]
+            verbs: ["get", "list", "create", "watch", "update"]
+      - name: argo-workflow-ro
+        annotations:
+          workflows.argoproj.io/rbac-rule: "'business' in groups"
+          workflows.argoproj.io/rbac-rule-precedence: "3"
+        roles:
+          - apiGroups: ["argoproj.io"]
+            resources: ["workflows", "workflowtemplates"]
+            verbs: ["get", "list"]
+
+server:
+  enabled: true
+  logging:
+    level: info
+  authModes:
+    - sso
+    - client
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    hosts:
+      - jobs.local.io
+    pathType: Prefix
+    paths:
+      - /
+  extraEnv:
+    - name: SSO_DELEGATE_RBAC_TO_NAMESPACE
+      value: "true"
+  sso:
+    enabled: true
+    issuer: https://keycloak.local.io:32443/realms/master
+    clientId:
+      name: argo-workflows-sso
+      key: client-id
+    clientSecret:
+      name: argo-workflows-sso
+      key: client-secret
+    redirectUrl: http://jobs.local.io:32080/oauth2/callback
+    scopes:
+      - email
+      - profile
+      - groups
+    insecureSkipVerify: true
+    # rbac:
+    #   enabled: false
+    #   policy: |
+    #     p, role:admin, *, *, */*, allow
+    #     g, devops, role:admin
+    #   policy.default: role:readonly
+    #   groups.claim: groups

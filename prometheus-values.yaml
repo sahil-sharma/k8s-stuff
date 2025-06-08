@@ -26,12 +26,19 @@ server:
       memory: 500Mi
       cpu: 200m
   ingress:
-    enabled: false
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /
     hosts:
-      - prometheus.local
+      - prometheus.local.io
+    pathType: Prefix
+    paths:
+      - /
+    tls: []
 
 # Scrape configs can be added to target your Flask app
-additionalScrapeConfigs:
-  - job_name: 'python3-debian'
-    static_configs:
-       - targets: ['python3-debian.default.svc.cluster.local:8000']
+# additionalScrapeConfigs:
+#   - job_name: 'python3-debian'
+#     static_configs:
+#        - targets: ['python3-debian.default.svc.cluster.local:8000']
