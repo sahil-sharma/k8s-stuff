@@ -1,5 +1,5 @@
 alertmanager:
-  enabled: true
+  enabled: false
   service:
     type: ClusterIP
   persistentVolume:
@@ -36,6 +36,14 @@ server:
     paths:
       - /
     tls: []
+
+# Scrape configs can be added to target your Apps
+scrape_configs:
+  - job_name: 'keycloak'
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets: ['keycloak-metrics.keycloak:9000']
 
 # Scrape configs can be added to target your Flask app
 # additionalScrapeConfigs:
