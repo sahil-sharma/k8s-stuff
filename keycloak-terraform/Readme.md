@@ -52,12 +52,23 @@ DNS resolution to keycloak.local.io inside the cluster (you may need to update C
 
 ### 1. Create terraform.tfvars
 ```bash
-keycloak_url                = "https://keycloak.local.io:32443"
-argo_cd_secret              = "argo-cd-secret"
-keycloak_admin_user         = "admin"
-keycloak_admin_password     = "admin123"
-argo_cd_client_secret       = "argo-cd-secret"
-argo_workflow_client_secret = "argo-workflow-secret"
+keycloak_url                  = "https://keycloak.local.io:32443"
+keycloak_admin_login_username = "admin"
+keycloak_admin_login_password = "admin123"
+keycloak_clients = [
+  {
+    id                              = "argo-cd"
+    root_url                        = "http://cd.local.io:32080"
+    valid_redirect_uris             = ["http://cd.local.io:32080/auth/callback"]
+    valid_post_logout_redirect_uris = ["http://cd.local.io:32080/applications"]
+  },
+  {
+    id                              = "argo-workflow"
+    root_url                        = "http://jobs.local.io:32080"
+    valid_redirect_uris             = ["http://jobs.local.io:32080/oauth2/callback"]
+    valid_post_logout_redirect_uris = ["http://jobs.local.io:32080/workflows"]
+    }
+]
 ```
 
 ### 2. Initialize Terraform

@@ -7,10 +7,10 @@ resource "random_password" "client_secrets" {
 locals {
   clients = [
     for c in var.keycloak_clients : {
-      id       = c.id
-      secret   = random_password.client_secrets[c.id].result
-      root_url = c.root_url
-      valid_redirect_uris = c.valid_redirect_uris
+      id                              = c.id
+      secret                          = random_password.client_secrets[c.id].result
+      root_url                        = c.root_url
+      valid_redirect_uris             = c.valid_redirect_uris
       valid_post_logout_redirect_uris = c.valid_post_logout_redirect_uris
     }
   ]
