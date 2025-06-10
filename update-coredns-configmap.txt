@@ -1,0 +1,15 @@
+# Edit CoreDNS ConfigMap:
+
+-- Patch ConfigMap:
+
+kubectl edit cm coredns -n kube-system
+
+hosts {
+  192.168.56.71 keycloak.local.io cd.local.io jobs.local.io grafana.local.io prometheus.local.io tempo.local.io loki.local.io
+  192.168.56.72 keycloak.local.io cd.local.io jobs.local.io grafana.local.io prometheus.local.io tempo.local.io loki.local.io
+  fallthrough
+}
+
+-- Restart CoreDNS deployment:
+
+kubectl -n kube-system rollout restart deployment coredns
