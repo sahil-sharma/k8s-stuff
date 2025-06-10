@@ -100,15 +100,20 @@ terraform apply (or -auto-approve)
 
 | Client ID     | Use Case          | Secret Source                     |
 | ------------- | ----------------- | --------------------------------- |
-| argo-cd       | Argo CD SSO       | `var.argo_cd_client_secret`       |
-| argo-workflow |Argo Workflows SSO | `var.argo_workflow_client_secret` |
+| argo-cd       | Argo CD SSO       | `var.argo-cd_client_secret`       |
+| argo-workflow |Argo Workflows SSO | `var.argo-workflow_client_secret` |
 
 ## 🧠 Notes
 
 * The groups client scope is added as a default scope to both clients, and includes a Group Membership mapper (claim: groups).
 * If you see "Account is not fully set up" when logging in, ensure you reset the password as prompted.
 * If DNS fails on login (no such host), configure CoreDNS to resolve keycloak.local.io. Follow steps mentioned [here](https://github.com/sahil-sharma/k8s-stuff/blob/main/update-coredns-configmap.txt).
-
+* Add keycloak self-signed certificates to Operating System CA so that Terraform can make an API call to Keycloak over HTTPS:
+```bash
+# openssl s_client -showcerts -connect keycloak.local.io:32443 </dev/null 2>/dev/null | openssl x509 -outform PEM > /tmp/keycloak.crt
+# sudo cp /tmp/keycloak.crt /usr/local/share/ca-certificates/keycloak.crt
+# sudo update-ca-certificates
+```
 ## 🧪 Debug Tips
 
 ```bash
