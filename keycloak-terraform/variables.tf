@@ -2,8 +2,14 @@ variable "keycloak_url" {
   description = "Keycloak server URL"
 }
 
+variable "keycloak_admin_login_username" {
+  description = "Keycloak admin login username"
+  type        = string
+  sensitive   = true
+}
+
 variable "keycloak_admin_login_password" {
-  description = "Keycloak admin login password secret"
+  description = "Keycloak admin login password"
   type        = string
   sensitive   = true
 }
