@@ -23,42 +23,20 @@ metrics:
 
 workflow:
   serviceAccount:
-    create: false
-    name: argo-workflows
+    create: true
+    name: argo-workflow
     annotations:
-      workflows.argoproj.io/rbac-rule: "'argo-workflow-admin' in groups"
+      workflows.argoproj.io/rbac-rule: "'argo-workflows-admin' in groups"
       workflows.argoproj.io/rbac-rule-precedence: "1"
   rbac:
     create: true
     serviceAccounts:
-      - name: read-only
-        annotations:
-          workflows.argoproj.io/rbac-rule: "true"
-          workflows.argoproj.io/rbac-rule-precedence: "0"
-      - name: argo-workflow-admin
-        annotations:
-          workflows.argoproj.io/rbac-rule: "'devops' in groups"
-          workflows.argoproj.io/rbac-rule-precedence: "1"
-        roles:
-          - apiGroups: ["argoproj.io"]
-            resources: ["workflows", "workflowtemplates"]
-            verbs: ["*"]
-      - name: argo-workflow-dev
-        annotations:
-          workflows.argoproj.io/rbac-rule: "'engineering' in groups"
-          workflows.argoproj.io/rbac-rule-precedence: "2"
-        roles:
-          - apiGroups: ["argoproj.io"]
-            resources: ["workflows", "workflowtemplates"]
-            verbs: ["get", "list", "create", "watch", "update"]
-      - name: argo-workflow-ro
-        annotations:
-          workflows.argoproj.io/rbac-rule: "'business' in groups"
-          workflows.argoproj.io/rbac-rule-precedence: "3"
-        roles:
-          - apiGroups: ["argoproj.io"]
-            resources: ["workflows", "workflowtemplates"]
-            verbs: ["get", "list"]
+      - name: argo-workflow
+        namespace: default
+    # rules:
+    #   - apiGroups: ["*"]
+    #     resources: ["workflows", "workflowtemplates", "cronworkflows", "clusterworkflowtemplates"]
+    #     verbs: ["*"]
 
 server:
   enabled: true
@@ -66,7 +44,6 @@ server:
     level: info
   authModes:
     - sso
-    - client
   ingress:
     enabled: true
     ingressClassName: nginx
@@ -93,10 +70,10 @@ server:
       - profile
       - groups
     insecureSkipVerify: true
-    # rbac:
-    #   enabled: false
-    #   policy: |
-    #     p, role:admin, *, *, */*, allow
-    #     g, devops, role:admin
-    #   policy.default: role:readonly
-    #   groups.claim: groups
+    rbac:
+      enabled: true
+      # policy: |
+      #   p, role:admin, *, *, */*, allow
+      #   g, argo-workflows-admin, role:admin
+      # groups.claim: groups
+      # policy.default: role:readonly
