@@ -36,14 +36,6 @@ server:
   extraArgs:
     - --insecure
 
-rbac:
-  policy: |
-    g, argocd, role:admin
-    p, role:admin, applications, *, */*, allow
-  groups.claim: groups
-  policy.default: role:readonly
-  scopes: "[openid profile email groups]"
-
 repoServer:
   replicas: 1
   # envFrom:
@@ -54,31 +46,50 @@ applicationSet:
   replicas: 1
 
 configs:
+  rbac:
+    create: true
+    scopes: "[groups]"
+    policy.default: readonly
+    policy.csv: |
+      # === Role Bindings ===
+      g, devops, role:admin
+      g, engineering, role:eng
+      g, data, role:readonly
+
+      # === Role Definitions ===
+      # Admin role - full access
+      p, role:admin, *, *, */*, allow
+
+      # Engineer role - get/list/create/update but NOT delete
+      p, role:eng, applications, get, */*, allow
+      p, role:eng, applications, list, */*, allow
+      p, role:eng, applications, create, */*, allow
+      p, role:eng, applications, update, */*, allow
+      p, role:eng, projects, get, */*, allow
+      p, role:eng, projects, list, */*, allow
+      p, role:eng, repositories, get, */*, allow
+      p, role:eng, repositories, list, */*, allow
+
+      # ReadOnly role - just list/get
+      p, role:readonly, *, get, */*, allow
+      p, role:readonly, *, list, */*, allow
+   
   cm:
     admin.enabled: false
     url: http://cd.local.io:32080
     oidc.config: |
       name: Keycloak
-      issuer: https://keycloak.local.io:32443/realms/master
-      clientID: argocd
-      clientSecret: zPvVSmKP7QqK0ooWNZcsZtVpAfvPITbA
+      issuer: https://keycloak.local.io:32443/realms/platform
+      clientID: argo-cd
+      clientSecret: argo-cd-secret
       requestedScopes: ["openid", "profile", "email", "groups"]
     oidc.tls.insecure.skip.verify: "true"
-
-  # clusterCredentials:
-  #   app-cluster:
-  #     name: app-cluster
-  #     server: https://mycluster.example.com
-  #     config:
-  #       bearerToken: "<authentication token>"
-  #       tlsClientConfig:
-  #         insecure: false
-  #         caData: "<base64 encoded certificate>"
   repositories:
     pgadmin:
       type: helm
       name: pgadmin
       url: https://helm.runix.net
+      project: default
     reloader:
       type: helm
       url: https://stakater.github.io/stakater-charts
@@ -93,30 +104,29 @@ configs:
       type: helm
       name: eso
       url: https://charts.external-secrets.io
+      project: default
     ingress-nginx:
       type: helm
       name: ingress-nginx
       url: https://kubernetes.github.io/ingress-nginx
+      project: default
     grafana:
       type: helm
       name: grafana
       url: https://grafana.github.io/helm-charts
+      project: default
     prometheus:
       type: helm
       name: grafana
       url: https://prometheus-community.github.io/helm-charts
+      project: default
     otel-collector:
       type: helm
       name: otel-collector
       url: https://open-telemetry.github.io/opentelemetry-helm-charts
+      project: default
     flask-app:
       type: git
       url: https://github.com/sahil-sharma/k8s-stuff.git
       name: flask-app
       project: default
-# How to add a Private Repo in ArgoCD
-    # private-repo:
-    # url: https://github.com/<username><repo-name>
-    # name: private-repo
-    # project: default
-        
