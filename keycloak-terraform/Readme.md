@@ -102,7 +102,7 @@ terraform apply (or -auto-approve)
 
 ```bash
 # Test DNS resolution inside a pod
-kubectl run -i --tty dns-test --image=busybox --rm --restart=Never -- sh
+kubectl run -i --tty dns-test --image=busybox:latest --rm --restart=Never -- sh
 nslookup keycloak.local.io
 
 # Get Keycloak client secret
