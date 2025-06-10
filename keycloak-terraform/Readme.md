@@ -43,7 +43,7 @@ This Terraform project bootstraps a complete Keycloak realm setup for use with A
 ```bash
 Keycloak running and accessible via HTTPS (e.g., via NodePort or Ingress)
 Admin credentials (username/password or client credentials)
-Terraform >= 1.3
+Terraform >= 1.12
 DNS resolution to keycloak.local.io inside the cluster (you may need to update CoreDNS)
 ```
 ---
