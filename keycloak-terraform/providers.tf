@@ -13,6 +13,4 @@ provider "keycloak" {
   password  = var.keycloak_admin_login_password
   url       = var.keycloak_url
   realm     = "master"
-  # If using WildFly distribution, uncomment the next line:
-  # base_path     = "/auth"
 }
