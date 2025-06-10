@@ -1,6 +1,5 @@
 ---
 # Install Nginx Ingress
-
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -33,7 +32,6 @@ spec:
       - CreateNamespace=true
 ---
 # Install Postgres
-
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -63,7 +61,6 @@ spec:
       - CreateNamespace=true
 ---
 # Install pgAdmin
-
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -93,7 +90,6 @@ spec:
       - CreateNamespace=true
 ---
 # Install Reloader
-
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -117,7 +113,6 @@ spec:
       - CreateNamespace=true
 ---
 # Install Prometheus
-
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -147,7 +142,6 @@ spec:
       - CreateNamespace=true
 ---
 # Install Promtail
-
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -177,7 +171,6 @@ spec:
       - CreateNamespace=true
 ---
 # Install Loki
-
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -207,7 +200,6 @@ spec:
       - CreateNamespace=true
 ---
 # Install Tempo
-
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -237,7 +229,6 @@ spec:
       - CreateNamespace=true
 ---
 # Install OTEL-Collector
-
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -267,7 +258,6 @@ spec:
       - CreateNamespace=true
 ---
 # Install Grafana
-
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -297,7 +287,6 @@ spec:
       - CreateNamespace=true
 ---
 # Install Flask APP
-
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
