@@ -2,6 +2,30 @@ variable "keycloak_url" {
   description = "Keycloak server URL"
 }
 
+variable "keycloak_clients" {
+  description = "List of Keycloak clients to create"
+  type = list(object({
+    id       = string
+    root_url = string
+    valid_redirect_uris = list(string)
+    valid_post_logout_redirect_uris = list(string)
+  }))
+  default = [
+    {
+      id                              = "argo-cd"
+      root_url                        = "http://cd.local.io:32080"
+      valid_redirect_uris             = ["http://cd.local.io:32080/auth/callback"]
+      valid_post_logout_redirect_uris = ["http://cd.local.io:32080/applications"]
+    },
+    {
+      id                              = "argo-workflow"
+      root_url                        = "http://jobs.local.io:32080"
+      valid_redirect_uris             = ["http://jobs.local.io/:32080/oauth2/callback"]
+      valid_post_logout_redirect_uris = ["http://jobs.local.io:32080/applications"]
+    }
+  ]
+}
+
 variable "keycloak_admin_login_username" {
   description = "Keycloak admin login username"
   type        = string
