@@ -111,9 +111,9 @@ terraform output -json | jq -r '.argo_cd_client_secret.value'
 
 ## 📤 Outputs
 
-* argo_cd_client_secret: Use this in Argo CD SSO settings
-* argo_workflow_client_secret: Use this in Argo Workflow SSO settings
-* user credentials: All users use demo123 (temporary) password for first-login
+* `argo_cd_client_secret`: Use this in Argo CD SSO settings
+* `argo_workflow_client_secret`: Use this in Argo Workflow SSO settings
+* `user credentials`: All users use demo123 (temporary) password for first-login
 
 ## 🧼 Cleanup
 ```bash
