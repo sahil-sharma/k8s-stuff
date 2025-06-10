@@ -2,6 +2,8 @@
 
 -- Patch ConfigMap:
 
+Add below before the `forward . /etc/resolv.conf` line:
+
 kubectl edit cm coredns -n kube-system
 
 hosts {
