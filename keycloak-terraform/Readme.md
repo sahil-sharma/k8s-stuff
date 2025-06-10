@@ -87,10 +87,10 @@ terraform apply (or -auto-approve)
 
 ## 🔐 Clients
 
-| Client ID     | Use Case      | Secret Source                     |
-| ------------- | ------------- | ----------------------------------|
-| argo-cd       | Argo CD SSO   | `var.argo_cd_client_secret`       |
-| argo-workflow | Workflows SSO | `var.argo_workflow_client_secret` |
+| Client ID     | Use Case          | Secret Source                     |
+| ------------- | ----------------- | --------------------------------- |
+| argo-cd       | Argo CD SSO       | `var.argo_cd_client_secret`       |
+| argo-workflow |Argo Workflows SSO | `var.argo_workflow_client_secret` |
 
 ## 🧠 Notes
 
