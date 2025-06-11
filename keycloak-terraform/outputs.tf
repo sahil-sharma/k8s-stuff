@@ -1,8 +1,15 @@
-output "client_secrets" {
-  description = "Client secrets for Keycloak clients"
+output "users" {
+  description = "Map of usernames to their generated temporary passwords"
   value = {
-    for c in keycloak_openid_client.clients :
-    c.client_id => c.client_secret
+    for username, pwd in random_password.user_passwords :
+    username => pwd.result
   }
   sensitive = true
+}
+
+output "clients" {
+  sensitive = true
+  value = {
+    for k, v in random_password.client_secrets : k => v.result
+  }
 }

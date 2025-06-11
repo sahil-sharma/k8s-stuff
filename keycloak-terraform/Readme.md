@@ -55,19 +55,77 @@ DNS resolution to keycloak.local.io inside the cluster (you may need to update C
 keycloak_url                  = "https://keycloak.local.io:32443"
 keycloak_admin_login_username = "admin"
 keycloak_admin_login_password = "admin123"
-keycloak_clients = [
+
+realm_name = "platform"
+
+clients = [
   {
-    id                              = "argo-cd"
+    client_id                       = "argo-cd"
+    name                            = "argo-cd client"
     root_url                        = "http://cd.local.io:32080"
     valid_redirect_uris             = ["http://cd.local.io:32080/auth/callback"]
     valid_post_logout_redirect_uris = ["http://cd.local.io:32080/applications"]
+    roles                           = ["admin", "editor", "viewer"]
+    web_origins                     = ["+"]
   },
   {
-    id                              = "argo-workflow"
+    client_id                       = "argo-workflow"
+    name                            = "argo-workflow client"
     root_url                        = "http://jobs.local.io:32080"
     valid_redirect_uris             = ["http://jobs.local.io:32080/oauth2/callback"]
     valid_post_logout_redirect_uris = ["http://jobs.local.io:32080/workflows"]
+    roles                           = ["admin", "editor", "viewer"]
+    web_origins                     = ["+"]
+  },
+  {
+    client_id                       = "grafana"
+    name                            = "grafana client"
+    root_url                        = "http://grafana.local.io:32080"
+    valid_redirect_uris             = ["http://grafana.local.io:32080/login/generic_oauth"]
+    valid_post_logout_redirect_uris = ["http://grafana.local.io:32080/workflows"]
+    roles                           = ["admin", "editor", "viewer"]
+    web_origins                     = ["http://grafana.local.io:32080"]
+  }
+]
+
+groups = ["devops", "engineering", "data"]
+
+users = [
+  {
+    username   = "alice"
+    email      = "alice@example.com"
+    first_name = "Alice"
+    last_name  = "Dev"
+    groups     = ["engineering"]
+    roles = {
+      "argo-cd"       = ["viewer"]
+      "argo-workflow" = ["viewer"]
+      "grafana"       = ["viewer"]
     }
+  },
+  {
+    username   = "bob"
+    email      = "bob@example.com"
+    first_name = "Bob"
+    last_name  = "Ops"
+    groups     = ["devops"]
+    roles = {
+      "argo-cd"       = ["admin"]
+      "argo-workflow" = ["admin"]
+      "grafana"       = ["admin"]
+    }
+  },
+  {
+    username   = "eve"
+    email      = "eve@example.com"
+    first_name = "Eve"
+    last_name  = "Biz"
+    groups     = ["data"]
+    roles = {
+      "argo-cd"       = ["editor"]
+      "argo-workflow" = ["viewer"]
+    }
+  }
 ]
 ```
 

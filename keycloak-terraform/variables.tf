@@ -1,26 +1,51 @@
 variable "keycloak_url" {
-  description = "Keycloak server URL"
-}
-
-variable "keycloak_clients" {
-  description = "List of Keycloak clients to create"
-  type = list(object({
-    id                              = string
-    root_url                        = string
-    valid_redirect_uris             = list(string)
-    valid_post_logout_redirect_uris = list(string)
-  }))
-  default = []
+  type        = string
+  description = "URL of the Keycloak server"
 }
 
 variable "keycloak_admin_login_username" {
-  description = "Keycloak admin login username"
   type        = string
+  description = "Admin username"
   sensitive   = true
 }
 
 variable "keycloak_admin_login_password" {
-  description = "Keycloak admin login password"
   type        = string
+  description = "Admin password"
   sensitive   = true
+}
+
+variable "realm_name" {
+  type        = string
+  description = "Keycloak realm name"
+  default     = "platform"
+}
+
+variable "clients" {
+  type = list(object({
+    client_id                       = string
+    root_url                        = string
+    valid_redirect_uris             = list(string)
+    valid_post_logout_redirect_uris = list(string)
+    roles                           = list(string)
+    web_origins                     = list(string)
+  }))
+  description = "Clients and their roles"
+}
+
+variable "groups" {
+  type        = list(string)
+  description = "List of groups"
+}
+
+variable "users" {
+  description = "List of users with metadata"
+  type = list(object({
+    username   = string
+    first_name = string
+    last_name  = string
+    email      = string
+    groups     = list(string)
+    roles      = map(list(string)) # client_id => [role1, role2]
+  }))
 }

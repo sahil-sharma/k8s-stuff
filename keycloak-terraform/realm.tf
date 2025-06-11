@@ -1,4 +1,4 @@
-resource "keycloak_realm" "platform" {
-  realm   = "platform"
+resource "keycloak_realm" "realm" {
+  realm   = var.realm_name
   enabled = true
 }
