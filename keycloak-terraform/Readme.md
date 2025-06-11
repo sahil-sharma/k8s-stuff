@@ -158,7 +158,7 @@ terraform output users
 | Backend  | alice, john|
 | Business | eve, marry |
 
-* Default password: demo123
+* Randomly generated password
 * Password must be reset on first login
 
 ## 🔐 Clients
