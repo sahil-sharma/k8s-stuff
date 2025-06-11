@@ -8,7 +8,7 @@ service:
 ingress:
   enabled: true
   hosts:
-    - grafana.local
+    - grafana.local.io
 
 resources:
   requests:
@@ -21,6 +21,28 @@ resources:
 persistence:
   enabled: false
 
+env:
+  SSO_SECRET: "[%nZsyev?n1K2F%HHekyKcTfg[1xL2?S"
+
+grafana.ini:
+  server:
+    root_url: http://grafana.local.io:32080
+  auth.generic_oauth:
+    enabled: true
+    name: Keycloak
+    client_id: grafana
+    client_secret: ${SSO_SECRET}
+    scopes: openid email profile roles
+    allow_sign_up: true
+    email_attribute_path: email
+    login_attribute_path: username
+    name_attribute_path: full_name
+    auth_url: https://keycloak.local.io:32443/realms/platform/protocol/openid-connect/auth
+    token_url: https://keycloak.local.io:32443/realms/platform/protocol/openid-connect/token
+    api_url: https://keycloak.local.io:32443/realms/platform/protocol/openid-connect/userinfo
+    role_attribute_path: contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'
+    tls_skip_verify_insecure: true
+
 datasources:
   datasources.yaml:
     apiVersion: 1
@@ -29,16 +51,16 @@ datasources:
         type: prometheus
         access: proxy
         url: http://prometheus-server.prometheus.svc.cluster.local
-        isDefault: false
-      - name: Loki
-        type: loki
-        access: proxy
-        url: http://loki-gateway.loki.svc.cluster.local
         isDefault: true
-        jsonData:
-          httpHeaderName1: "X-Scope-OrgID"
-        secureJsonData:
-          httpHeaderValue1: "flask-app"
+      # - name: Loki
+      #   type: loki
+      #   access: proxy
+      #   url: http://loki-gateway.loki.svc.cluster.local
+      #   isDefault: true
+      #   jsonData:
+      #     httpHeaderName1: "X-Scope-OrgID"
+      #   secureJsonData:
+      #     httpHeaderValue1: "flask-app"
 
 dashboardProviders:
   dashboardproviders.yaml:
@@ -55,11 +77,19 @@ dashboardProviders:
 
 dashboards:
   default:
-    flask-app:
-      gnetId: 11074  # Example dashboard ID for a Python app
+    keycloak:
+      gnetId: 14390   # Keycloak Dashbaord ID
       revision: 1
       datasource: Prometheus
-    flask-app-logs:
-      gnetId: 13639  # Grafana Loki Logs dashboard
+    keycloak-2:
+      gnetId: 10441
       revision: 1
-      datasource: Loki
+      datasource: Prometheus
+#     flask-app:
+#       gnetId: 11074  # Example dashboard ID for a Python app
+#       revision: 1
+#       datasource: Prometheus
+#     flask-app-logs:
+#       gnetId: 13639  # Grafana Loki Logs dashboard
+#       revision: 1
+#       datasource: Loki
