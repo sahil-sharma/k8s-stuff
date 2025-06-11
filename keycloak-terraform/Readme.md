@@ -143,6 +143,13 @@ terraform plan
 terraform apply (or -auto-approve)
 ```
 
+### 4. Output of Users and Client secrets 
+```bash
+terraform output clients
+
+terraform output users
+```
+
 ## 👥 Users and Groups
 
 | Group    | Users      |
