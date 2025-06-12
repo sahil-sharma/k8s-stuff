@@ -90,6 +90,12 @@ clients = [
 
 groups = ["devops", "engineering", "data"]
 
+group_realm_roles = {
+  "devops"      = ["admin"],
+  "engineering" = ["editor"],
+  "data"        = ["viewer"]
+}
+
 users = [
   {
     username   = "alice"
