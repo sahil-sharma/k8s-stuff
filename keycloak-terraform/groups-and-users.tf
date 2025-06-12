@@ -1,7 +1,30 @@
+# Create realm roles for all roles mentioned in group_realm_roles
+resource "keycloak_role" "realm_roles" {
+  for_each = toset(flatten(values(var.group_realm_roles)))
+  realm_id = keycloak_realm.realm.id
+  name     = each.key
+}
+
+# Create groups
 resource "keycloak_group" "groups" {
   for_each = toset(var.groups)
   realm_id = keycloak_realm.realm.id
   name     = each.key
+}
+
+# Assign realm roles to groups
+resource "keycloak_group_roles" "group_realm_roles" {
+  for_each = {
+    for group_name, roles in var.group_realm_roles : group_name => {
+      group_id = keycloak_group.groups[group_name].id
+      role_ids = [for role in roles : keycloak_role.realm_roles[role].id]
+    }
+    if contains(var.groups, group_name) # Only assign if group exists
+  }
+
+  realm_id = keycloak_realm.realm.id
+  group_id = each.value.group_id
+  role_ids = each.value.role_ids
 }
 
 locals {
@@ -11,9 +34,11 @@ locals {
 resource "random_password" "user_passwords" {
   for_each = local.user_map
 
-  length           = 16
-  special          = true
-  override_special = "!@#$%&*()-_=+[]{}<>?"
+  length  = 16
+  special = false
+  upper   = true
+  lower   = true
+  numeric = true
 }
 
 resource "keycloak_user" "users" {

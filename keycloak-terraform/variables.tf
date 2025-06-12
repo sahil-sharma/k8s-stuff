@@ -38,6 +38,16 @@ variable "groups" {
   description = "List of groups"
 }
 
+# variable "realm_roles" {
+#   type        = list(string)
+#   description = "List of realm roles"
+# }
+
+variable "group_realm_roles" {
+  type        = map(list(string))
+  description = "Map of group names to realm role names"
+}
+
 variable "users" {
   description = "List of users with metadata"
   type = list(object({

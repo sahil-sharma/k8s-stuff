@@ -1,8 +1,11 @@
 resource "random_password" "client_secrets" {
   for_each = { for client in var.clients : client.client_id => client }
   length   = 32
-  special  = true
-  override_special = "!#$%&*()-_=+[]{}<>:?"
+  special  = false
+  upper    = true
+  lower    = true
+  numeric  = true
+
 }
 
 resource "keycloak_openid_client" "clients" {
