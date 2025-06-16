@@ -17,6 +17,22 @@ resource "keycloak_openid_group_membership_protocol_mapper" "groups_mapper" {
   add_to_userinfo     = true
 }
 
+resource "keycloak_openid_client_default_scopes" "default_groups_scope" {
+  for_each = { for client in var.clients : client.client_id => client }
+
+  realm_id  = keycloak_realm.realm.id
+  client_id = keycloak_openid_client.clients[each.key].id
+
+  default_scopes = [
+    "openid",
+    "email",
+    "roles",
+    "profile",
+    keycloak_openid_client_scope.groups.name,
+  ]
+}
+
+
 resource "keycloak_openid_client_scope" "client_roles_scope" {
   realm_id               = keycloak_realm.realm.id
   name                   = "client-roles"
