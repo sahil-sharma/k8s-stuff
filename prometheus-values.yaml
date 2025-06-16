@@ -37,13 +37,42 @@ server:
       - /
     tls: []
 
-# Scrape configs can be added to target your Apps
-scrape_configs:
+extraScrapeConfigs: |
   - job_name: 'keycloak'
     metrics_path: /metrics
     scheme: http
     static_configs:
       - targets: ['keycloak-metrics.keycloak:9000']
+  - job_name: 'argo-cd application controller'
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets: ['argocd-application-controller-metrics.argocd:8082']
+  - job_name: 'argo-cd applicationset controller'
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets: ['argocd-applicationset-controller-metrics.argocd:8080']
+  - job_name: 'argo-cd notifications controller'
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets: ['argocd-notifications-controller-metrics.argocd:9001']
+  - job_name: 'argo-cd redis'
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets: ['argocd-redis-metrics.argocd:9121']
+  - job_name: 'argo-cd repo server'
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets: ['argocd-repo-server-metrics.argocd:8084']
+  - job_name: 'argo-cd server'
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets: ['argocd-server-metrics.argocd:8083']
 
 # Scrape configs can be added to target your Flask app
 # additionalScrapeConfigs:
