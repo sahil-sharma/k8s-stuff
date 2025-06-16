@@ -1,9 +1,16 @@
 auth:
-  username: keycloak
-  password: keycloakpassword
-  database: keycloakdb
+  postgresPassword: admin123
+  username: ""
+  database: ""
+  password: ""
 
 primary:
+  # initdb:
+  #   scripts:
+  #     # keycloak DB
+  #     CREATE DATABASE keycloak_db;
+  #     CREATE USER keycloak_admin WITH PASSWORD 'hello123';
+  #     GRANT ALL PRIVILEGES ON DATABASE keycloak_db TO keycloak_admin;
   persistence:
     enabled: false  # Use emptyDir for Kind (no dynamic PVs by default)
   service:
