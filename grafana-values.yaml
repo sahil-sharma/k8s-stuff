@@ -1,5 +1,5 @@
-adminUser: admin
-adminPassword: admin123
+# adminUser: admin
+# adminPassword: admin123
 
 service:
   type: ClusterIP
@@ -8,7 +8,7 @@ service:
 ingress:
   enabled: true
   hosts:
-    - grafana.local.io
+    - dashboards.local.io
 
 resources:
   requests:
@@ -22,11 +22,27 @@ persistence:
   enabled: false
 
 env:
-  SSO_SECRET: "[%nZsyev?n1K2F%HHekyKcTfg[1xL2?S"
+  SSO_SECRET: "zLTEvMSX47aM7dqaayBOHindISzx9ZB9"
+  DB_PASSWORD: "hello123"
 
 grafana.ini:
+  database:
+    type: postgres
+    host: postgres-postgresql.postgres:5432
+    name: grafana_db
+    user: grafana_admin
+    password: ${DB_PASSWORD}
+    sslmode: disable
+  log:
+    level: info
+  auth:
+    disable_login_form: true
+  auth.anonymous:
+    enabled: false
+  auth.basic:
+    enabled: false
   server:
-    root_url: http://grafana.local.io:32080
+    root_url: http://dashboards.local.io:32080
   auth.generic_oauth:
     enabled: true
     name: Keycloak
@@ -40,7 +56,10 @@ grafana.ini:
     auth_url: https://keycloak.local.io:32443/realms/platform/protocol/openid-connect/auth
     token_url: https://keycloak.local.io:32443/realms/platform/protocol/openid-connect/token
     api_url: https://keycloak.local.io:32443/realms/platform/protocol/openid-connect/userinfo
-    role_attribute_path: contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'
+    role_attribute_path: contains(realm_access.roles[*], 'admin') && 'Admin' || contains(realm_access.roles[*], 'editor') && 'Editor' || 'Viewer'
+    #role_attribute_path: contains(resource_access.grafana.roles[*], 'admin') && 'Admin' || contains(resource_access.grafana.roles[*], 'editor') && 'Editor' || 'Viewer'
+    #role_attribute_path: contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'
+    allow_assign_grafana_admin: true
     tls_skip_verify_insecure: true
 
 datasources:
@@ -50,17 +69,20 @@ datasources:
       - name: Prometheus
         type: prometheus
         access: proxy
-        url: http://prometheus-server.prometheus.svc.cluster.local
+        url: http://metrics.local.io:32080
         isDefault: true
-      # - name: Loki
-      #   type: loki
-      #   access: proxy
-      #   url: http://loki-gateway.loki.svc.cluster.local
-      #   isDefault: true
-      #   jsonData:
-      #     httpHeaderName1: "X-Scope-OrgID"
-      #   secureJsonData:
-      #     httpHeaderValue1: "flask-app"
+      - name: Loki
+        type: loki
+        access: proxy
+        url: http://loki-gateway.loki
+        isDefault: false
+        jsonData:
+          timeout: 300
+          maxLines: 1000
+        # jsonData:
+        #   httpHeaderName1: "X-Scope-OrgID"
+        # secureJsonData:
+        #   httpHeaderValue1: "flask-app"
 
 dashboardProviders:
   dashboardproviders.yaml:
@@ -78,11 +100,15 @@ dashboardProviders:
 dashboards:
   default:
     keycloak:
-      gnetId: 14390   # Keycloak Dashbaord ID
+      gnetId: 14390
       revision: 1
       datasource: Prometheus
-    keycloak-2:
-      gnetId: 10441
+    argo-cd:
+      gnetId: 14584
+      revision: 1
+      datasource: Prometheus
+    prometheus:
+      gnetId: 3662
       revision: 1
       datasource: Prometheus
 #     flask-app:
