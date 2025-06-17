@@ -1,7 +1,11 @@
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "http-metrics"
+
 config:
   clients:
-    - url: http://loki-gateway.loki.svc.cluster.local/loki/api/v1/push
-      tenant_id: "flask-app"  # 👈 if multi-tenancy is enabled
+    - url: http://loki-gateway.loki/loki/api/v1/push
+      # tenant_id: "demo-app"  # 👈 if multi-tenancy is enabled
       # Optional basic auth config if enabled:
       #basic_auth:
         #username: root-user

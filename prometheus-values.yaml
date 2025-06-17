@@ -31,7 +31,7 @@ server:
     annotations:
       nginx.ingress.kubernetes.io/rewrite-target: /
     hosts:
-      - prometheus.local.io
+      - metrics.local.io
     pathType: Prefix
     paths:
       - /
