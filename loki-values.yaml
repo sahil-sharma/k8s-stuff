@@ -21,7 +21,8 @@ loki:
         index:
           prefix: loki_index_
           period: 24h
-  #limits_config:
+  limits_config:
+    volume_enabled: true
   #  allow_structured_metadata: false
 
   # storage_config:
@@ -52,14 +53,14 @@ gateway:
     enabled: false
     ingressClassName: nginx
     annotations:
-      nginx.ingress.kubernetes.io/rewrite-target: /
-      nginx.ingress.kubernetes.io/configuration-snippet: |
-        proxy_set_header X-Scope-OrgID $remote_user;
+      nginx.ingress.kubernetes.io/rewrite-target: /$2
+      # nginx.ingress.kubernetes.io/configuration-snippet: |
+      #   proxy_set_header X-Scope-OrgID $remote_user;
     hosts:
-      - host: loki.local
+      - host: logs.local.io
         paths:
-          - path: /
-            pathType: Prefix
+          - path: /loki(/|$)(.*)
+            pathType: ImplementationSpecific
 
 singleBinary:
   extraArgs:
@@ -89,7 +90,7 @@ chunksCache:
 
 # Enable minio for storage
 minio:
-  enabled: true
+  enabled: false
 
 # Zero out replica counts of other deployment modes
 backend:
