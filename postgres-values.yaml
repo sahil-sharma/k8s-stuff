@@ -5,14 +5,35 @@ auth:
   password: ""
 
 primary:
-  # initdb:
-  #   scripts:
-  #     # keycloak DB
-  #     CREATE DATABASE keycloak_db;
-  #     CREATE USER keycloak_admin WITH PASSWORD 'hello123';
-  #     GRANT ALL PRIVILEGES ON DATABASE keycloak_db TO keycloak_admin;
+  initdb:
+    user: postgres
+    password: admin123
+    scripts:
+      init.sql: |
+        CREATE DATABASE grafana_db;
+        CREATE USER grafana_admin WITH PASSWORD 'hello123';
+        GRANT ALL ON DATABASE grafana_db TO grafana_admin;
+        ALTER DATABASE grafana_db OWNER TO grafana_admin;
+        GRANT USAGE, CREATE ON SCHEMA PUBLIC TO grafana_admin;
+        CREATE DATABASE keycloak_db;
+        CREATE USER keycloak_admin WITH PASSWORD 'hello123';
+        GRANT ALL ON DATABASE keycloak_db TO keycloak_admin;
+        ALTER DATABASE keycloak_db OWNER TO keycloak_admin;
+        GRANT USAGE, CREATE ON SCHEMA PUBLIC TO keycloak_admin;
   persistence:
-    enabled: false  # Use emptyDir for Kind (no dynamic PVs by default)
+    enabled: false
   service:
-    type: ClusterIP                   # Internal service for NGINX TCP mapping
+    type: ClusterIP
     port: 5432
+
+volumePermissions:
+  enabled: false
+  securityContext:
+    runAsUser: "auto"
+
+securityContext:
+  enabled: false
+
+shmVolume:
+  chmod:
+    enabled: false
