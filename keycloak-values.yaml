@@ -8,11 +8,11 @@ postgresql:
   enabled: false
 
 externalDatabase:
-  host: 192.168.56.71
-  port: 32432
-  user: keycloak
-  password: keycloakpassword
-  database: keycloakdb
+  host: postgres-postgresql.postgres
+  port: 5432
+  user: keycloak_admin
+  password: hello123
+  database: keycloak_db
 
 rbac:
   create: true
