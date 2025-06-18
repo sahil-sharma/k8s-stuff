@@ -23,6 +23,18 @@ This guide walks you through deploying **PostgreSQL**,**Nginx Ingress**, **pgAdm
   - `argocd-values.yaml`
 ---
 
+## Links
+
+```bash
+Keycloak: https://login.local.io:32443
+Argo CD: http://cd.local.io:32080
+Argo Workflows: http://jobs.local.io:32080
+Grafana: http://dashboard.local.io:32080
+Loki: https://logs.local.io:32443
+Prometheus: http://metrics.local.io:32080
+Tempo: http://traces.local.io:32080
+```
+
 ## Step 1: Add Helm Repositories
 
 ```bash
@@ -39,7 +51,7 @@ helm repo update
 helm upgrade --install postgres bitnami/postgresql -f postgres-values.yaml --namespace postgres --create-namespace
 
 # Check PGSQL Pod is running
-k get po,svc -n postgres
+kubectl get po,svc -n postgres
 ```
 
 ## Step 3: Install Nginx Ingress
@@ -48,7 +60,7 @@ k get po,svc -n postgres
 helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx -f nginx-ingress-values.yaml --set tcp.5432="postgres/postgresql:5432" --namespace ingress-nginx --create-namespace
 
 # Check Nginx Ingress Pod is running
-k get po,svc,cm -n ingress-nginx
+kubectl get po,svc,cm -n ingress-nginx
 ```
 
 ## Step 4: Install pgAdmin
@@ -57,7 +69,7 @@ k get po,svc,cm -n ingress-nginx
 helm upgrade --install pgadmin4 runix/pgadmin4 -f pgadmin-values.yaml --namespace pgadmin4 --create-namespace
 
 # Check pgAdmin Pod is running
-k get po,svc -n pgadmin4
+kubectl get po,svc -n pgadmin4
 ```
 
 ## Step 5: Install Keycloak
@@ -66,7 +78,7 @@ k get po,svc -n pgadmin4
 helm upgrade --install keycloak bitnami/keycloak -f keycloak-values.yaml --namespace keycloak --create-namespace
 
 # Check Keycloak Pod is running
-k get po,svc,cm -n keycloak
+kubectl get po,svc,cm -n keycloak
 ```
 
 ## Step 6: Install ArgoCD
@@ -74,8 +86,57 @@ k get po,svc,cm -n keycloak
 ```bash
 helm upgrade --install argocd argocd/argo-cd -f argocd-values.yaml --namespace argocd --create-namespace
 
-# Check Keycloak Pod is running
-k get po,svc -n arogcd
+# Check ArgoCD Pod is running
+kubectl get po,svc -n arogcd
+```
+
+## Step 7: Install Argo Workflows
+
+```bash
+helm upgrade --install argo-workflows argocd/argo-workflows -f argo-workflows-values.yaml --namespace argo-workflows --create-namespace
+
+# Check Argo Workflow Pod is running
+kubectl get po,svc -n arog-workflows
+```
+
+## Step 8: Install Prometheus
+
+```bash
+helm upgrade --install prometheus prometheus-community/prometheus -n prometheus -f prometheus-values.yaml --create-namespace
+
+# Check Prometheus Pod is running
+kubectl get po,svc,ing -n prometheus
+```
+
+## Step 9: Install Loki
+
+```bash
+# You need to install local-path-storage as StorageClass for Loki:
+
+kubectl apply -f local-path-storage.yaml
+
+helm upgrade --install loki grafana/loki -n loki -f loki-values.yaml --create-namespace
+
+# Check Loki Pod is running
+kubectl get po,svc,ing -n loki
+```
+
+## Step 10: Install Promtail
+
+```bash
+helm upgrade --install promtail grafana/promtail -n promtail -f promtail-values.yaml --create-namespace
+
+# Check Promtail Pod is running
+kubectl get po,svc -n promtail
+```
+
+## Step 11: Install Grafana
+
+```bash
+helm upgrade --install grafana grafana/grafana -n grafana -f grafana-values.yaml --create-namespace
+
+# Check Grafana Pod is running
+kubectl get po,svc,ing -n grafana
 ```
 
 <details>
