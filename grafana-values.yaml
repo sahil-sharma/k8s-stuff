@@ -8,7 +8,7 @@ service:
 ingress:
   enabled: true
   hosts:
-    - dashboards.local.io
+    - dashboard.local.io
 
 resources:
   requests:
@@ -22,10 +22,12 @@ persistence:
   enabled: false
 
 env:
-  SSO_SECRET: "zLTEvMSX47aM7dqaayBOHindISzx9ZB9"
+  SSO_SECRET: "5qmKvVk4zegKYQEgiFiQphtfTPrroj47"
   DB_PASSWORD: "hello123"
 
 grafana.ini:
+  dataproxy:
+    timeout: 600
   database:
     type: postgres
     host: postgres-postgresql.postgres:5432
@@ -42,7 +44,7 @@ grafana.ini:
   auth.basic:
     enabled: false
   server:
-    root_url: http://dashboards.local.io:32080
+    root_url: http://dashboard.local.io:32080
   auth.generic_oauth:
     enabled: true
     name: Keycloak
@@ -53,12 +55,10 @@ grafana.ini:
     email_attribute_path: email
     login_attribute_path: username
     name_attribute_path: full_name
-    auth_url: https://keycloak.local.io:32443/realms/platform/protocol/openid-connect/auth
-    token_url: https://keycloak.local.io:32443/realms/platform/protocol/openid-connect/token
-    api_url: https://keycloak.local.io:32443/realms/platform/protocol/openid-connect/userinfo
+    auth_url: https://login.local.io:32443/realms/platform/protocol/openid-connect/auth
+    token_url: https://login.local.io:32443/realms/platform/protocol/openid-connect/token
+    api_url: https://login.local.io:32443/realms/platform/protocol/openid-connect/userinfo
     role_attribute_path: contains(realm_access.roles[*], 'admin') && 'Admin' || contains(realm_access.roles[*], 'editor') && 'Editor' || 'Viewer'
-    #role_attribute_path: contains(resource_access.grafana.roles[*], 'admin') && 'Admin' || contains(resource_access.grafana.roles[*], 'editor') && 'Editor' || 'Viewer'
-    #role_attribute_path: contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'
     allow_assign_grafana_admin: true
     tls_skip_verify_insecure: true
 
@@ -74,11 +74,12 @@ datasources:
       - name: Loki
         type: loki
         access: proxy
-        url: http://loki-gateway.loki
+        url: https://logs.local.io:32443
         isDefault: false
         jsonData:
+          tlsSkipVerify: true
           timeout: 300
-          maxLines: 1000
+          maxLines: 100
         # jsonData:
         #   httpHeaderName1: "X-Scope-OrgID"
         # secureJsonData:
