@@ -14,7 +14,7 @@ spec:
       labels:
         app: {{ include "flask-app.name" . }}
     spec:
-      serviceAccountName: {{ .Release.Name }}
+      serviceAccountName: {{ .Release.Name }}-sa
       containers:
         - name: {{ include "flask-app.name" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -57,6 +57,12 @@ spec:
                 secretKeyRef:
                   name: {{ .Release.Name }}-secrets
                   key: DB_PASSWORD
+            - name: TRACING_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secrets
+                  key: TRACING_ENABLED
+          resources:
           resources:
             requests:
               memory: {{ .Values.resources.requests.memory | default "256Mi" }}

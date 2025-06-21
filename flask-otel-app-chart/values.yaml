@@ -14,7 +14,7 @@ ingress:
   className: nginx
   annotations: {}
   hosts:
-    - host: flask.local
+    - host: app.local.io
       paths:
         - path: /
           pathType: Prefix
@@ -63,15 +63,16 @@ pdb:
   minAvailable: 1
 
 config:
-  DB_HOST: postgres-postgresql.postgres
+  DB_HOST: "postgres-postgresql.postgres"
   DB_PORT: 5432
-  DB_NAME: flaskdb
-  DB_USER: flaskuser
-  OTLP_ENDPOINT: http://open-telemetry-opentelemetry-collector.otel-collector:4318/v1/traces
+  DB_NAME: "app_db"
+  DB_USER: "app_admin"
+  TRACING_ENABLED: "false"  # or "true"
+  OTLP_ENDPOINT: "http://otel-collector-opentelemetry-collector.otel:4318/v1/traces"
 
 secrets:
-  JWT_SECRET: jwtsecretkey
-  DB_PASSWORD: flaskpassword
+  JWT_SECRET: "jwtsecretkey"
+  DB_PASSWORD: "hello123"
 
 serviceAccount:
   create: true

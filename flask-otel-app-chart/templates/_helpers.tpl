@@ -21,11 +21,4 @@ Generate the environment variables for ConfigMap and Secret references
           name: {{ .Release.Name }}-config
           key: {{ $key }}
   {{- end }}
-  {{- range $key, $value := .Values.secrets }}
-    - name: {{ $key }}
-      valueFrom:
-        secretKeyRef:
-          name: {{ .Release.Name }}-secrets
-          key: {{ $key }}
-  {{- end }}
 {{- end }}
