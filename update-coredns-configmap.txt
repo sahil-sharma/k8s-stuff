@@ -7,9 +7,10 @@ Add below before the `forward . /etc/resolv.conf` line:
 kubectl edit cm coredns -n kube-system
 
 hosts {
-  192.168.56.71 login.local.io cd.local.io jobs.local.io dashboard.local.io metrics.local.io traces.local.io logs.local.io
-  192.168.56.72 login.local.io cd.local.io jobs.local.io dashboard.local.io metrics.local.io traces.local.io logs.local.io
-  192.168.56.73 login.local.io cd.local.io jobs.local.io dashboard.local.io metrics.local.io traces.local.io logs.local.io
+  192.168.56.71 db.local.io login.local.io cd.local.io jobs.local.io dashboard.local.io metrics.local.io logs.local.io traces.local.io collector.local.io app.local.io
+  192.168.56.72 db.local.io login.local.io cd.local.io jobs.local.io dashboard.local.io metrics.local.io logs.local.io traces.local.io collector.local.io app.local.io
+  192.168.56.73 db.local.io login.local.io cd.local.io jobs.local.io dashboard.local.io metrics.local.io logs.local.io traces.local.io collector.local.io app.local.io
+  192.168.56.74 db.local.io login.local.io cd.local.io jobs.local.io dashboard.local.io metrics.local.io logs.local.io traces.local.io collector.local.io app.local.io
   fallthrough
 }
 
