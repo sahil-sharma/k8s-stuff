@@ -20,6 +20,11 @@ primary:
         GRANT ALL ON DATABASE keycloak_db TO keycloak_admin;
         ALTER DATABASE keycloak_db OWNER TO keycloak_admin;
         GRANT USAGE, CREATE ON SCHEMA PUBLIC TO keycloak_admin;
+        CREATE DATABASE app_db;
+        CREATE USER app_admin WITH PASSWORD 'hello123';
+        GRANT ALL ON DATABASE app_db TO app_admin;
+        ALTER DATABASE app_db OWNER TO app_admin;
+        GRANT USAGE, CREATE ON SCHEMA PUBLIC TO app_admin;
   persistence:
     enabled: false
   service:
