@@ -5,10 +5,10 @@ metadata:
   name: {{ .Release.Name }}-ingress
   labels:
     app: {{ include "flask-app.name" . }}
+  {{- with .Values.ingress.annotations }}
   annotations:
-    {{- with .Values.ingress.annotations }}
-    {{ toYaml . | indent 4 }}
-    {{- end }}
+    {{ toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   ingressClassName: {{ .Values.ingress.className }}
   rules:
@@ -21,7 +21,7 @@ spec:
             pathType: {{ .pathType }}
             backend:
               service:
-                name: {{ $.Release.Name }}-service
+                name: {{ $.Release.Name }}
                 port:
                   number: {{ $.Values.service.port }}
           {{- end }}
@@ -31,3 +31,4 @@ spec:
     {{- toYaml .Values.ingress.tls | nindent 4 }}
   {{- end }}
 {{- end }}
+ 

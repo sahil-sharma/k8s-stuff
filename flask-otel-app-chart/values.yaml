@@ -5,6 +5,9 @@ image:
   tag: 6b1e8c3
   pullPolicy: IfNotPresent
 
+annotations:
+  reloader.stakater.com/auto: "true"
+
 service:
   type: ClusterIP
   port: 5000
@@ -12,7 +15,10 @@ service:
 ingress:
   enabled: true
   className: nginx
-  annotations: {}
+  # annotations:
+  #   nginx.ingress.kubernetes.io/limit-rps: "5"
+  #   nginx.ingress.kubernetes.io/limit-burst-multiplier: "2"
+  #   nginx.ingress.kubernetes.io/whitelist-source-range: "192.168.56.0/24"
   hosts:
     - host: app.local.io
       paths:
@@ -63,12 +69,13 @@ pdb:
   minAvailable: 1
 
 config:
-  DB_HOST: "postgres-postgresql.postgres"
-  DB_PORT: 5432
+  DB_HOST: "db.local.io"
+  DB_PORT: 32432
   DB_NAME: "app_db"
   DB_USER: "app_admin"
-  TRACING_ENABLED: "false"  # or "true"
-  OTLP_ENDPOINT: "http://otel-collector-opentelemetry-collector.otel:4318/v1/traces"
+  TRACING_ENABLED: "false"
+  #OTLP_ENDPOINT: "http://otel-collector-opentelemetry-collector.otel:4318/v1/traces"
+  OTLP_ENDPOINT: http://collector.local.io:32080/v1/traces
 
 secrets:
   JWT_SECRET: "jwtsecretkey"

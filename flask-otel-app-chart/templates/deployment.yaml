@@ -4,6 +4,10 @@ metadata:
   name: {{ .Release.Name }}-deployment
   labels:
     app: {{ include "flask-app.name" . }}
+{{- with .Values.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
