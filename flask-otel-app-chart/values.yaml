@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: bonyscott/flask-otel-app
-  tag: 7975cde
+  tag: 0c63001
   pullPolicy: IfNotPresent
 
 service:
