@@ -78,7 +78,7 @@ config:
   OTLP_ENDPOINT: http://collector.local.io:32080/v1/traces
 
 secrets:
-  JWT_SECRET: "jwtsecretkey"
+  JWT_SECRET: "newjwtsecretkey"
   DB_PASSWORD: "hello123"
 
 serviceAccount:
