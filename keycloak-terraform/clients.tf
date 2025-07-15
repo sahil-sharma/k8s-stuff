@@ -5,7 +5,6 @@ resource "random_password" "client_secrets" {
   upper    = true
   lower    = true
   numeric  = true
-
 }
 
 resource "keycloak_openid_client" "clients" {
