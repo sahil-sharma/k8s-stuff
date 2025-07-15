@@ -1,19 +1,21 @@
 env:
   email: admin@domain.com
   password: admin123
-  contextPath: /pgadmin4
+  contextPath: /
 
 serverDefinitions:
-  enabled: false
+  enabled: true
   # resourceType: Secret
   # existingSecret: keycloak-db-secret
-  # servers:
-  #  1:
-  #    Name: "Keycloak DB"
-  #    Group: "Servers"
-  #    Host: "192.168.56.12"
-  #    Port: "32432"
-  #    MaintenanceDB: keycloakdb
+  servers:
+    firstServer:
+      Name: "Test-DB"
+      Group: "Servers"
+      Host: "db.local.io"
+      Port: "32432"
+      MaintenanceDB: postgres
+      Username: postgres
+      SSLMode: disable
 
 persistentVolume:
   enabled: false
@@ -23,12 +25,10 @@ ingress:
   ingressClassName: nginx
   annotations:
     kubernetes.io/ingress.class: "nginx"
-    nginx.ingress.kubernetes.io/enable-cors: "true"
-    #nginx.ingress.kubernetes.io/cors-allow-origin: "http://pgadmin.local"
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      proxy_set_header X-Script-Name /pgadmin4;
+      proxy_set_header X-Script-Name /;
   hosts:
-    - host: ""
+    - host: "pgadmin.local.io" 
       paths:
-        - path: /pgadmin4
+        - path: /
           pathType: Prefix
