@@ -100,8 +100,12 @@ dashboardProviders:
 
 dashboards:
   default:
-    keycloak:
+    keycloak-quarkus-metrics:
       gnetId: 14390
+      revision: 7
+      datasource: Prometheus
+    keycloak-spi-metrics:
+      gnetId: 19659
       revision: 1
       datasource: Prometheus
     argo-cd:
