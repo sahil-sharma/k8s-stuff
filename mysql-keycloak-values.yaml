@@ -1,0 +1,97 @@
+  production: true
+
+  auth:
+    adminUser: admin
+    adminPassword: admin123
+
+  replicaCount: 2
+
+  postgresql:
+    enabled: false
+
+  externalDatabase:
+    host: mysql.mysql
+    port: 3306
+    user: keycloak_admin
+    password: hello123
+    database: keycloak_db
+
+  rbac:
+    create: true
+    rules:
+    - apiGroups:
+      - ""
+      resources:
+      - pods
+      verbs:
+      - get
+      - list
+
+  proxy: edge
+
+  extraEnvVars:
+    - name: KC_HOSTNAME
+      value: "https://newsso.local.io:32443"
+    - name: KC_PROXY_HEADERS
+      value: "xforwarded"
+    - name: KC_HTTP_ENABLED
+      value: "true"
+    - name: KC_HOSTNAME_DEBUG
+      value: "true"
+    - name: JAVA_OPTS_APPEND
+      value: >-
+        -XX:+UseContainerSupport
+        -XX:MaxRAMPercentage=50.0
+        -Djava.awt.headless=true
+        -Djgroups.dns.query=keycloak-headless
+    - name: KC_METRICS_ENABLED
+      value: "true"
+    - name: KC_HEALTH_ENABLED
+      value: "true"
+    - name: KC_SPI_METRICS_ENABLED
+      value: "true"
+    - name: KC_JDBC_DRIVER
+      value: "mysql"
+    - name: KC_DB
+      value: "mysql"
+    - name: KC_DB_URL
+      value: "jdbc:mysql://mysql.mysql:3306/keycloak_db"
+
+  service:
+    http:
+      enabled: true
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "9000"
+
+  metrics:
+    enabled: true
+
+  startupProbe:
+    enabled: false
+  livenessProbe:
+    enabled: false
+  readinessProbe:
+    enabled: false
+
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    hostname: newsso.local.io
+    tls: true
+    selfSigned: true
+    extraTls:
+      - hosts:
+          - newsso.local.io
+        secretName: newsso.local.io-tls
+    rules:
+    - host: newsso.local.io
+      http:
+        paths:
+        - pathType: ImplementationSpecific
+          path: /
+          backend:
+            service:
+              name: keycloak
+              port:
+                name: http
