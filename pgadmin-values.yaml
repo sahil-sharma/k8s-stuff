@@ -6,7 +6,8 @@ env:
 serverDefinitions:
   enabled: true
   # resourceType: Secret
-  # existingSecret: keycloak-db-secret
+  # existingSecret: db-secret
+
   servers:
     firstServer:
       Name: "Test-DB"
