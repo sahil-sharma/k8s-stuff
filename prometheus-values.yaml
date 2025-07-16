@@ -38,11 +38,16 @@ server:
     tls: []
 
 extraScrapeConfigs: |
-  - job_name: 'keycloak'
+  - job_name: 'keycloak-quarkus-metrics'
     metrics_path: /metrics
     scheme: http
     static_configs:
       - targets: ['keycloak-metrics.keycloak:9000']
+  - job_name: 'keycloak-spi-metrics'
+    metrics_path: /realms/master/metrics
+    scheme: http
+    static_configs:
+      - targets: ['keycloak-metrics.keycloak:8080']
   # - job_name: 'argo-cd application controller'
   #   metrics_path: /metrics
   #   scheme: http
