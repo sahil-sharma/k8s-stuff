@@ -1,0 +1,23 @@
+ingress:
+  enabled: true
+  hostname: phpmyadmin.local.io
+  path: /
+  pathType: ImplementationSpecific
+  ingressClassName: nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+
+db:
+  host: mysql.mysql
+  port: 3306
+  user: keycloak_admin
+  password: hello123
+  allowArbitraryServer: true
+
+service:
+  type: ClusterIP
+
+extraEnvVars:
+  - name: PMA_ABSOLUTE_URI
+    value: "http://phpmyadmin.local.io/"
