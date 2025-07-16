@@ -1,0 +1,57 @@
+server:
+  ha:
+    enabled: false
+    replicas: 1
+    raft:
+      enabled: true
+      setNodeId: true
+
+  config: |
+    ui = true
+
+    listener "tcp" {
+      address = "0.0.0.0:8200"
+      tls_disable = "true"
+    }
+
+    storage "raft" {
+      path    = "/vault/data"
+      node_id = "${HOSTNAME}"
+    }
+
+    disable_mlock = true
+
+  ingress:
+    enabled: true
+    ingressClassName: "nginx"
+    annotations:
+      kubernetes.io/ingress.class: nginx
+    hosts:
+      - host: secrets.local.io
+        paths:
+          - /
+
+  extraEnvironmentVars:
+    VAULT_ADDR: http://vault.vault.svc:8200
+    VAULT_SKIP_VERIFY: true
+    VAULT_CACERT: /etc/vault/tls/keycloak-ca.crt
+
+  volumes:
+    - name: keycloak-ca
+      configMap:
+        name: keycloak-ca-cert
+  
+  volumeMounts:
+    - name: keycloak-ca
+      mountPath: /etc/vault/tls
+      readOnly: true
+
+  # volumes:
+  #   - name: vault-init
+  #     configMap:
+  #       name: vault-init-scripts
+
+  # volumeMounts:
+  #   - name: vault-init
+  #     mountPath: /vault/init
+  #     readOnly: true
