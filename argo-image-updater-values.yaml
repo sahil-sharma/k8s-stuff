@@ -1,0 +1,46 @@
+interval: "1m"
+
+logLevel: debug
+
+argocd:
+  serverAddress: "http://cd.local.io:32080"
+  insecure: true
+  grpcWeb: false
+
+# Use git write-back strategy
+writeBackMethod: "git"
+
+git:
+  writeBackCredentials: true
+  sshPrivateKeySecret:
+    name: ssh-git-creds
+    key: sshPrivateKey
+
+# Optional: restrict to certain namespaces or apps
+applicationNamespaces:
+  - argocd
+  - welcome-app
+
+# Image update strategy
+defaultUpdateStrategy: "latest"
+
+config:
+  sshConfig:
+    name: argocd-image-updater-ssh-config
+    config: |
+      Host github.com
+        PubkeyAcceptedAlgorithms +ssh-ed25519
+        HostkeyAlgorithms +ssh-ed25519
+
+  gitCommitUser: someuser
+  gitCommitMail: some-user@abc.com
+  gitCommitTemplate: "From ArgoCD Image Updater: Updating Image Tag"
+  gitCommitSigningMethod: ssh
+
+  registries:
+  - name: Docker Hub
+    prefix: docker.io
+    api_url: https://registry-1.docker.io
+    #credentials: secret:foo/bar#creds
+    defaultns: welcome-app
+    default: false
