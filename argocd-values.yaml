@@ -96,7 +96,7 @@ configs:
       name: Keycloak
       issuer: https://sso.local.io:32443/realms/master
       clientID: argocd
-      clientSecret: sb1BbM3dAxvZmvfvQkXphUx7zr5hV6wf
+      clientSecret: 
       requestedScopes: ["openid", "profile", "email", "groups"]
     oidc.tls.insecure.skip.verify: "true"
   repositories:
