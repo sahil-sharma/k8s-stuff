@@ -13,6 +13,7 @@ controller:
       https: 32443
       tcp:
         5432: 32432
+        3306: 32306
 
   ingressClassResource:
     name: nginx
