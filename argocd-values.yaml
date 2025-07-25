@@ -15,6 +15,14 @@ dex:
 
 server:
   replicas: 1
+  extensions:
+    enabled: true
+    extensionList:
+      - name: rollout-extension
+        env:
+          - name: EXTENSION_URL
+            value: https://github.com/argoproj-labs/rollout-extension/releases/download/v0.3.4/extension.tar
+
   ingress:
     enabled: true
     tls: false
@@ -40,12 +48,19 @@ repoServer:
   replicas: 1
   # envFrom:
   #   - secretRef:
-  #       name: private-repo-secret       # Private Repo secret name
+  #       name:  git-ssh-creds       # Private Repo secret name
 
 applicationSet:
   replicas: 1
 
 configs:
+# To add SSH keys for repos
+  # credentialTemplates:
+  #   ssh-creds:
+  #     url: git@github.com:sahil-sharma/go-welcome-app.git
+  #     sshPrivateKey: |
+  #       -----BEGIN OPENSSH PRIVATE KEY-----
+  #       -----END OPENSSH PRIVATE KEY-----
   rbac:
     create: true
     scopes: "[groups]"
@@ -79,9 +94,9 @@ configs:
     url: http://cd.local.io:32080
     oidc.config: |
       name: Keycloak
-      issuer: https://keycloak.local.io:32443/realms/platform
-      clientID: argo-cd
-      clientSecret: argo-cd-secret
+      issuer: https://sso.local.io:32443/realms/master
+      clientID: argocd
+      clientSecret: sb1BbM3dAxvZmvfvQkXphUx7zr5hV6wf
       requestedScopes: ["openid", "profile", "email", "groups"]
     oidc.tls.insecure.skip.verify: "true"
   repositories:
@@ -129,4 +144,9 @@ configs:
       type: git
       url: https://github.com/sahil-sharma/k8s-stuff.git
       name: flask-app
+      project: default
+    welcome-app:
+      type: git
+      url: git@github.com:sahil-sharma/go-welcome-app.git
+      name: go-welcome-app
       project: default
