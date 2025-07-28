@@ -76,7 +76,7 @@ kubectl get po,svc -n postgres
 ## Step 3: Install Nginx Ingress
 
 ```bash
-helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx -f nginx-ingress-values.yaml --set tcp.5432="postgres/postgresql:5432" --namespace ingress-nginx --create-namespace
+helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx -f nginx-ingress-values.yaml --set tcp.5432="postgres/postgresql:5432" --set tcp.3306="mysql/mysql:3306" --namespace ingress-nginx --create-namespace
 
 # Check Nginx Ingress Pod is running
 kubectl get po,svc,cm -n ingress-nginx
