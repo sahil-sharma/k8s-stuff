@@ -9,6 +9,7 @@ This guide walks you through deploying **PostgreSQL**,**Nginx Ingress**, **pgAdm
 - A running Kubernetes cluster (`kind` or `VM using kubeadm`)
 - `kubectl` configured to access your cluster
 - [Helm 3.x](https://helm.sh/docs/intro/install/)
+
 - Custom `values.yaml` files:
   - `postgres-values.yaml`
   - `pgadmin-values.yaml`
@@ -21,7 +22,7 @@ This guide walks you through deploying **PostgreSQL**,**Nginx Ingress**, **pgAdm
   - `keycloak-values.yaml`
   - `nginx-ingress-values.yaml`
   - `argocd-values.yaml`
-  - `argo-workflow-values.yaml`
+  - `argo-workflows-values.yaml`
   - `argo-rollouts-values.yaml`
   - `mysql-values.yaml`
   - `oauth2-proxy-values.yaml`
@@ -113,7 +114,7 @@ kubectl get po,svc -n arogcd
 ```bash
 helm upgrade --install argo-workflows argocd/argo-workflows -f argo-workflows-values.yaml --namespace argo-workflows --create-namespace
 
-# Check Argo Workflow Pod is running
+# Check Argo Workflows Pod is running
 kubectl get po,svc -n arog-workflows
 ```
 
