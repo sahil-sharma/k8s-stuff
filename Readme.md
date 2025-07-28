@@ -157,6 +157,42 @@ helm upgrade --install grafana grafana/grafana -n grafana -f grafana-values.yaml
 kubectl get po,svc,ing -n grafana
 ```
 
+## Step 12: Install MySQL
+
+```bash
+helm upgrade --install mysql bitnami/mysql -f mysql-values.yaml -n mysql --create-namespace
+
+# Check MySQL Pod is running
+kubectl get po,svc,ing -n mysql
+```
+
+## Step 13: Install Keycloak (for MySQL)
+
+```bash
+helm upgrade --install keycloak bitnami/keycloak -f mysql-keycloak-values.yaml --namespace mysql-keycloak --create-namespace
+
+# Check Keycloak Pod is running
+kubectl get po,svc,ing -n mysql-keycloak
+```
+
+## Step 14: Install PhpMyAdmin
+
+```bash
+helm upgrade --install phpmyadmin bitnami/phpmyadmin -f phpmyadmin-values.yaml -n phpmyadmin --create-namespace
+
+# Check PhpMyAdmin Pod is running
+kubectl get po,svc,ing -n phpmyadmin
+```
+
+## Step 15: Install Vault
+
+```bash
+helm upgrade --install vault hashicorp/vault -f vault-values.yaml -n vault --create-namespace
+
+# Check Vault Pod is running
+kubectl get po,svc,ing -n vault
+```
+
 <details>
 
 <summary>⚠️ Notes and Attention (click to expand)</summary>
@@ -179,18 +215,8 @@ Error: INSTALLATION FAILED: 3 errors occurred:
 * Service in version "v1" cannot be handled as a Service: json: cannot unmarshal string into Go struct field ServicePort.spec.ports.port of type int32
 * Deployment in version "v1" cannot be handled as a Deployment: json: cannot unmarshal string into Go struct field ContainerPort.spec.template.spec.containers.ports.containerPort of type int32
 ```
-- ✅ **Keycloak throws Error**: Keycloak Bitnami Chart (read [this](https://github.com/keycloak/keycloak/issues/33330) and [this](https://github.com/keycloak/keycloak/issues/30471))
-
-I have added all the respective headers. Not sure what is missing.
 
 - ✅ **Kind Cluster**: If you're using Kind Cluster then you can use Metallb to expose your Nginx Ingress. (Check [this](https://metallb.universe.tf/installation/#installation-with-helm)). It comes up with its own complexity.
-
-- ✅ **pgAdmin Ingress issue**: Nginx Ingress does not respect proper redirect for `/pgamin4` when you use NodePort for Nginx Ingress. \
-Hit `http://<nginx-ingress-node-ip>:32080/pgadmin4` \
-Upon entering logging details it redirects back to `http://<nginx-ingress-node-ip>/pgadmin4`. Port is missing. Try to add the port and it works. \
-Also tried to add PGSQL DB details via pgadmin-values.yaml in `server` block (read [this](https://github.com/rowanruseler/helm-charts/blob/main/charts/pgadmin4/values.yaml#L100)) but it failed.
-
-- ✅ **Secret Management**: Secrets can be managed via External Secrets Operator (for AWS).
 
 </details>
 
