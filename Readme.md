@@ -16,23 +16,36 @@ This guide walks you through deploying **PostgreSQL**,**Nginx Ingress**, **pgAdm
   - `loki-values.yaml`
   - `promtail-values.yaml`
   - `tempo-values.yaml`
-  - `otel-collector-values.yaml`
+  - `otel-values.yaml`
   - `grafana-values.yaml`
   - `keycloak-values.yaml`
   - `nginx-ingress-values.yaml`
   - `argocd-values.yaml`
+  - `argo-workflow-values.yaml`
+  - `argo-rollouts-values.yaml`
+  - `mysql-values.yaml`
+  - `oauth2-proxy-values.yaml`
+  - `phpmyadmin-values.yaml`
+  - `vault-values.yaml`
+  - `mysql-keycloak-values.yaml`
 ---
 
 ## Links
 
 ```bash
-Keycloak: https://login.local.io:32443
+Keycloak: https://sso.local.io:32443
 Argo CD: http://cd.local.io:32080
 Argo Workflows: http://jobs.local.io:32080
-Grafana: http://dashboard.local.io:32080
-Loki: https://logs.local.io:32443
+Argo Rollouts: http://rollouts.local.io:32080
+Grafana: http://dashboards.local.io:32080
+Loki: http://logs.local.io:32080
 Prometheus: http://metrics.local.io:32080
 Tempo: http://traces.local.io:32080
+OAuth: http://auth.local.io:32080
+PgAdmin: http://pgadmin.local.io:32080
+PhpMyAdmin: http://phpmyadmin.local.io:32080
+MySQL: http://mysql.local.io:32306
+PGSQL: http://pgsql.local.io:32432
 ```
 
 ## Step 1: Add Helm Repositories
@@ -42,6 +55,11 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo add runix https://helm.runix.net
 helm repo add argocd https://argoproj.github.io/argo-helm
+helm repo add oauth2-proxy https://oauth2-proxy.github.io/manifests
+helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo add hashicorp https://helm.releases.hashicorp.com
 helm repo update
 ```
 
