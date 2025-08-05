@@ -1,5 +1,6 @@
 alertmanager:
-  enabled: false
+  enabled: true
+
   service:
     type: ClusterIP
   persistentVolume:
@@ -37,17 +38,72 @@ server:
       - /
     tls: []
 
+serverFiles:
+  alerting_rules.yml:
+    groups:
+    - name: blackbox-exporter-alerts
+      rules:
+        - alert: KeycloakDown
+          expr: probe_success{job="blackbox-keycloak"} == 0
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Keycloak is down"
+            description: "Keycloak HTTP probe failed for more than 1 minute."
+
+        - alert: PostgresDown
+          expr: probe_success{job="blackbox-postgres"} == 0
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "PostgreSQL is down"
+            description: "PostgreSQL TCP probe failed for more than 1 minute."
+
 extraScrapeConfigs: |
   - job_name: 'keycloak-quarkus-metrics'
     metrics_path: /metrics
     scheme: http
     static_configs:
-      - targets: ['keycloak-metrics.keycloak:9000']
+      - targets: ['keycloak-metrics.mysql-keycloak:9000']
+
   - job_name: 'keycloak-spi-metrics'
     metrics_path: /realms/master/metrics
     scheme: http
     static_configs:
-      - targets: ['keycloak-metrics.keycloak:8080']
+      - targets: ['keycloak-metrics.mysql-keycloak:8080']
+
+  - job_name: 'blackbox-keycloak'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - https://sso.local.io:32443/realms/master
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox.local.io:32080
+
+  - job_name: 'blackbox-postgres'
+    metrics_path: /probe
+    params:
+      module: [tcp_connect]
+    static_configs:
+      - targets:
+          - pg.local.io:32432
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox.local.io:32080
+
   # - job_name: 'argo-cd application controller'
   #   metrics_path: /metrics
   #   scheme: http
