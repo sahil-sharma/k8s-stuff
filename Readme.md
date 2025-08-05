@@ -16,6 +16,7 @@ This guide walks you through deploying **PostgreSQL**,**Nginx Ingress**, **pgAdm
   - `prometheus-values.yaml`
   - `loki-values.yaml`
   - `promtail-values.yaml`
+  - `blackbox-values.yaml`
   - `tempo-values.yaml`
   - `otel-values.yaml`
   - `grafana-values.yaml`
@@ -47,6 +48,7 @@ PgAdmin: http://pgadmin.local.io:32080
 PhpMyAdmin: http://phpmyadmin.local.io:32080
 MySQL: http://mysql.local.io:32306
 PGSQL: http://pgsql.local.io:32432
+Blackbox: http://blackbox.local.io:32432
 ```
 
 ## Step 1: Add Helm Repositories
@@ -192,6 +194,15 @@ helm upgrade --install vault hashicorp/vault -f vault-values.yaml -n vault --cre
 
 # Check Vault Pod is running
 kubectl get po,svc,ing -n vault
+```
+
+## Step 16: Install Blackbox
+
+```bash
+helm upgrade --install blackbox-exporter prometheus-community/prometheus-blackbox-exporter -n blackbox --create-namespace -f blackbox-values.yaml
+
+# Check Vault Pod is running
+kubectl get po,svc,ing -n blackbox
 ```
 
 <details>
