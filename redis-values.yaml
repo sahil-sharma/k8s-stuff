@@ -1,0 +1,15 @@
+architecture: standalone
+
+auth:
+  password: admin123
+
+master:
+  persistence:
+    enabled: false
+
+ingress:
+  enabled: true
+  hostname: cache.local.io
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  path: /
