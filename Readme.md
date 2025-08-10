@@ -205,6 +205,18 @@ helm upgrade --install blackbox-exporter prometheus-community/prometheus-blackbo
 kubectl get po,svc,ing -n blackbox
 ```
 
+## Step 17: Install OAuth2-Proxy
+
+```bash
+# Create Cookie Secret
+dd if=/dev/urandom bs=32 count=1 2>/dev/null | base64 | tr -d -- '\n' | tr -- '+/' '-_' ; echo
+
+helm upgrade --install oauth2 oauth2-proxy/oauth2-proxy -n oauth --create-namespace -f oauth2-proxy-values.yaml
+
+# Check Vault Pod is running
+kubectl get po,svc,ing -n oauth2
+```
+
 <details>
 
 <summary>⚠️ Notes and Attention (click to expand)</summary>
