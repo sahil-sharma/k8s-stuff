@@ -5,6 +5,10 @@ controller:
     use-forwarded-headers: "true"
     compute-full-forwarded-for: "true"
     forwarded-for-header: "X-Forwarded-For"
+    large_client_header_buffers: 4 16k;
+    proxy_buffer_size: 128k;
+    proxy_buffers: 4 256k;
+    proxy_busy_buffers_size: 256k;
 
   service:
     type: NodePort
