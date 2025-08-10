@@ -10,7 +10,6 @@ config:
     oidc_issuer_url="https://sso.local.io:32443/realms/master"
     skip_provider_button=true
     ssl_insecure_skip_verify=true
-    scope="openid email"
     reverse_proxy=true
     show_debug_on_error=true
     cookie_name="_oauth2_proxy"
@@ -26,8 +25,8 @@ config:
     pass_user_headers=true
     pass_host_header=true
     upstreams=["http://rollouts.local.io:32080/"]
-    whitelist_domains=["auth.local.io"]
-    cookie_domains=["auth.local.io"]
+    whitelist_domains=[".local.io"]
+    cookie_domains=[".local.io"]
 
 redis:
   enabled: false
@@ -38,7 +37,7 @@ sessionStorage:
     password: admin123
     clientType: "standalone"
     standalone:
-      connectionUrl: "redis://redis-master.redis:6379"
+      connectionUrl: "redis://cache.local.io:32379"
 
 ingress:
   enabled: true
@@ -46,7 +45,7 @@ ingress:
   pathType: Prefix
   className: nginx
   annotations:
-    nginx.ingress.kubernetes.io/proxy-ssl-server-name: "on"
+    # nginx.ingress.kubernetes.io/proxy-ssl-server-name: "on"
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
     nginx.ingress.kubernetes.io/proxy-buffer-size: "256k"
     nginx.ingress.kubernetes.io/client-header-buffer-size: "256k"
