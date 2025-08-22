@@ -233,9 +233,12 @@ helm upgrade --install istiod istio/istiod -n istio-system -f istiod-values.yaml
 # Check Vault Pod is running
 kubectl get po,svc,ing -n istio-system
 
-# Label namespaces to have sidecar
+# Label namespaces to have sidecar and rollout deployments to have sidecar
 kubectl label ns ingress-nginx istio-injection=enabled
 kubectl label ns welcome-app istio-injection=enabled
+
+# Enforce mesh-wide mTLS
+kubectl apply -f istio-mtls.yaml
 ```
 
 <details>
