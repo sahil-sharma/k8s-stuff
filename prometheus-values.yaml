@@ -36,7 +36,6 @@ server:
     pathType: Prefix
     paths:
       - /
-    tls: []
 
 serverFiles:
   alerting_rules.yml:
@@ -67,13 +66,11 @@ extraScrapeConfigs: |
     scheme: http
     static_configs:
       - targets: ['keycloak-metrics.mysql-keycloak:9000']
-
   - job_name: 'keycloak-spi-metrics'
     metrics_path: /realms/master/metrics
     scheme: http
     static_configs:
       - targets: ['keycloak-metrics.mysql-keycloak:8080']
-
   - job_name: 'blackbox-keycloak'
     metrics_path: /probe
     params:
@@ -88,7 +85,6 @@ extraScrapeConfigs: |
         target_label: instance
       - target_label: __address__
         replacement: blackbox.local.io:32080
-
   - job_name: 'blackbox-postgres'
     metrics_path: /probe
     params:
@@ -103,7 +99,12 @@ extraScrapeConfigs: |
         target_label: instance
       - target_label: __address__
         replacement: blackbox.local.io:32080
-
+      - targets: ['keycloak-metrics.keycloak:9000']
+  # - job_name: 'app'
+  #   metrics_path: /metrics
+  #   scheme: http
+  #   static_configs:
+  #     - targets: ['flask-app-service.app:5000']
   # - job_name: 'argo-cd application controller'
   #   metrics_path: /metrics
   #   scheme: http

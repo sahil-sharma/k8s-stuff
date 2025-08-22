@@ -12,7 +12,7 @@ serverDefinitions:
     firstServer:
       Name: "Test-DB"
       Group: "Servers"
-      Host: "db.local.io"
+      Host: "pg.local.io"
       Port: "32432"
       MaintenanceDB: postgres
       Username: postgres
@@ -29,7 +29,7 @@ ingress:
     nginx.ingress.kubernetes.io/configuration-snippet: |
       proxy_set_header X-Script-Name /;
   hosts:
-    - host: "pgadmin.local.io" 
+    - host: "pgadmin.local.io"
       paths:
         - path: /
           pathType: Prefix

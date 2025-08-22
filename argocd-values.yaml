@@ -7,13 +7,25 @@ global:
 redis-ha:
   enabled: false
 
+redis:
+  exporter:
+    enabled: true
+  metrics:
+    enabled: true
+    service:
+      clusterIP: ""
+
 controller:
   replicas: 1
+  metrics:
+    enabled: true
 
 dex:
   enabled: false
 
 server:
+  metrics:
+    enabled: true
   replicas: 1
   extensions:
     enabled: true
@@ -45,6 +57,8 @@ server:
     - --insecure
 
 repoServer:
+  metrics:
+    enabled: true
   replicas: 1
   # envFrom:
   #   - secretRef:
@@ -52,6 +66,12 @@ repoServer:
 
 applicationSet:
   replicas: 1
+  metrics:
+    enabled: true
+
+notifications:
+  metrics:
+    enabled: true
 
 configs:
 # To add SSH keys for repos
@@ -73,7 +93,7 @@ configs:
 
       # === Role Definitions ===
       # Admin role - full access
-      p, role:admin, *, *, */*, allow
+      p, role:admin, *, *, */*, allowk
 
       # Engineer role - get/list/create/update but NOT delete
       p, role:eng, applications, get, */*, allow
@@ -96,7 +116,7 @@ configs:
       name: Keycloak
       issuer: https://sso.local.io:32443/realms/master
       clientID: argocd
-      clientSecret: 
+      clientSecret: <SUPER-SECRET>
       requestedScopes: ["openid", "profile", "email", "groups"]
     oidc.tls.insecure.skip.verify: "true"
   repositories:

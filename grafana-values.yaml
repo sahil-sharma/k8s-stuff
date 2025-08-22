@@ -30,7 +30,7 @@ grafana.ini:
     timeout: 600
   database:
     type: postgres
-    host: postgres-postgresql.postgres:5432
+    host: db.local.io:32432
     name: grafana_db
     user: grafana_admin
     password: ${DB_PASSWORD}
@@ -62,6 +62,9 @@ grafana.ini:
     allow_assign_grafana_admin: true
     tls_skip_verify_insecure: true
 
+plugins:
+  - novatec-sdg-panel
+
 datasources:
   datasources.yaml:
     apiVersion: 1
@@ -69,17 +72,37 @@ datasources:
       - name: Prometheus
         type: prometheus
         access: proxy
+        uid: prometheus_uid
         url: http://metrics.local.io:32080
         isDefault: true
+        jsonData:
+        exemplarTraceIdDestinations:
+          - name: traceID
+            datasourceUid: tempo_uid
       - name: Loki
         type: loki
         access: proxy
+        uid: loki_uid
         url: https://logs.local.io:32443
         isDefault: false
         jsonData:
+          derivedFields:
+            - name: trace_id
+              matcherRegex: "trace_id=(\\w+)"
+              url: "${__url}/trace/${__value.raw}"
+              datasourceUid: tempo_uid
           tlsSkipVerify: true
           timeout: 300
           maxLines: 100
+      - name: Tempo
+        type: tempo
+        access: proxy
+        uid: tempo_uid
+        url: http://tempo.tempo:3200
+        isDefault: false
+        editable: true
+        # jsonData:
+        #   tlsSkipVerify: true
         # jsonData:
         #   httpHeaderName1: "X-Scope-OrgID"
         # secureJsonData:

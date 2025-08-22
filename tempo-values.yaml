@@ -6,6 +6,9 @@ traces:
       enabled: true
 
 tempo:
+  # server:
+  #   http_listen_address: 0.0.0.0
+
   metricsGenerator:
     enabled: true
     remoteWriteUrl: "http://metrics.local.io:32080/api/v1/write"
@@ -17,18 +20,22 @@ tempo:
         path: /tmp/tempo
 
 tempoQuery:
+  enabled: false
   ingress:
     enabled: false
     ingressClassName: nginx
     annotations:
       nginx.ingress.kubernetes.io/rewrite-target: /
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
     hosts:
-      - tempo.local.io
+      - traces.local.io
     path: /
     pathType: Prefix
     backend:
       service:
         name: tempo
+        port:
+          number: 3200
 
 service:
   type: ClusterIP

@@ -25,13 +25,13 @@ workflow:
   serviceAccount:
     create: true
     name: argo-workflow
-    annotations:
-      workflows.argoproj.io/rbac-rule: "'argo-workflows-admin' in groups"
-      workflows.argoproj.io/rbac-rule-precedence: "1"
+    # annotations:
+    #   workflows.argoproj.io/rbac-rule: "'devops' in groups"
+    #   workflows.argoproj.io/rbac-rule-precedence: "1"
   rbac:
     create: true
     serviceAccounts:
-      - name: argo-workflow
+      - name: devops-sa
         namespace: default
     # rules:
     #   - apiGroups: ["*"]
@@ -41,14 +41,14 @@ workflow:
 server:
   enabled: true
   logging:
-    level: info
+    level: debug
   authModes:
     - sso
   ingress:
     enabled: true
     ingressClassName: nginx
     hosts:
-      - jobs.local.io
+      - 41df-2001-871-25e-58eb-4f38-b19e-51c9-33ec.ngrok-free.app
     pathType: Prefix
     paths:
       - /
@@ -57,19 +57,19 @@ server:
       value: "true"
   sso:
     enabled: true
-    issuer: https://keycloak.local.io:32443/realms/master
+    issuer: https://login.microsoftonline.com/2f51824b-a09c-43f1-976d-2d6c26ae9eee/v2.0
     clientId:
       name: argo-workflows-sso
       key: client-id
     clientSecret:
       name: argo-workflows-sso
       key: client-secret
-    redirectUrl: http://jobs.local.io:32080/oauth2/callback
+    #redirectUrl: https://dc9a-2001-871-25e-58eb-c6a1-fee6-8f78-42c5.ngrok-free.app/oauth2/callback
     scopes:
+      - openid
       - email
       - profile
-      - groups
-    insecureSkipVerify: true
+    insecureSkipVerify: false
     rbac:
       enabled: true
       # policy: |

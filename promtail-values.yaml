@@ -4,7 +4,7 @@ podAnnotations:
 
 config:
   clients:
-    - url: http://loki-gateway.loki/loki/api/v1/push
+    - url: https://logs.local.io:32443/loki/api/v1/push
       # tenant_id: "demo-app"  # 👈 if multi-tenancy is enabled
       # Optional basic auth config if enabled:
       #basic_auth:

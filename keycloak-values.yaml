@@ -8,8 +8,8 @@ postgresql:
   enabled: false
 
 externalDatabase:
-  host: postgres-postgresql.postgres
-  port: 5432
+  host: pg.local.io
+  port: 32432
   user: keycloak_admin
   password: hello123
   database: keycloak_db
@@ -29,7 +29,7 @@ proxy: edge
 
 extraEnvVars:
   - name: KC_HOSTNAME
-    value: "https://login.local.io:32443"
+    value: "https://sso.local.io:32443"
   - name: KC_PROXY_HEADERS
     value: "xforwarded"
   - name: KC_HTTP_ENABLED
@@ -60,15 +60,15 @@ readinessProbe:
 ingress:
   enabled: true
   ingressClassName: nginx
-  hostname: login.local.io
+  hostname: sso.local.io
   tls: true
   selfSigned: true
   extraTls:
     - hosts:
-        - login.local.io
-      secretName: login.local.io-tls
+        - sso.local.io
+      secretName: sso.local.io-tls
   rules:
-  - host: login.local.io
+  - host: sso.local.io
     http:
       paths:
       - pathType: ImplementationSpecific

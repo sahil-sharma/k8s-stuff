@@ -7,10 +7,10 @@ nodes:
     image: kindest/node:v1.33.0
     extraPortMappings:
       - containerPort: 80
-        hostPort: 8000
+        hostPort: 32080
         protocol: TCP
       - containerPort: 443
-        hostPort: 8443
+        hostPort: 32443
         protocol: TCP
   - role: worker
     image: kindest/node:v1.33.0
@@ -18,5 +18,3 @@ nodes:
     image: kindest/node:v1.33.0
   - role: worker
     image: kindest/node:v1.33.0
-  # - role: worker
-  #   image: kindest/node:v1.32.0

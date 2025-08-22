@@ -63,6 +63,7 @@ helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo add hashicorp https://helm.releases.hashicorp.com
+helm repo add istio https://istio-release.storage.googleapis.com/charts
 helm repo update
 ```
 
@@ -213,8 +214,28 @@ dd if=/dev/urandom bs=32 count=1 2>/dev/null | base64 | tr -d -- '\n' | tr -- '+
 
 helm upgrade --install oauth2 oauth2-proxy/oauth2-proxy -n oauth --create-namespace -f oauth2-proxy-values.yaml
 
-# Check Vault Pod is running
+# Check OAuth2-Proxy Pod is running
 kubectl get po,svc,ing -n oauth2
+```
+
+## Step 18: Install Istio
+
+```bash
+# Create namespace
+kubectl create ns istio-system
+
+# Install CRDs
+helm install istio-base istio/base -n istio-system --set defaultRevision=default
+
+# Install Istio Control-plane
+helm upgrade --install istiod istio/istiod -n istio-system -f istiod-values.yaml
+
+# Check Vault Pod is running
+kubectl get po,svc,ing -n istio-system
+
+# Label namespaces to have sidecar
+kubectl label ns ingress-nginx istio-injection=enabled
+kubectl label ns welcome-app istio-injection=enabled
 ```
 
 <details>
