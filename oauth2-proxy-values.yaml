@@ -1,8 +1,8 @@
 config:
   clientID: oauth2
-  clientSecret: 
+  clientSecret: ""
   cookieSecure: false
-  cookieSecret: 
+  cookieSecret: ""
   configFile: |-
     email_domains = ["local.io"]
     provider = "oidc"
