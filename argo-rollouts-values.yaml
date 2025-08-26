@@ -13,7 +13,7 @@ dashboard:
     ingressClassName: nginx
     annotations:
       nginx.ingress.kubernetes.io/auth-url: "http://auth.local.io:32080/oauth2/auth"
-      nginx.ingress.kubernetes.io/auth-signin: "http://auth.local.io:32080/oauth2/start?rd=http://rollouts.local.io:32080$request_uri"
+      nginx.ingress.kubernetes.io/auth-signin: "http://auth.local.io:32080/oauth2/start?rd=$host:32080$request_uri"
       nginx.ingress.kubernetes.io/auth-response-headers: X-Auth-Request-User,X-Auth-Request-Email
     hosts:
       - rollouts.local.io
