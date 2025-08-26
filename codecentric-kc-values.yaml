@@ -1,0 +1,108 @@
+replicaCount: 1
+
+# podDisruptionBudget:
+#   minAvailable: 1
+
+# autoscaling:
+#   enabled: true
+#   minReplicas: 2
+#   maxReplicas: 4
+
+#   metrics:
+#     - type: Resource
+#       resource:
+#         name: cpu
+#         target:
+#           type: Utilization
+#           averageUtilization: 80
+#     - type: Resource
+#       resource:
+#         name: memory
+#         target:
+#           type: Utilization
+#           averageUtilization: 75
+#   behavior:
+#     scaleDown:
+#       stabilizationWindowSeconds: 300
+#       policies:
+#         - type: Pods
+#           value: 1
+#           periodSeconds: 300
+
+# resources: 
+#   requests:
+#     cpu: "1"
+#     memory: "2048Mi"
+#   limits:
+#     cpu: "1"
+#     memory: "2560Mi"
+
+image:
+  repository: "official-kc"
+  tag: "v26"
+
+service:
+  type: ClusterIP
+  port: 9000
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+
+command:
+  - "/opt/keycloak/bin/kc.sh"
+  - "--verbose"
+  - "start"
+  - "--spi-events-listener-jboss-logging-success-level=info"
+  - "--spi-events-listener-jboss-logging-error-level=warn"
+
+database:
+  vendor: mysql
+  hostname: mysql.mysql
+  port: 3306
+  database: dummy_db
+  username: admin
+  password: admin123
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  # servicePort: http
+  rules:
+    - host: sso.local.io
+      paths:
+        - path: /auth
+          pathType: Prefix
+  tls: []
+
+extraEnv: |
+  - name: KC_HOSTNAME
+    value: "https://sso.local.io:32443/auth"
+  - name: KC_HOSTNAME_PORT
+    value: "32443"
+  - name: KC_HOSTNAME_STRICT
+    value: "false"
+  - name: KC_PROXY
+    value: "edge"
+  - name: KC_BOOTSTRAP_ADMIN_USERNAME
+    value: admin
+  - name: KC_BOOTSTRAP_ADMIN_PASSWORD
+    value: admin123
+  - name: KC_CACHE
+    value: local
+  - name: KC_HTTP_ENABLED
+    value: "true"
+  - name: KC_PROXY_HEADERS
+    value: "xforwarded"
+  - name: KC_HOSTNAME_DEBUG
+    value: "true"
+  - name: JAVA_OPTS_APPEND
+    value: >-
+      -XX:MaxRAMPercentage=50.0
+      -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless
+      -Djgroups.dns.query=keycloak-headless
+
+# # Optional: expose /metrics and /health over Ingress
+# podAnnotations:
+#   prometheus.io/scrape: "true"
+#   prometheus.io/path: "/metrics"
+#   prometheus.io/port: "9000"
