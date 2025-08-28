@@ -1,3 +1,10 @@
+global:
+  enabled: true
+  tlsDisable: false
+
+injector:
+  enabled: false
+
 server:
   ha:
     enabled: false
@@ -8,50 +15,146 @@ server:
 
   config: |
     ui = true
-
     listener "tcp" {
       address = "0.0.0.0:8200"
       tls_disable = "true"
     }
-
     storage "raft" {
       path    = "/vault/data"
-      node_id = "${HOSTNAME}"
+      node_id = "${HOSTNAME}" 
     }
-
     disable_mlock = true
 
   ingress:
     enabled: true
     ingressClassName: "nginx"
-    annotations:
-      kubernetes.io/ingress.class: nginx
+    pathType: Prefix
     hosts:
       - host: secrets.local.io
         paths:
           - /
 
   extraEnvironmentVars:
-    VAULT_ADDR: http://vault.vault.svc:8200
+    VAULT_ADDR: http://vault.vault:8200
     VAULT_SKIP_VERIFY: true
-    VAULT_CACERT: /etc/vault/tls/keycloak-ca.crt
+
+  volumeMounts:
+  - name: vault-init-volume
+    mountPath: /v-data
+
+  extraContainers:
+    - name: vault-setup
+      image: "hashicorp/vault:1.20.2"
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          #set -euo pipefail
+          set -e
+          sleep 5
+          export VAULT_ADDR=http://vault.vault:8200
+
+          if vault status -address=http://vault.vault:8200 | grep -q 'Initialized.*false'; then
+            echo "Vault not initialized. Starting to initialize Vault..."
+            vault operator init -address=$VAULT_ADDR -key-shares=1 -key-threshold=1 -format=json > /vault/init-keys.txt
+            echo "Vault initialization completed and keys saved to /vault/init-keys.txt"
+
+            echo "Fetching Unseal keys and root token..."
+            UNSEAL_KEY=$(cat /vault/init-keys.txt | grep '"unseal_keys_hex"' -A 1 | tail -n 1 | sed 's/[", ]//g')
+            ROOT_TOKEN=$(cat /vault/init-keys.txt | grep root_token | cut -d '"' -f4)           
+            
+            echo "Unsealing Vault..."
+            vault operator unseal -address=$VAULT_ADDR $UNSEAL_KEY
+            
+            echo "Logging-in Vault..."
+            vault login -address=$VAULT_ADDR $ROOT_TOKEN
+            
+            echo "Enabling OIDC..."
+            vault auth enable -address=$VAULT_ADDR oidc
+
+            echo "Configuring OIDC..."
+            vault write auth/oidc/config \
+              oidc_discovery_url="http://sso.local.io:32080/auth/realms/master" \
+              oidc_client_id="vault" \
+              oidc_client_secret="" \
+              default_role="default"
+
+            echo "Writing policies..."
+
+            echo 'path "secrets/*" { capabilities = ["sudo", "create", "read", "update", "delete", "list"] }' \
+            | vault policy write devops -
+
+            echo 'path "secrets/*" { capabilities = ["create", "read", "update", "list"] }' \
+            | vault policy write data -
+
+            echo 'path "secrets/*" { capabilities = ["read", "list"] }' \
+            | vault policy write qa -
+
+            echo "Creating OIDC roles..."
+            
+            vault write auth/oidc/role/devops \
+              user_claim="preferred_username" \
+              groups_claim="groups" \
+              bound_audiences="vault" \
+              allowed_redirect_uris="http://vault.vault:8200/oidc/oidc/callback" \
+              allowed_redirect_uris="http://vault.vault:8200/ui/vault/auth/oidc/oidc/callback" \
+              policies="devops" \
+              ttl="1h" \
+              bound_claims_type="string" \
+              bound_claims='{"groups":["devops"]}'
+
+            vault write auth/oidc/role/data \
+              user_claim="preferred_username" \
+              groups_claim="groups" \
+              bound_audiences="vault" \
+              allowed_redirect_uris="http://vault.vault:8200/oidc/oidc/callback" \
+              allowed_redirect_uris="http://vault.vault:8200/ui/vault/auth/oidc/oidc/callback" \
+              policies="data" \
+              ttl="1h" \
+              bound_claims_type="string" \
+              bound_claims='{"groups":["data"]}'
+
+            vault write auth/oidc/role/qa \
+              user_claim="preferred_username" \
+              groups_claim="groups" \
+              bound_audiences="vault" \
+              allowed_redirect_uris="http://vault.vault:8200/oidc/oidc/callback" \
+              allowed_redirect_uris="http://vault.vault:8200/ui/vault/auth/oidc/oidc/callback" \
+              policies="qa" \
+              ttl="1h" \
+              bound_claims_type="string" \
+              bound_claims='{"groups":[ "qa"]}'
+
+            echo "Creating secrets..."
+
+            vault kv put secrets/app/a username="usera" password="passa"
+            vault kv put secrets/app/b username="userb" password="passb"
+            vault kv put secrets/app/c username="userc" password="passc"
+            
+            echo "Initscript executed successfully, idling..."
+          fi
+          #else
+            #echo "Vault already initialized. Skipping init steps, idling..."
+          #fi
+          
+          # Keep container running
+          tail -f /dev/null
+      volumeMounts:
+        - name: vault-init-volume
+          mountPath: /vault
 
   volumes:
-    - name: keycloak-ca
-      configMap:
-        name: keycloak-ca-cert
-  
-  volumeMounts:
-    - name: keycloak-ca
-      mountPath: /etc/vault/tls
-      readOnly: true
-
+    - name: vault-init-volume
+      emptyDir: {}
+      
   # volumes:
-  #   - name: vault-init
-  #     configMap:
-  #       name: vault-init-scripts
+  #   - name: sso-ca
+  #     secret:
+  #       secretName: sso-ca-cert
 
-  # volumeMounts:
-  #   - name: vault-init
-  #     mountPath: /vault/init
-  #     readOnly: true
+  #   - name: vault-init-script
+  #     configMap:
+  #       name: vault-init-script
+  #       defaultMode: 0777
+  #       items:
+  #         - key: "vault-init-script.sh"
+  #           path: "vault-init-script.sh"

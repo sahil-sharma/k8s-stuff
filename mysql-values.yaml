@@ -1,16 +1,16 @@
 auth:
   rootPassword: rootpassword
-  username: admin
-  password: admin123
-  database: dummy_db
+  username: keycloak_admin
+  password: hello123
+  database: keycloak_db
 
 primary:
   persistence:
     enabled: false
 
-initdbScripts:
-  init.sql: |
-    CREATE DATABASE IF NOT EXISTS keycloak_db;
-    CREATE USER IF NOT EXISTS 'keycloak_admin'@'%' IDENTIFIED BY 'hello123';
-    GRANT ALL PRIVILEGES ON keycloak_db.* TO 'keycloak_admin'@'%';
-    FLUSH PRIVILEGES;
+# initdbScripts:
+#   init.sql: |
+#     CREATE DATABASE IF NOT EXISTS keycloak_db;
+#     CREATE USER IF NOT EXISTS 'keycloak_admin'@'%' IDENTIFIED BY 'hello123';
+#     GRANT ALL PRIVILEGES ON keycloak_db.* TO 'keycloak_admin'@'%';
+#     FLUSH PRIVILEGES;

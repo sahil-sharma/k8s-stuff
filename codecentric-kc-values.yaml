@@ -59,26 +59,33 @@ database:
   vendor: mysql
   hostname: mysql.mysql
   port: 3306
-  database: dummy_db
-  username: admin
-  password: admin123
+  database: keycloak_db
+  username: keycloak_admin
+  password: hello123
 
 ingress:
   enabled: true
   ingressClassName: nginx
-  # servicePort: http
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: 128k
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
   rules:
     - host: sso.local.io
       paths:
         - path: /auth
           pathType: Prefix
-  tls: []
+  # tls:
+  #   - hosts:
+  #       - sso.local.io
+  #     secretName: keycloak-tls
 
 extraEnv: |
   - name: KC_HOSTNAME
-    value: "https://sso.local.io:32443/auth"
+    value: "http://sso.local.io:32080/auth"
   - name: KC_HOSTNAME_PORT
-    value: "32443"
+    value: "32080"
   - name: KC_HOSTNAME_STRICT
     value: "false"
   - name: KC_PROXY

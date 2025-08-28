@@ -1,30 +1,30 @@
 controller:
   name: controller
   kind: Deployment
-  podAnnotations:
-    sidecar.istio.io/inject: "true"
-    traffic.sidecar.istio.io/includeInboundPorts: ""
-    traffic.sidecar.istio.io/includeOutboundIPRanges: "*"
+  # podAnnotations:
+  #   sidecar.istio.io/inject: "true"
+  #   traffic.sidecar.istio.io/includeInboundPorts: ""
+  #   traffic.sidecar.istio.io/includeOutboundIPRanges: "*"
   config:
     use-forwarded-headers: "true"
     compute-full-forwarded-for: "true"
     forwarded-for-header: "X-Forwarded-For"
     # large_client_header_buffers: "4 16k"
-    proxy_buffer_size: "256k"
-    proxy_buffers: "4 512k"
-    proxy_busy_buffers_size: "512k"
-    large_client_header_buffers: 4 16k;
+    # proxy_buffer_size: "256k"
+    # proxy_buffers: "4 512k"
+    # proxy_busy_buffers_size: "512k"
+    # large_client_header_buffers: 4 16k;
 
   service:
     type: NodePort
     nodePorts:
       http: 32080
       https: 32443
-      tcp:
-        5432: 32432
-        3306: 32306
-        3200: 32200
-        6379: 32379
+      # tcp:
+      #   5432: 32432
+      #   3306: 32306
+      #   3200: 32200
+      #   6379: 32379
 
   ingressClassResource:
     name: nginx
