@@ -37,9 +37,12 @@ replicaCount: 1
 #     cpu: "1"
 #     memory: "2560Mi"
 
-image:
-  repository: "official-kc"
-  tag: "v26"
+# image:
+#   repository: "official-kc"
+#   tag: "v26"
+
+http:
+  relativePath: "/"
 
 service:
   type: ClusterIP
@@ -74,7 +77,7 @@ ingress:
   rules:
     - host: sso.local.io
       paths:
-        - path: /auth
+        - path: /
           pathType: Prefix
   # tls:
   #   - hosts:
@@ -83,7 +86,7 @@ ingress:
 
 extraEnv: |
   - name: KC_HOSTNAME
-    value: "http://sso.local.io:32080/auth"
+    value: "http://sso.local.io:32080"
   - name: KC_HOSTNAME_PORT
     value: "32080"
   - name: KC_HOSTNAME_STRICT
