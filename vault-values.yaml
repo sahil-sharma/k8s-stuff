@@ -102,28 +102,6 @@ server:
               bound_claims_type="string" \
               bound_claims='{"groups":["devops"]}'
 
-            vault write auth/oidc/role/data \
-              user_claim="preferred_username" \
-              groups_claim="groups" \
-              bound_audiences="vault" \
-              allowed_redirect_uris="http://vault.vault:8200/oidc/oidc/callback" \
-              allowed_redirect_uris="http://vault.vault:8200/ui/vault/auth/oidc/oidc/callback" \
-              policies="data" \
-              ttl="1h" \
-              bound_claims_type="string" \
-              bound_claims='{"groups":["data"]}'
-
-            vault write auth/oidc/role/qa \
-              user_claim="preferred_username" \
-              groups_claim="groups" \
-              bound_audiences="vault" \
-              allowed_redirect_uris="http://vault.vault:8200/oidc/oidc/callback" \
-              allowed_redirect_uris="http://vault.vault:8200/ui/vault/auth/oidc/oidc/callback" \
-              policies="qa" \
-              ttl="1h" \
-              bound_claims_type="string" \
-              bound_claims='{"groups":[ "qa"]}'
-
             echo "Creating secrets..."
 
             vault kv put secrets/app/a username="usera" password="passa"
