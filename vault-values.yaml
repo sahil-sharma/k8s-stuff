@@ -52,61 +52,124 @@ server:
           set -e
           sleep 5
           export VAULT_ADDR=http://vault.vault:8200
+          export KEY_FILE="/vault/init-keys.txt"
 
-          if vault status -address=http://vault.vault:8200 | grep -q 'Initialized.*false'; then
+          if vault status | grep -q 'Initialized.*false'; then
             echo "Vault not initialized. Starting to initialize Vault..."
-            vault operator init -address=$VAULT_ADDR -key-shares=1 -key-threshold=1 -format=json > /vault/init-keys.txt
-            echo "Vault initialization completed and keys saved to /vault/init-keys.txt"
+            vault operator init -key-shares=1 -key-threshold=1 -format=json > $KEY_FILE
+            echo "Vault initialization completed and keys saved to $KEY_FILE"
 
             echo "Fetching Unseal keys and root token..."
-            UNSEAL_KEY=$(cat /vault/init-keys.txt | grep '"unseal_keys_hex"' -A 1 | tail -n 1 | sed 's/[", ]//g')
-            ROOT_TOKEN=$(cat /vault/init-keys.txt | grep root_token | cut -d '"' -f4)           
+            UNSEAL_KEY=$(cat $KEY_FILE | grep '"unseal_keys_hex"' -A 1 | tail -n 1 | sed 's/[", ]//g')
+            VAULT_TOKEN=$(cat $KEY_FILE | grep root_token | cut -d '"' -f4)           
             
             echo "Unsealing Vault..."
-            vault operator unseal -address=$VAULT_ADDR $UNSEAL_KEY
+            vault operator unseal $UNSEAL_KEY
             
             echo "Logging-in Vault..."
-            vault login -address=$VAULT_ADDR $ROOT_TOKEN
+            vault login $VAULT_TOKEN
             
-            echo "Enabling OIDC..."
-            vault auth enable -address=$VAULT_ADDR oidc
+            echo "Enabling OIDC auth method..."
+            vault auth enable oidc
+            
+            echo "Enabling AppRole auth method..."
+            vault auth enable approle
+
+            echo "Enabling Kubernetes auth method..."
+            vault auth enable kubernetes
 
             echo "Configuring OIDC..."
             vault write auth/oidc/config \
-              oidc_discovery_url="http://sso.local.io:32080/auth/realms/master" \
-              oidc_client_id="vault" \
-              oidc_client_secret="" \
+              oidc_discovery_url="http://sso.local.io:32080/realms/master" \
+              oidc_client_id="secrets" \
+              oidc_client_secret="OfIPubaGSJeS6LykUwRYNPtRtpmdztMA" \
               default_role="default"
+
+            echo "Enable vault internal KV secrets engine"
+            vault secrets enable -path=secrets -version=2 -description="Vault internal Secrets" kv
+
+            echo "Put the root token and the keys file in the internal secret store"
+            vault kv put secrets/sso/vault/initialization \
+              root_token="$VAULT_TOKEN" \
+              keys_file="$(cat $KEY_FILE)"
 
             echo "Writing policies..."
 
             echo 'path "secrets/*" { capabilities = ["sudo", "create", "read", "update", "delete", "list"] }' \
-            | vault policy write devops -
+            | vault policy write devops-team -
 
-            echo 'path "secrets/*" { capabilities = ["create", "read", "update", "list"] }' \
-            | vault policy write data -
+            echo 'path "secrets/data/data/*" { capabilities = ["create", "read", "update", "list"] }' \
+            | vault policy write data-team -
 
-            echo 'path "secrets/*" { capabilities = ["read", "list"] }' \
-            | vault policy write qa -
+            echo 'path "secrets/data/eng/*" { capabilities = ["create", "read", "update", "list"] }' \
+            | vault policy write eng-team -
 
-            echo "Creating OIDC roles..."
-            
+            echo "Creating AppRole..."
+
+            vault write auth/approle/role/eng-team \
+            token_policies="eng-app" \
+            token_ttl="1h" \
+            token_max_ttl="4h" \
+            secret_id_ttl="24h" \
+            secret_id_num_uses=10
+
+            echo "Fecth Eng App Role ID"
+            ENG_ROLE_ID=$(vault read auth/approle/role/eng-team/role-id)
+            echo "Enginerring Team Role ID is: $ENG_ROLE_ID" >> /vault/eng-app-role-secret-id.txt
+            vault write -f auth/approle/role/eng-team/secret-id >> /vault/eng-team-role-secret-id.txt
+
+            vault write auth/approle/role/data-team \
+            token_policies="data-app" \
+            token_ttl="1h" \
+            token_max_ttl="4h" \
+            secret_id_ttl="24h" \
+            secret_id_num_uses=10
+
+            echo "Fecth Data App Role ID"
+            ENG_ROLE_ID=$(vault read auth/approle/role/data-team/role-id)
+            vault write -f auth/approle/role/data-team/secret-id >> /vault/data-team-role-secret-id.txt
+
+            vault write auth/approle/role/devops-team \
+            token_policies="devops-team" \
+            token_ttl="1h" \
+            token_max_ttl="4h" \
+            secret_id_ttl="24h" \
+            secret_id_num_uses=10
+
+            echo "Fecth DevOps App Role ID"
+            ENG_ROLE_ID=$(vault read auth/approle/role/devops-team/role-id)
+            vault write -f auth/approle/role/devops-team/secret-id >> /vault/devops-team-role-secret-id.txt
+
+            echo "Configuring K8s..."
+            vault write auth/kubernetes/config \
+            token_reviewer_jwt="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" \
+            kubernetes_host="https//172.18.0.5:6443" \
+            kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+
+            echo "Creating Role for K8s SA"
+            vault write auth/kubernetes/role/devops-team \
+            audience="https://kubernetes.default.svc.cluster.local"
+            bound_service_account_names=devops-sa \
+            bound_service_account_namespaces=default \
+            policies=devops-team \
+            ttl=24h
+
+            echo "Creating OIDC roles..."            
             vault write auth/oidc/role/devops \
               user_claim="preferred_username" \
               groups_claim="groups" \
               bound_audiences="vault" \
               allowed_redirect_uris="http://vault.vault:8200/oidc/oidc/callback" \
               allowed_redirect_uris="http://vault.vault:8200/ui/vault/auth/oidc/oidc/callback" \
-              policies="devops" \
+              policies="devops-team" \
               ttl="1h" \
               bound_claims_type="string" \
               bound_claims='{"groups":["devops"]}'
 
             echo "Creating secrets..."
-
-            vault kv put secrets/app/a username="usera" password="passa"
-            vault kv put secrets/app/b username="userb" password="passb"
-            vault kv put secrets/app/c username="userc" password="passc"
+            vault kv put secrets/data/eng/a username="usera" password="passa"
+            vault kv put secrets/data/eng/b username="userb" password="passb"
+            vault kv put secrets/data/data/c username="userc" password="passc"
             
             echo "Initscript executed successfully, idling..."
           fi

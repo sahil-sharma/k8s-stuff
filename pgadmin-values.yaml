@@ -1,7 +1,7 @@
 env:
-  email: admin@domain.com
+  email: admin@local.io
   password: admin123
-  contextPath: /
+  contextPath: "/pgadmin4"
 
 serverDefinitions:
   enabled: true
@@ -10,26 +10,28 @@ serverDefinitions:
 
   servers:
     firstServer:
-      Name: "Test-DB"
+      Name: "KC-DB"
       Group: "Servers"
       Host: "pg.local.io"
       Port: "32432"
-      MaintenanceDB: postgres
-      Username: postgres
-      SSLMode: disable
+      MaintenanceDB: "keycloakdb"
+      Username: "keycloak_admin"
+      SSLMode: "disable"
 
 persistentVolume:
   enabled: false
 
 ingress:
   enabled: true
-  ingressClassName: nginx
+  ingressClassName: "nginx"
   annotations:
-    kubernetes.io/ingress.class: "nginx"
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /pgadmin4
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      proxy_set_header X-Script-Name /;
+      proxy_set_header X-Script-Name /pgadmin4;
+      proxy_set_header X-Forwarded-Prefix /pgadmin4;
   hosts:
-    - host: "pgadmin.local.io"
+    - host: pgadmin.local.io
       paths:
-        - path: /
+        - path: /pgadmin(/|$)(.*)
           pathType: Prefix
