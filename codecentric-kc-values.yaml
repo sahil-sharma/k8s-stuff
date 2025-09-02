@@ -59,7 +59,7 @@ command:
   - "--spi-events-listener-jboss-logging-error-level=warn"
 
 database:
-  vendor: mysql
+  vendor: mysql           # postgres if DB is postgres
   hostname: mysql.mysql
   port: 3306
   database: keycloak_db
@@ -79,10 +79,6 @@ ingress:
       paths:
         - path: /
           pathType: Prefix
-  # tls:
-  #   - hosts:
-  #       - sso.local.io
-  #     secretName: keycloak-tls
 
 extraEnv: |
   - name: KC_HOSTNAME
