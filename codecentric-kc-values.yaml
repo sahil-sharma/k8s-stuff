@@ -59,7 +59,7 @@ command:
   - "--spi-events-listener-jboss-logging-error-level=warn"
 
 database:
-  vendor: mysql           # postgres if DB is postgres
+  vendor: mysql
   hostname: mysql.mysql
   port: 3306
   database: keycloak_db

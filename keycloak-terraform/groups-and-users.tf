@@ -49,10 +49,11 @@ resource "keycloak_user" "users" {
   first_name = each.value.first_name
   last_name  = each.value.last_name
   enabled    = true
+  email_verified = true
 
   initial_password {
     value     = random_password.user_passwords[each.key].result
-    temporary = true
+    temporary = false
   }
 }
 
