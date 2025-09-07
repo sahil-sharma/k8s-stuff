@@ -12,7 +12,7 @@ spec:
     namespace: welcome-app
     server: https://kubernetes.default.svc
   sources:
-    - repoURL: 'git@github.com:sahil-sharma/go-welcome-app'
+    - repoURL: 'https://github.com/sahil-sharma/go-welcome-app'
       targetRevision: main
       path: manifests/
       kustomize: {}
