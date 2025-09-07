@@ -93,13 +93,14 @@ configs:
 
       # === Role Definitions ===
       # Admin role - full access
-      p, role:admin, *, *, */*, allowk
+      p, role:admin, *, *, */*, allow
 
       # Engineer role - get/list/create/update but NOT delete
       p, role:eng, applications, get, */*, allow
       p, role:eng, applications, list, */*, allow
       p, role:eng, applications, create, */*, allow
       p, role:eng, applications, update, */*, allow
+      p, role:eng, applications, sync, */*, allow
       p, role:eng, projects, get, */*, allow
       p, role:eng, projects, list, */*, allow
       p, role:eng, repositories, get, */*, allow
@@ -113,10 +114,10 @@ configs:
     admin.enabled: false
     url: http://cd.local.io:32080
     oidc.config: |
-      name: Keycloak
-      issuer: https://sso.local.io:32443/realms/master
+      name: SSO
+      issuer: http://sso.local.io:32080/realms/platform
       clientID: argocd
-      clientSecret: <SUPER-SECRET>
+      clientSecret: 
       requestedScopes: ["openid", "profile", "email", "groups"]
     oidc.tls.insecure.skip.verify: "true"
   repositories:
@@ -167,6 +168,6 @@ configs:
       project: default
     welcome-app:
       type: git
-      url: git@github.com:sahil-sharma/go-welcome-app.git
+      url: https://github.com/sahil-sharma/go-welcome-app.git
       name: go-welcome-app
       project: default
