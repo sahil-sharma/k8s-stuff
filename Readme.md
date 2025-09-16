@@ -35,7 +35,7 @@ This guide walks you through deploying **PostgreSQL**,**Nginx Ingress**, **pgAdm
 ## Links
 
 ```bash
-Keycloak: https://sso.local.io:32443
+Keycloak: http://sso.local.io:32080
 Argo CD: http://cd.local.io:32080
 Argo Workflows: http://jobs.local.io:32080
 Argo Rollouts: http://rollouts.local.io:32080
@@ -64,6 +64,7 @@ helm repo add grafana https://grafana.github.io/helm-charts
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo add hashicorp https://helm.releases.hashicorp.com
 helm repo add istio https://istio-release.storage.googleapis.com/charts
+helm repo add argocd-apps https://argoproj.github.io/argo-helm
 helm repo update
 ```
 
