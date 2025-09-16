@@ -37,10 +37,6 @@ replicaCount: 1
 #     cpu: "1"
 #     memory: "2560Mi"
 
-# image:
-#   repository: "official-kc"
-#   tag: "v26"
-
 http:
   relativePath: "/"
 
@@ -59,9 +55,9 @@ command:
   - "--spi-events-listener-jboss-logging-error-level=warn"
 
 database:
-  vendor: mysql
-  hostname: mysql.mysql
-  port: 3306
+  vendor: postgres
+  hostname: pg.local.io
+  port: 32432
   database: keycloak_db
   username: keycloak_admin
   password: hello123
