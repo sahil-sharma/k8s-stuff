@@ -1,25 +1,20 @@
 # Install Welcome App
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: welcome-app
-  namespace: argocd
-  annotations:
-    argocd-image-updater.argoproj.io/image-list: welcome-app=bonyscott/welcome-app
-spec:
-  project: default
-  destination:
-    namespace: welcome-app
-    server: https://kubernetes.default.svc
-  sources:
-    - repoURL: 'https://github.com/sahil-sharma/go-welcome-app'
+applications:
+  welcome-app:
+    namespace: argocd
+    project: default
+    destination:
+      namespace: welcome-app
+      server: https://kubernetes.default.svc
+    source:
+      repoURL: 'https://github.com/sahil-sharma/go-welcome-app.git'
       targetRevision: main
       path: manifests/
       kustomize: {}
-  revisionHistoryLimit: 2
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+    revisionHistoryLimit: 2
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
+      syncOptions:
+        - CreateNamespace=true
