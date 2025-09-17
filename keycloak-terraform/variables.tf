@@ -18,7 +18,6 @@ variable "keycloak_admin_login_password" {
 variable "realm_name" {
   type        = string
   description = "Keycloak realm name"
-  default     = "platform"
 }
 
 variable "clients" {

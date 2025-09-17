@@ -42,13 +42,13 @@ resource "random_password" "user_passwords" {
 }
 
 resource "keycloak_user" "users" {
-  for_each   = local.user_map
-  realm_id   = keycloak_realm.realm.id
-  username   = each.key
-  email      = each.value.email
-  first_name = each.value.first_name
-  last_name  = each.value.last_name
-  enabled    = true
+  for_each       = local.user_map
+  realm_id       = keycloak_realm.realm.id
+  username       = each.key
+  email          = each.value.email
+  first_name     = each.value.first_name
+  last_name      = each.value.last_name
+  enabled        = true
   email_verified = true
 
   initial_password {

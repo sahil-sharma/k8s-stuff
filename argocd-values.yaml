@@ -41,7 +41,7 @@ server:
     ingressClassName: nginx
     annotations:
       nginx.ingress.kubernetes.io/rewrite-target: /
-      #nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      # nginx.ingress.kubernetes.io/ssl-redirect: "true"
     rules:
     - host: cd.local.io
       http:
@@ -119,6 +119,7 @@ configs:
       clientID: argocd
       clientSecret: 
       requestedScopes: ["openid", "profile", "email", "groups"]
+      logoutURL: http://sso.local.io:32080/realms/platform/protocol/openid-connect/logout
     oidc.tls.insecure.skip.verify: "true"
   repositories:
     pgadmin:

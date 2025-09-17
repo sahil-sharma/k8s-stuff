@@ -1,10 +1,11 @@
-# kind-config.yaml
-kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
+kind: Cluster
+networking:
+  apiServerAddress: "10.0.0.251"
 name: test-cluster
 nodes:
   - role: control-plane
-    image: kindest/node:v1.33.0
+    image: kindest/node:v1.34.0
     extraPortMappings:
       - containerPort: 80
         hostPort: 32080
@@ -13,8 +14,8 @@ nodes:
         hostPort: 32443
         protocol: TCP
   - role: worker
-    image: kindest/node:v1.33.0
+    image: kindest/node:v1.34.0
   - role: worker
-    image: kindest/node:v1.33.0
+    image: kindest/node:v1.34.0
   - role: worker
-    image: kindest/node:v1.33.0
+    image: kindest/node:v1.34.0
