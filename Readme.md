@@ -35,7 +35,7 @@ This guide walks you through deploying **PostgreSQL**,**Nginx Ingress**, **pgAdm
 ## Links
 
 ```bash
-Keycloak: http://sso.local.io:32080
+Keycloak: https://sso.local.io:32443
 Argo CD: http://cd.local.io:32080
 Argo Workflows: http://jobs.local.io:32080
 Argo Rollouts: http://rollouts.local.io:32080
@@ -64,7 +64,7 @@ helm repo add grafana https://grafana.github.io/helm-charts
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo add hashicorp https://helm.releases.hashicorp.com
 helm repo add istio https://istio-release.storage.googleapis.com/charts
-helm repo add argocd-apps https://argoproj.github.io/argo-helm
+helm repo add cnpg https://cloudnative-pg.github.io/charts
 helm repo update
 ```
 
@@ -75,6 +75,20 @@ helm upgrade --install postgres bitnami/postgresql -f postgres-values.yaml --nam
 
 # Check PGSQL Pod is running
 kubectl get po,svc -n postgres
+```
+As Bitnami Images have been moved behind paywall so we will use CloudNative PG Operator to install postgres.
+
+```bash
+# Install the Helm Repo and update helm locally
+
+# Install CRDs
+helm upgrade --install cnpg cnpg/cloudnative-pg -n cnpg-system --create-namespace
+
+# Create DB secret
+kubectl create secret generic kc-db-secret --from-literal=username=keycloak_admin --from-literal=password=admin123 -n postgres
+
+# Create Keycloak DB
+k apply -f pg.yaml
 ```
 
 ## Step 3: Install Nginx Ingress
