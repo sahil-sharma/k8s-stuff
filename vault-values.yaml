@@ -49,6 +49,7 @@ server:
       args:
         - |
           set -e
+          echo ""
           echo -e "Sleeping to let Vault start up...\n"
           sleep 10 # Wait for Vault to be ready
 
@@ -75,16 +76,18 @@ server:
             vault secrets enable -path=database -version=2 kv
             vault secrets enable -path=globals -version=2 kv
             vault secrets enable -path=sso -version=2 kv
+            vault secrets enable -path=aiml -version=2 kv
 
             echo "Storing the init JSON in the internal KV store for safekeeping..."
             vault kv put sso/vault/init root_token="$VAULT_TOKEN" keys_file="$(cat "$KEY_FILE")"
 
             echo "Creating example secrets"
-            vault kv put apps/app1 config_username="usera" config_password="passa"
-            vault kv put database/postgres creds_username="pguser" creds_password="pgpass"
-            vault kv put globals/common api_key="globapikey123"
+            vault kv put apps/welcome-app APP_USERNAME="usera" APP_PASSWORD="passa"
+            vault kv put database/postgres db_username="pguser" db_password="pgpass"
+            vault kv put globals/common api_key="globalapikey123"
+            vault kv put aiml/models llm_api_key="apikey123"
 
-            echo "Writing policies (admin, reader, app, eso-read)"
+            echo "Writing policies (admin, reader, app, eso-read, data-reader)"
             printf '%s\n' \
             'path "*" { capabilities = ["create","read","update","delete","list","sudo"] }' \
             > /tmp/admin.hcl
@@ -105,8 +108,16 @@ server:
             'path "database/metadata/*" { capabilities = ["list"] }' \
             'path "globals/data/*" { capabilities = ["read","list"] }' \
             'path "globals/metadata/*" { capabilities = ["list"] }' \
+            'path "/aiml/data/*" { capabilities = ["read","list"] }' \
+            'path "/aiml/metadata/*" { capabilities = ["list"] }' \
             > /tmp/app.hcl
             vault policy write app /tmp/app.hcl
+
+            printf '%s\n' \
+            'path "data/data/*" { capabilities = ["read","list"] }' \
+            'path "data/metadata/*" { capabilities = ["list"] }' \
+            > /tmp/data-reader.hcl
+            vault policy write data-reader /tmp/data-reader.hcl
 
             cp /tmp/app.hcl /tmp/eso-read.hcl
             vault policy write eso-read /tmp/eso-read.hcl
@@ -124,53 +135,70 @@ server:
 
             vault write auth/oidc/config \
               oidc_discovery_url="http://sso.local.io:32080/realms/platform" \
-              oidc_client_id="vault" \
-              oidc_client_secret="6qs4cs4L0eH68W4HeQs6Vl2we4VCVGQb" \
-              default_role="default"
+              oidc_client_id="secrets" \
+              oidc_client_secret="OIDC_SECRET" \
+              default_role="reader"
 
-            vault write auth/oidc/role/admins \
+            vault write auth/oidc/role/admin \
+              bound_audiences="secrets" \
               user_claim="preferred_username" \
               groups_claim="groups" \
-              allowed_redirect_uris="$VAULT_ADDR/ui/vault/auth/oidc/oidc/callback" \
-              allowed_redirect_uris="$VAULT_ADDR/oidc/oidc/callback" \
-              allowed_redirect_uris="http://vault.vault:8200/ui/vault/auth/oidc/oidc/callback" \
-              allowed_redirect_uris="http://vault.vault:8200/oidc/oidc/callback" \
+              allowed_redirect_uris="http://secrets.local.io:32080/ui/vault/auth/oidc/oidc/callback" \
+              allowed_redirect_uris="http://secrets.local.io:32080/oidc/callback" \
+              allowed_redirect_uris="http://vault.vault:8250/oidc/callback" \
               policies="admin" \
               ttl="1h" \
               bound_claims.groups='["devops"]'
 
-            vault write auth/oidc/role/readers \
+            vault write auth/oidc/role/reader \
+              bound_audiences="secrets" \
               user_claim="preferred_username" \
               groups_claim="groups" \
-              allowed_redirect_uris="$VAULT_ADDR/ui/vault/auth/oidc/oidc/callback" \
-              allowed_redirect_uris="$VAULT_ADDR/oidc/oidc/callback" \
-              allowed_redirect_uris="http://vault.vault:8200/ui/vault/auth/oidc/oidc/callback" \
-              allowed_redirect_uris="http://vault.vault:8200/oidc/oidc/callback" \
+              allowed_redirect_uris="http://secrets.local.io:32080/ui/vault/auth/oidc/oidc/callback" \
+              allowed_redirect_uris="http://secrets.local.io:32080/oidc/callback" \
+              allowed_redirect_uris="http://vault.vault:8250/oidc/callback" \
               policies="reader" \
               ttl="1h" \
               bound_claims.groups='["engineering"]'
 
-            vault write auth/oidc/role/appusers \
+            vault write auth/oidc/role/data-reader \
+              bound_audiences="secrets" \
               user_claim="preferred_username" \
               groups_claim="groups" \
-              allowed_redirect_uris="$VAULT_ADDR/ui/vault/auth/oidc/oidc/callback" \
-              allowed_redirect_uris="$VAULT_ADDR/oidc/oidc/callback" \
-              allowed_redirect_uris="http://vault.vault:8200/ui/vault/auth/oidc/oidc/callback" \
-              allowed_redirect_uris="http://vault.vault:8200/oidc/oidc/callback" \
-              policies="app" \
+              allowed_redirect_uris="http://secrets.local.io:32080/ui/vault/auth/oidc/oidc/callback" \
+              allowed_redirect_uris="http://secrets.local.io:32080/oidc/callback" \
+              allowed_redirect_uris="http://vault.vault:8250/oidc/callback" \
+              policies="data-reader" \
               ttl="1h" \
               bound_claims.groups='["data"]'
-  
+
             vault write auth/oidc/role/default \
+              bound_audiences="secrets" \
               user_claim="preferred_username" \
               groups_claim="groups" \
-              allowed_redirect_uris="$VAULT_ADDR/ui/vault/auth/oidc/oidc/callback" \
-              allowed_redirect_uris="$VAULT_ADDR/oidc/oidc/callback" \
-              allowed_redirect_uris="http://vault.vault:8200/ui/vault/auth/oidc/oidc/callback" \
-              allowed_redirect_uris="http://vault.vault:8200/oidc/oidc/callback" \
-              policies="default-role" \
+              allowed_redirect_uris="http://secrets.local.io:32080/ui/vault/auth/oidc/oidc/callback" \
+              allowed_redirect_uris="http://secrets.local.io:32080/oidc/callback" \
+              allowed_redirect_uris="http://vault.vault:8250/oidc/callback" \
+              policies="default" \
               ttl="1h" \
               bound_claims.groups='["*"]'
+
+            # Enable only OIDC in the UI
+            vault auth tune -listing-visibility=unauth oidc
+
+            echo "Enabling Kubernetes auth method..."
+            vault auth enable kubernetes
+
+            vault write auth/kubernetes/config \
+              kubernetes_host=https://10.0.0.251:40051 \
+              issuer="https://kubernetes.default.svc.cluster.local"
+
+            vault write auth/kubernetes/role/welcome-app-role \
+              bound_service_account_names="welcome-app-service-account" \
+              bound_service_account_namespaces="welcome-app" \
+              policies="eso-read" \
+              audience="https://kubernetes.default.svc.cluster.local" \
+              ttl="1h"
 
             echo "Initscript executed successfully, idling..."
           else
