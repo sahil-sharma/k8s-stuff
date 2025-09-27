@@ -1,4 +1,3 @@
-# Install Welcome App
 applications:
   welcome-app:
     namespace: argocd
@@ -17,4 +16,4 @@ applications:
         prune: true
         selfHeal: true
       syncOptions:
-        - CreateNamespace=true
+      - CreateNamespace=true
