@@ -65,6 +65,7 @@ helm repo add prometheus-community https://prometheus-community.github.io/helm-c
 helm repo add hashicorp https://helm.releases.hashicorp.com
 helm repo add istio https://istio-release.storage.googleapis.com/charts
 helm repo add cnpg https://cloudnative-pg.github.io/charts
+helm repo add stakater https://stakater.github.io/stakater-charts
 helm repo update
 ```
 
@@ -254,6 +255,14 @@ kubectl label ns welcome-app istio-injection=enabled
 
 # Enforce mesh-wide mTLS
 kubectl apply -f istio-mtls.yaml
+```
+
+## Step 19: Install Reloader
+
+```bash
+helm upgrade --install reloader stakater/reloader --create-namspace -n reloader
+
+kubectl get po -n reloader
 ```
 
 <details>
