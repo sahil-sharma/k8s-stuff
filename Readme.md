@@ -66,6 +66,7 @@ helm repo add hashicorp https://helm.releases.hashicorp.com
 helm repo add istio https://istio-release.storage.googleapis.com/charts
 helm repo add cnpg https://cloudnative-pg.github.io/charts
 helm repo add stakater https://stakater.github.io/stakater-charts
+helm repo add cnpg https://cloudnative-pg.github.io/charts
 helm repo update
 ```
 
@@ -263,6 +264,37 @@ kubectl apply -f istio-mtls.yaml
 helm upgrade --install reloader stakater/reloader --create-namspace -n reloader
 
 kubectl get po -n reloader
+```
+
+## Step 20: Install Postgres with CloudNative Postgres Operator
+
+```bash
+alias install-postgres="echo -e 'Installing CRDs\n' \
+    && helm upgrade --install cnpg cnpg/cloudnative-pg -n cnpg-system --create-namespace \
+    && sleep 3s \
+    && echo "" \
+    && echo -e 'Creating postgres namespace\n' \
+    && kubectl create namespace postgres || true \
+    && echo "" \
+    && sleep 2s \
+    && echo -e 'Creating Keycloak DB Secret\n' \
+    && kubectl create secret generic kc-db-secret --from-literal=username=keycloak_admin --from-literal=password=admin123 -n postgres || true \
+    && echo "" \
+    && sleep 3s \
+    && echo -e 'Creating Backstage DB Secret\n' \
+    && kubectl create secret generic backstage-db-secret --from-literal=username=backstage_admin --from-literal=password=admin123 -n postgres || true \
+    && echo "" \
+    && sleep 10s \
+    && echo -e 'Creating Postgres Instance\n' \
+    && kubectl apply -f pg.yaml || true \
+    && echo "" \
+    && sleep 3s \
+    && echo -e 'Waiting for Postgres to be ready\n' \
+    && kubectl wait --for=condition=ready pod -l cnpg.io/cluster=keycloak-db -n postgres --timeout=300s \
+    && echo "" \
+    && kubectl wait --for=condition=ready pod -l cnpg.io/cluster=backstage-db -n postgres --timeout=300s \
+    && echo "" \
+    && echo -e 'Postgres is ready\n'"
 ```
 
 <details>
