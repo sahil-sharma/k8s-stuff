@@ -1,0 +1,40 @@
+replicaCount: 1
+
+backstage:
+  appConfig:
+    app:
+      baseUrl: http://idp.local.io:32080/backstage
+      title: Backstage Demo App
+    backend:
+      baseUrl: http://idp.local.io:32080
+      listen:
+        port: 32080
+      csp:
+        connect-src: ["'self'", 'http:', 'https:']
+      cors:
+        origin: http://idp.local.io
+        methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+      database:
+        client: pg
+        connection:
+          host: pg.local.io
+          port: 32433
+          database: backstage
+          user: backstage_admin
+          password: admin123
+
+    techdocs:
+      builder: 'local'
+      publisher:
+        type: 'local'
+      generator:
+        runIn: 'docker'
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  host: idp.local.io
+  path: /backstage
