@@ -85,6 +85,15 @@ clients = [
     valid_post_logout_redirect_uris = ["http://grafana.local.io:32080/workflows"]
     roles                           = ["admin", "editor", "viewer"]
     web_origins                     = ["http://grafana.local.io:32080"]
+  },
+  {
+    client_id                       = "secrets"
+    name                            = "Vault Client"
+    root_url                        = "http://secrets.local.io:32080"
+    valid_redirect_uris             = ["http://secrets.local.io:32080/ui/vault/auth/oidc/oidc/callback", "http://secrets.local.io:32080/oidc/oidc/callback"]
+    valid_post_logout_redirect_uris = ["http://secrets.local.io:32080"]
+    roles                           = ["admin", "editor", "viewer", "reader"]
+    web_origins                     = ["+"]
   }
 ]
 
