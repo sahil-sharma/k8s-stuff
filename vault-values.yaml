@@ -65,7 +65,7 @@ server:
           export K8S_HOST="https://10.0.0.251"
           export K8S_PORT="38217"
           export OIDC_CLIENT_ID="secrets"
-          export OIDC_CLIENT_SECRET=""
+          export OIDC_CLIENT_SECRET="SECRET"
 
           if vault status | grep -q 'Initialized.*false'; then
             echo "Vault not initialized. Starting to initialize Vault..."
@@ -155,6 +155,11 @@ server:
             > /tmp/default.hcl
             vault policy write default-role /tmp/default.hcl
 
+            printf '%s\n' \
+            'path "sys/metrics" { capabilities = ["read"] }' \
+            > /tmp/read-metrics.hcl
+            vault policy write read-metrics /tmp/read-metrics.hcl
+
             echo "Enabling OIDC auth method..."
             vault auth enable -path=oidc oidc
 
@@ -224,6 +229,12 @@ server:
               policies="eso-read" \
               audience="https://kubernetes.default.svc.cluster.local" \
               ttl="1h"
+
+            vault write auth/kubernetes/role/read-metrics-role \
+              bound_service_account_names="prometheus-server" \
+              bound_service_account_namespaces="prometheus" \
+              policies="read-metrics" \
+              audience="https://kubernetes.default.svc.cluster.local"
 
             echo "Initscript executed successfully, idling..."
           else
