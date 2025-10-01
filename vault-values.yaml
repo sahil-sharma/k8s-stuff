@@ -12,18 +12,25 @@ server:
     raft:
       enabled: true
       setNodeId: true
+      config: |
+        ui = true
+        listener "tcp" {
+          address = "0.0.0.0:8200"
+          tls_disable = "true"
+          telemetry {
+            unauthenticated_metrics_access = "true"
+          }
+        }
+        storage "raft" {
+          path    = "/vault/data"
+          node_id = "${HOSTNAME}" 
+        }
+        disable_mlock = true
 
-  config: |
-    ui = true
-    listener "tcp" {
-      address = "0.0.0.0:8200"
-      tls_disable = "true"
-    }
-    storage "raft" {
-      path    = "/vault/data"
-      node_id = "${HOSTNAME}" 
-    }
-    disable_mlock = true
+        telemetry {
+          prometheus_retention_time = "30s"
+          disable_hostname = true
+        }
 
   ingress:
     enabled: true
@@ -55,6 +62,10 @@ server:
 
           export VAULT_ADDR=http://vault.vault:8200
           export KEY_FILE="/vault/init-keys.txt"
+          export K8S_HOST="https://10.0.0.251"
+          export K8S_PORT="38217"
+          export OIDC_CLIENT_ID="secrets"
+          export OIDC_CLIENT_SECRET=""
 
           if vault status | grep -q 'Initialized.*false'; then
             echo "Vault not initialized. Starting to initialize Vault..."
@@ -77,6 +88,7 @@ server:
             vault secrets enable -path=globals -version=2 kv
             vault secrets enable -path=sso -version=2 kv
             vault secrets enable -path=aiml -version=2 kv
+            vault secrets enable -path=metrics -version=2 kv
 
             echo "Storing the init JSON in the internal KV store for safekeeping..."
             vault kv put sso/vault/init root_token="$VAULT_TOKEN" keys_file="$(cat "$KEY_FILE")"
@@ -87,7 +99,7 @@ server:
             vault kv put globals/common api_key="globalapikey123"
             vault kv put aiml/models llm_api_key="apikey123"
 
-            echo "Writing policies (admin, reader, app, eso-read, data-reader)"
+            echo "Writing policies (admin, reader, app, eso-read, data-reader, read-metrics)"
             printf '%s\n' \
             'path "*" { capabilities = ["create","read","update","delete","list","sudo"] }' \
             > /tmp/admin.hcl
@@ -119,8 +131,21 @@ server:
             > /tmp/data-reader.hcl
             vault policy write data-reader /tmp/data-reader.hcl
 
+            echo "Creating Policy for External-Secrets Operator"
             cp /tmp/app.hcl /tmp/eso-read.hcl
             vault policy write eso-read /tmp/eso-read.hcl
+            
+            echo "Creating Policy for Prometheus to scrape metrics"
+            printf '%s\n' \
+            'path "/sys/metrics" { capabilities = ["read"] }' \
+            > /tmp/read-metrics.hcl
+            vault policy write read-metrics /tmp/read-metrics.hcl
+
+            echo "Creating token for Prometheus to scrape metrics"
+            vault token create -field=token -policy read-metrics  > /tmp/metrics-token.txt
+
+            echo "Saving metrics token to Internal KV store /metrics/token path" 
+            vault kv put metrics/token token="$(cat /tmp/metrics-token.txt)"
 
             printf '%s\n' \
             'path "auth/token/lookup-self" { capabilities = ["read"] }' \
@@ -135,8 +160,8 @@ server:
 
             vault write auth/oidc/config \
               oidc_discovery_url="http://sso.local.io:32080/realms/platform" \
-              oidc_client_id="secrets" \
-              oidc_client_secret="OIDC_SECRET" \
+              oidc_client_id="$OIDC_CLIENT_ID" \
+              oidc_client_secret="$OIDC_CLIENT_SECRET" \
               default_role="reader"
 
             vault write auth/oidc/role/admin \
@@ -190,7 +215,7 @@ server:
             vault auth enable kubernetes
 
             vault write auth/kubernetes/config \
-              kubernetes_host=https://10.0.0.251:40051 \
+              kubernetes_host="$K8S_HOST":"$K8S_PORT" \
               issuer="https://kubernetes.default.svc.cluster.local"
 
             vault write auth/kubernetes/role/welcome-app-role \
@@ -215,16 +240,3 @@ server:
   volumes:
     - name: vault-init-volume
       emptyDir: {}
-      
-  # volumes:
-  #   - name: sso-ca
-  #     secret:
-  #       secretName: sso-ca-cert
-
-  #   - name: vault-init-script
-  #     configMap:
-  #       name: vault-init-script
-  #       defaultMode: 0777
-  #       items:
-  #         - key: "vault-init-script.sh"
-  #           path: "vault-init-script.sh"
