@@ -36,6 +36,12 @@ server:
     pathType: Prefix
     paths:
       - /
+  # extraSecretMounts:
+  #   - name: vault-metrics-token
+  #     mountPath: /etc/secrets
+  #     subPath: ""
+  #     secretName: vault-metrics-token
+  #     readOnly: true
 
 serverFiles:
   alerting_rules.yml:
@@ -61,45 +67,59 @@ serverFiles:
             description: "PostgreSQL TCP probe failed for more than 1 minute."
 
 extraScrapeConfigs: |
-  - job_name: 'keycloak-quarkus-metrics'
-    metrics_path: /metrics
+  - job_name: 'vault'
+    metrics_path: /v1/sys/metrics
+    params:
+      format: [prometheus]
     scheme: http
     static_configs:
-      - targets: ['keycloak-metrics.mysql-keycloak:9000']
-  - job_name: 'keycloak-spi-metrics'
-    metrics_path: /realms/master/metrics
-    scheme: http
-    static_configs:
-      - targets: ['keycloak-metrics.mysql-keycloak:8080']
-  - job_name: 'blackbox-keycloak'
-    metrics_path: /probe
-    params:
-      module: [http_2xx]
-    static_configs:
-      - targets:
-          - https://sso.local.io:32443/realms/master
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: __param_target
-      - source_labels: [__param_target]
-        target_label: instance
-      - target_label: __address__
-        replacement: blackbox.local.io:32080
-  - job_name: 'blackbox-postgres'
-    metrics_path: /probe
-    params:
-      module: [tcp_connect]
-    static_configs:
-      - targets:
-          - pg.local.io:32432
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: __param_target
-      - source_labels: [__param_target]
-        target_label: instance
-      - target_label: __address__
-        replacement: blackbox.local.io:32080
-      - targets: ['keycloak-metrics.keycloak:9000']
+      - targets: ['secrets.local.io:32080']
+    authorization:
+      credentials_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+
+  # - job_name: 'keycloak-quarkus-metrics'
+  #   metrics_path: /metrics
+  #   scheme: http
+  #   static_configs:
+  #     - targets: ['keycloak-metrics.mysql-keycloak:9000']
+
+  # - job_name: 'keycloak-spi-metrics'
+  #   metrics_path: /realms/master/metrics
+  #   scheme: http
+  #   static_configs:
+  #     - targets: ['keycloak-metrics.mysql-keycloak:8080']
+
+  # - job_name: 'blackbox-keycloak'
+  #   metrics_path: /probe
+  #   params:
+  #     module: [http_2xx]
+  #   static_configs:
+  #     - targets:
+  #         - https://sso.local.io:32443/realms/master
+  #   relabel_configs:
+  #     - source_labels: [__address__]
+  #       target_label: __param_target
+  #     - source_labels: [__param_target]
+  #       target_label: instance
+  #     - target_label: __address__
+  #       replacement: blackbox.local.io:32080
+  
+  # - job_name: 'blackbox-postgres'
+  #   metrics_path: /probe
+  #   params:
+  #     module: [tcp_connect]
+  #   static_configs:
+  #     - targets:
+  #         - pg.local.io:32432
+  #   relabel_configs:
+  #     - source_labels: [__address__]
+  #       target_label: __param_target
+  #     - source_labels: [__param_target]
+  #       target_label: instance
+  #     - target_label: __address__
+  #       replacement: blackbox.local.io:32080
+  #     - targets: ['keycloak-metrics.keycloak:9000']
+
   # - job_name: 'app'
   #   metrics_path: /metrics
   #   scheme: http
