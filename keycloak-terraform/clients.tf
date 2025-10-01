@@ -22,7 +22,7 @@ resource "keycloak_openid_client" "clients" {
   valid_redirect_uris             = each.value.valid_redirect_uris
   valid_post_logout_redirect_uris = each.value.valid_post_logout_redirect_uris
   web_origins                     = each.value.web_origins
-  frontchannel_logout_enabled      = true
+  frontchannel_logout_enabled     = true
 }
 
 locals {
