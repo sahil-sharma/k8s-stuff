@@ -37,3 +37,25 @@ spec:
   storage:
     storageClass: standard
     size: 1Gi
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: grafana-db
+  namespace: postgres
+spec:
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:16
+  bootstrap:
+    initdb:
+      database: grafana_db
+      owner: grafana_admin
+      secret:
+        name: grafana-db-secret
+      postInitSQL:
+        - GRANT USAGE, CREATE ON SCHEMA public TO grafana_admin;
+        - ALTER USER grafana_admin CREATEDB;
+  storage:
+    storageClass: standard
+    size: 1Gi
+---
