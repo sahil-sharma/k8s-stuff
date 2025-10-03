@@ -14,9 +14,10 @@ controller:
     type: NodePort
     nodePorts:
       http: 32080
-      https: 32443
+      https: 32444
       tcp:
         5432: 32432
+        5434: 32434
       #   3306: 32306
       #   3200: 32200
       #   6379: 32379
@@ -30,7 +31,11 @@ controller:
   #   tcp-services-configmap: "ingress-nginx/ingress-nginx-tcp"
 
   metrics:
-    enabled: false
+    enabled: true
+    service:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "10254"
 
   admissionWebhooks:
     enabled: false
