@@ -40,6 +40,15 @@ replicaCount: 1
 http:
   relativePath: "/"
 
+metrics:
+  enabled: true
+
+health:
+  enabled: true
+
+dbchecker:
+  enabled: true
+
 service:
   type: ClusterIP
   port: 9000
@@ -60,7 +69,7 @@ database:
   port: 32432
   database: keycloak_db
   username: keycloak_admin
-  password: hello123
+  password: admin123
 
 ingress:
   enabled: true
@@ -102,9 +111,37 @@ extraEnv: |
       -XX:MaxRAMPercentage=50.0
       -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless
       -Djgroups.dns.query=keycloak-headless
+  - name: KC_HEALTH_ENABLED
+    value: "true"
+  - name: KC_METRICS_ENABLED
+    value: "true"
+  - name: KC_SPI_METRICS_ENABLED
+    value: "true"
 
 # # Optional: expose /metrics and /health over Ingress
 # podAnnotations:
 #   prometheus.io/scrape: "true"
 #   prometheus.io/path: "/metrics"
 #   prometheus.io/port: "9000"
+
+extraInitContainers: |
+  - name: download-metrics-spi
+    image: alpine:latest 
+    command:
+      - sh
+      - -c
+      - >
+        apk add --no-cache curl &&
+        curl -L -o /extensions/keycloak-metrics-spi.jar
+        https://github.com/aerogear/keycloak-metrics-spi/releases/download/7.0.0/keycloak-metrics-spi-7.0.0.jar
+    volumeMounts:
+      - name: metrics-spi
+        mountPath: /extensions
+
+extraVolumeMounts: |
+  - name: metrics-spi
+    mountPath: /opt/keycloak/providers
+
+extraVolumes: |
+  - name: metrics-spi
+    emptyDir: {}
