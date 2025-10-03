@@ -52,7 +52,7 @@ DNS resolution to keycloak.local.io inside the cluster (you may need to update C
 
 ### 1. Create terraform.tfvars
 ```bash
-keycloak_url                  = "https://keycloak.local.io:32443"
+keycloak_url                  = "http://sso.local.io:32080"
 keycloak_admin_login_username = "admin"
 keycloak_admin_login_password = "admin123"
 
@@ -60,17 +60,26 @@ realm_name = "platform"
 
 clients = [
   {
-    client_id                       = "argo-cd"
-    name                            = "argo-cd client"
+    client_id                       = "argocd"
+    name                            = "ArgoCD Client"
     root_url                        = "http://cd.local.io:32080"
     valid_redirect_uris             = ["http://cd.local.io:32080/auth/callback"]
-    valid_post_logout_redirect_uris = ["http://cd.local.io:32080/applications"]
+    valid_post_logout_redirect_uris = ["http://cd.local.io:32080"]
     roles                           = ["admin", "editor", "viewer"]
     web_origins                     = ["+"]
   },
   {
+    client_id                       = "secrets"
+    name                            = "Vault Client"
+    root_url                        = "http://secrets.local.io:32080"
+    valid_redirect_uris             = ["http://secrets.local.io:32080/ui/vault/auth/oidc/oidc/callback", "http://secrets.local.io:32080/oidc/oidc/callback"]
+    valid_post_logout_redirect_uris = ["http://secrets.local.io:32080"]
+    roles                           = ["admin", "editor", "viewer", "reader"]
+    web_origins                     = ["+"]
+  },
+  {
     client_id                       = "argo-workflow"
-    name                            = "argo-workflow client"
+    name                            = "Argo Workflow Client"
     root_url                        = "http://jobs.local.io:32080"
     valid_redirect_uris             = ["http://jobs.local.io:32080/oauth2/callback"]
     valid_post_logout_redirect_uris = ["http://jobs.local.io:32080/workflows"]
@@ -80,19 +89,19 @@ clients = [
   {
     client_id                       = "grafana"
     name                            = "grafana client"
-    root_url                        = "http://grafana.local.io:32080"
-    valid_redirect_uris             = ["http://grafana.local.io:32080/login/generic_oauth"]
-    valid_post_logout_redirect_uris = ["http://grafana.local.io:32080/workflows"]
+    root_url                        = "http://dashboards.local.io:32080"
+    valid_redirect_uris             = ["http://dashboards.local.io:32080/login/generic_oauth"]
+    valid_post_logout_redirect_uris = ["http://dashboards.local.io:32080"]
     roles                           = ["admin", "editor", "viewer"]
-    web_origins                     = ["http://grafana.local.io:32080"]
+    web_origins                     = ["+"]
   },
   {
-    client_id                       = "secrets"
-    name                            = "Vault Client"
-    root_url                        = "http://secrets.local.io:32080"
-    valid_redirect_uris             = ["http://secrets.local.io:32080/ui/vault/auth/oidc/oidc/callback", "http://secrets.local.io:32080/oidc/oidc/callback"]
-    valid_post_logout_redirect_uris = ["http://secrets.local.io:32080"]
-    roles                           = ["admin", "editor", "viewer", "reader"]
+    client_id                       = "auth"
+    name                            = "OAuth2 Proxy Client"
+    root_url                        = "http://auth.local.io:32080"
+    valid_redirect_uris             = ["http://auth.local.io:32080/oauth2/callback"]
+    valid_post_logout_redirect_uris = ["http://auth.local.io:32080"]
+    roles                           = ["admin", "editor", "viewer"]
     web_origins                     = ["+"]
   }
 ]
@@ -108,36 +117,43 @@ group_realm_roles = {
 users = [
   {
     username   = "alice"
-    email      = "alice@example.com"
+    email      = "alice@local.io"
     first_name = "Alice"
-    last_name  = "Dev"
+    last_name  = "User"
     groups     = ["engineering"]
     roles = {
-      "argo-cd"       = ["viewer"]
-      "argo-workflow" = ["viewer"]
-      "grafana"       = ["viewer"]
+      "argocd"  = ["editor"]
+      "secrets" = ["reader"]
+      "grafana" = ["editor"]
+      "auth"    = ["editor"]
+      "argo-workflow" = ["editor"]
     }
   },
   {
     username   = "bob"
-    email      = "bob@example.com"
+    email      = "bob@local.io"
     first_name = "Bob"
-    last_name  = "Ops"
+    last_name  = "User"
     groups     = ["devops"]
     roles = {
-      "argo-cd"       = ["admin"]
+      "argocd"  = ["admin"]
+      "secrets" = ["admin"]
+      "grafana" = ["admin"]
+      "auth"    = ["admin"]
       "argo-workflow" = ["admin"]
-      "grafana"       = ["admin"]
     }
   },
   {
     username   = "eve"
-    email      = "eve@example.com"
+    email      = "eve@local.io"
     first_name = "Eve"
-    last_name  = "Biz"
+    last_name  = "User"
     groups     = ["data"]
     roles = {
-      "argo-cd"       = ["editor"]
+      "argocd"  = ["viewer"]
+      "secrets" = ["reader"]
+      "grafana" = ["viewer"]
+      "auth"    = ["viewer"]
       "argo-workflow" = ["viewer"]
     }
   }
