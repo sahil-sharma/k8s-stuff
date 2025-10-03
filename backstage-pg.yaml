@@ -1,0 +1,20 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: backstage-db
+  namespace: backstage-pg
+spec:
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:16
+  bootstrap:
+    initdb:
+      database: backstage
+      owner: backstage_admin
+      secret:
+        name: backstage-db-secret
+      postInitSQL:
+        - GRANT USAGE, CREATE ON SCHEMA public TO backstage_admin;
+        - ALTER USER backstage_admin CREATEDB;
+  storage:
+    storageClass: standard
+    size: 1Gi
