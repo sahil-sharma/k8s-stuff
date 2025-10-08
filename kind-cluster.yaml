@@ -2,7 +2,7 @@ apiVersion: kind.x-k8s.io/v1alpha4
 kind: Cluster
 networking:
   apiServerAddress: "10.0.0.251"
-name: test-cluster
+name: app-cluster
 nodes:
   - role: control-plane
     image: kindest/node:v1.34.0
