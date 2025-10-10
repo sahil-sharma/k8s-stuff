@@ -47,7 +47,7 @@ health:
   enabled: true
 
 dbchecker:
-  enabled: true
+  enabled: false
 
 service:
   type: ClusterIP
@@ -113,10 +113,11 @@ extraEnv: |
       -Djgroups.dns.query=keycloak-headless
   - name: KC_HEALTH_ENABLED
     value: "true"
-  - name: KC_METRICS_ENABLED
-    value: "true"
-  - name: KC_SPI_METRICS_ENABLED
-    value: "true"
+
+# - name: KC_METRICS_ENABLED
+#   value: "true"
+# - name: KC_SPI_METRICS_ENABLED
+#   value: "true"
 
 # # Optional: expose /metrics and /health over Ingress
 # podAnnotations:
