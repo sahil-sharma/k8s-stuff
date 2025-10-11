@@ -157,10 +157,6 @@ CLIENTS = {
 # -------------------------
 # Utility helpers
 # -------------------------
-def random_string(length=12):
-    chars = string.ascii_letters + string.digits
-    return ''.join(random.choice(chars) for _ in range(length))
-
 def decode_jwt_payload(token: str):
     """Decode JWT payload (second part of token)"""
     try:
