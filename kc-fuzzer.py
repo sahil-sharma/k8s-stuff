@@ -50,6 +50,13 @@ from aiolimiter import AsyncLimiter
 from typing import Dict, Optional
 
 # -------------------------
+# Utility helpers (must be before config)
+# -------------------------
+def random_string(length=12):
+    chars = string.ascii_letters + string.digits
+    return ''.join(random.choice(chars) for _ in range(length))
+
+# -------------------------
 # Configuration
 # -------------------------
 KC_URL = "http://sso.local.io:32080"
@@ -74,14 +81,15 @@ SECRETS_MAP = {
     "secrets": ""
 }
 
-# Invalid secrets for testing
-WRONG_SECRETS_MAP = {
-    "argocd": "",
-    "grafana": "",
-    "argo-workflow": "",
-    "auth": "",
-    "secrets": ""
-}
+# Auto-generate wrong secrets (10 chars each)
+def generate_wrong_secrets(secrets_map: Dict[str, str], length: int = 10) -> Dict[str, str]:
+    """Generate random wrong secrets for testing"""
+    wrong_secrets = {}
+    for client_id in secrets_map.keys():
+        wrong_secrets[client_id] = random_string(length)
+    return wrong_secrets
+
+WRONG_SECRETS_MAP = generate_wrong_secrets(SECRETS_MAP)
 
 # Define all clients (only unique properties)
 CLIENTS = {
