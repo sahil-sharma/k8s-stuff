@@ -1,0 +1,37 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: welcome-app-canary-ingress
+  namespace: welcome-app
+  # Enable these annotations if using argo-rollouts for canary deployments
+  annotations:
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-by-weight: "20"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: welcome.local.io
+      http:
+        paths:
+          - path: /welcome
+            pathType: Prefix
+            backend:
+              service:
+                name: welcome-app-canary-service
+                port:
+                  number: 80
+          - path: /external
+            pathType: Prefix
+            backend:
+              service:
+                name: welcome-app-canary-service
+                port:
+                  number: 80
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: welcome-app-canary-service
+                port:
+                  number: 80

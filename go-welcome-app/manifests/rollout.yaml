@@ -1,0 +1,34 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: welcome-app
+  namespace: welcome-app
+spec:
+  replicas: 3
+  strategy:
+    canary:
+      canaryService: welcome-app-canary-service
+      stableService: welcome-app-stable-service
+      trafficRouting:
+        nginx:
+          stableIngress: welcome-app-stable-ingress
+      steps:
+        - setWeight: 20
+        - pause: { duration: 30s }
+        - setWeight: 50
+        - pause: { duration: 60s }
+        - setWeight: 100
+  selector:
+    matchLabels:
+      app: welcome-app
+  template:
+    metadata:
+      labels:
+        app: welcome-app
+    spec:
+      containers:
+        - name: welcome-app
+          image: bonyscott/welcome-app:23762ef
+          ports:
+            - containerPort: 8080
