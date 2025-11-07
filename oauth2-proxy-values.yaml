@@ -1,5 +1,5 @@
 config:
-  clientID: oauth2
+  clientID: auth
   clientSecret: ""
   cookieSecure: false
   cookieSecret: ""
@@ -7,7 +7,7 @@ config:
     email_domains = ["local.io"]
     provider = "oidc"
     redirect_url = "http://auth.local.io:32080/oauth2/callback"
-    oidc_issuer_url = "http://sso.local.io:32080/realms/master"
+    oidc_issuer_url = "http://sso.local.io:32080/realms/platform"
     skip_provider_button = true
     ssl_insecure_skip_verify = true
     reverse_proxy = true
