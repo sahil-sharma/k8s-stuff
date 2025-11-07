@@ -34,6 +34,8 @@ server:
         env:
           - name: EXTENSION_URL
             value: https://github.com/argoproj-labs/rollout-extension/releases/download/v0.3.4/extension.tar
+  deploymentAnnotations:
+    secret.reloader.stakater.com/reload: "argo-cd-sso-secret"
 
   ingress:
     enabled: true
@@ -74,7 +76,6 @@ notifications:
     enabled: true
 
 configs:
-  admin.enabled: true
   rbac:
     create: true
     scopes: "[groups]"
@@ -110,8 +111,8 @@ configs:
     oidc.config: |
       name: SSO
       issuer: http://sso.local.io:32080/realms/platform
-      clientID: argocd
-      clientSecret: RbkuXPcyg49LIP8tVRwffxJEkCX4HQYw
+      clientID: $argo-cd-sso-secret:client-id
+      clientSecret: $argo-cd-sso-secret:client-secret
       requestedScopes: ["openid", "profile", "email", "groups"]
       logoutURL: http://sso.local.io:32080/realms/platform/protocol/openid-connect/logout
     oidc.tls.insecure.skip.verify: "true"

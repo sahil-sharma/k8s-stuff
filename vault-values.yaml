@@ -63,9 +63,9 @@ server:
           export VAULT_ADDR=http://vault.vault:8200
           export KEY_FILE="/vault/init-keys.txt"
           export K8S_HOST="https://10.0.0.251"
-          export K8S_PORT="44941"
+          export K8S_PORT="40949"
           export OIDC_CLIENT_ID="secrets"
-          export OIDC_CLIENT_SECRET="BEaxqMYKgE7zQwzMq1FCD2GPdet8EzAz"
+          export OIDC_CLIENT_SECRET="iVNhysbFvvfkNIg8C45bExpSBXNwUe9P"
 
           if vault status | grep -q 'Initialized.*false'; then
             echo "Vault not initialized. Starting to initialize Vault..."
@@ -95,13 +95,18 @@ server:
 
             echo "Creating example secrets"
             vault kv put apps/welcome-app APP_USERNAME="usera" APP_PASSWORD="passa"
-            vault kv put database/postgres db_username="pguser" db_password="pgpass"
-            vault kv put globals/common api_key="globalapikey123"
-            vault kv put sso/argo-workflow client-id="argo-workflow" client-secret=""
-            vault kv put sso/argo-cd client-id="argo-cd" client-secret=""
-            vault kv put sso/grafana client-id="grafana" client-secret=""
-            vault kv put sso/storage client-id="storage" client-secret=""
-            vault kv put sso/oauth client-id="oauth" client-secret=""
+            vault kv put database/app-db DB_USERNAME="admin" DB_PASSWORD="admin123"
+            vault kv put globals/common API_KEY="globalapikey123"
+            
+            vault kv put sso/argo-workflow CLIENT_ID="argo-workflow"LIENT_SECRET="e6PHVQUvrUIj4UQOiQa5ZQocOj0o9qDh"
+            
+            # ArgoCD base64 encoded secrets
+            vault kv put sso/argo-cd CLIENT_ID="YXJnby1jZAo=" CLIENT_SECRET="UmJrdVhQY3lnNDlMSVA4dFZSd2ZmeEpFa0NYNEhRWXcK"
+            
+            vault kv put sso/grafana CLIENT_ID="grafana" CLIENT_SECRET="9hUrr8g8ZAzCQlrmxjUbSnZUAMAYuGRT"
+            
+            vault kv put sso/storage CLIENT_ID="storage" CLIENT_SECRET="1Bhf1L1OGGj5PkpYSViSw408aP4GxCZD"
+            vault kv put sso/oauth CLIENT_ID="auth" CLIENT_SECRET="dlhUeaCEUOMdtgRUgojSAvLziFKIata7"
 
             echo "Writing policies (admin, reader, app, eso-read, read-metrics)"
             printf '%s\n' \
@@ -124,8 +129,8 @@ server:
             'path "database/metadata/*" { capabilities = ["list"] }' \
             'path "globals/data/*" { capabilities = ["read","list"] }' \
             'path "globals/metadata/*" { capabilities = ["list"] }' \
-            'path "argo-workflows/data/*" { capabilities = ["read","list"] }' \
-            'path "argo-workflows/metadata/*" { capabilities = ["list"] }' \
+            'path "sso/data/*" { capabilities = ["read","list"] }' \
+            'path "sso/metadata/*" { capabilities = ["list"] }' \
             > /tmp/app.hcl
             vault policy write app /tmp/app.hcl
 
@@ -235,9 +240,9 @@ server:
               policies="read-metrics" \
               audience="https://kubernetes.default.svc.cluster.local"
 
-            vault write auth/kubernetes/role/read-argo-workflows-sso-secret-role \
-              bound_service_account_names="argo-workflow" \
-              bound_service_account_namespaces="argo-workflows" \
+            vault write auth/kubernetes/role/read-sso-secret-role \
+              bound_service_account_names="argo-cd-sso-sa" \
+              bound_service_account_namespaces="argo-cd" \
               policies="eso-read" \
               audience="https://kubernetes.default.svc.cluster.local"
 
