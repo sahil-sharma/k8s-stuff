@@ -74,12 +74,13 @@ MASTER_WRONG_PASSWORD = "admin123456"
 
 # Client secrets (valid) for platform realm clients
 SECRETS_MAP = {
-    "argocd": "",
-    "grafana": "",
-    "argo-workflow": "",
-    "auth": "",
-    "secrets": "",
-    "storage": ""
+  "argo-workflow": "e6PHVQUvrUIj4UQOiQa5ZQocOj0o9qDh",
+  "argocd": "RbkuXPcyg49LIP8tVRwffxJEkCX4HQYw",
+  "auth": "dlhUeaCEUOMdtgRUgojSAvLziFKIata7",
+  "grafana": "9hUrr8g8ZAzCQlrmxjUbSnZUAMAYuGRT",
+  "idp": "rSIcpfYC3v5leAsWVGdvrEjSHhmoZkTl",
+  "secrets": "iVNhysbFvvfkNIg8C45bExpSBXNwUe9P",
+  "storage": "1Bhf1L1OGGj5PkpYSViSw408aP4GxCZD"
 }
 
 # Auto-generate wrong secrets (10 chars each)
@@ -489,12 +490,14 @@ def main():
         "4": ("argo-workflow", False),
         "5": ("oauth", False),
         "6": ("secrets", False),
-        "7": ("master", True),
-        "8": ("argocd", True),
-        "9": ("grafana", True),
-        "10": ("argo-workflow", True),
-        "11": ("oauth", True),
-        "12": ("secrets", True),
+        "7": ("storage", True),
+        "8": ("master", True),
+        "9": ("argocd", True),
+        "10": ("grafana", True),
+        "11": ("argo-workflow", True),
+        "12": ("oauth", True),
+        "13": ("secrets", True),
+        "14": ("storage", True),
     }
     
     while True:
@@ -505,7 +508,7 @@ def main():
             print("Exiting...")
             break
         
-        if choice == "13":
+        if choice == "15":
             # Automated fuzzing
             try:
                 asyncio.run(automated_fuzzing(
