@@ -103,7 +103,25 @@ clients = [
     valid_post_logout_redirect_uris = ["http://auth.local.io:32080"]
     roles                           = ["admin", "editor", "viewer"]
     web_origins                     = ["+"]
-  }
+  },
+  {
+    client_id                       = "idp"
+    name                            = "Backstage IDP"
+    root_url                        = "http://idp.local.io:32080"
+    valid_redirect_uris             = ["http://idp.local.io:32080/oauth2/callback"]
+    valid_post_logout_redirect_uris = ["http://idp.local.io:32080"]
+    roles                           = ["admin", "editor", "viewer"]
+    web_origins                     = ["+"]
+  },
+  {
+    client_id                       = "storage"
+    name                            = "Storage Minio"
+    root_url                        = "http://console.storage.local.io:32080"
+    valid_redirect_uris             = ["*"]
+    valid_post_logout_redirect_uris = ["http://console.storage.local.io:32080"]
+    roles                           = ["admin", "editor", "viewer"]
+    web_origins                     = ["+"]
+  },
 ]
 
 groups = ["devops", "engineering", "data"]
@@ -127,6 +145,7 @@ users = [
       "grafana" = ["editor"]
       "auth"    = ["editor"]
       "argo-workflow" = ["editor"]
+      "storage" = ["editor"]
     }
   },
   {
@@ -141,6 +160,7 @@ users = [
       "grafana" = ["admin"]
       "auth"    = ["admin"]
       "argo-workflow" = ["admin"]
+      "storage" = ["admin"]
     }
   },
   {
@@ -155,7 +175,16 @@ users = [
       "grafana" = ["viewer"]
       "auth"    = ["viewer"]
       "argo-workflow" = ["viewer"]
-    }
+      "storage" = ["viewer"]
+    },
+    {
+      username   = "sam"
+      email      = "sam@local.io"
+      first_name = "Sam"
+      last_name  = "User"
+      groups     = []
+      roles      = {}
+    },
   }
 ]
 ```
@@ -223,9 +252,27 @@ terraform output -json | jq -r '.argo_cd_client_secret.value'
 
 ## 📤 Outputs
 
-* `argo_cd_client_secret`: Use this in Argo CD SSO settings
-* `argo_workflow_client_secret`: Use this in Argo Workflow SSO settings
-* `user credentials`: All users use demo123 (temporary) password for first-login
+* `client IDs and secrets`: Display all client-id and client-secrets 
+* `user credentials`: All users will have a randomly generated password
+
+You can set a SHELL alias to get easy outputs:
+
+```bash
+alias tfout='terraform output -state=$HOME/k8s-stuff/keycloak-terraform/terraform.tfstate'
+
+tfout users && tfout clients
+```
+
+## Fuzz Keycloak for valid and invalid requests for monitoring purposes
+
+```bash
+# Install dependencies
+pip install requests
+pip3 install aiohttp
+pip3 install aiolimiter
+
+python3 kc-fuzzer.py --rps 100 --duration 300 --concurrency 50
+```
 
 ## 🧼 Cleanup
 ```bash
