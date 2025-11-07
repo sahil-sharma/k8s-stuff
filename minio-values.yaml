@@ -1,0 +1,99 @@
+replicas: 1
+
+rootUser: "admin"
+rootPassword: "admin123"
+
+mode: standalone
+
+environment:
+  MINIO_PROMETHEUS_AUTH_TYPE: "public"
+
+persistence:
+  enabled: true
+  size: 2Gi
+  storageClass: standard
+
+resources:
+  requests:
+    memory: 256Mi
+    cpu: 100m
+  limits:
+    memory: 512Mi
+    cpu: 250m
+
+service:
+  type: ClusterIP
+  port: 9000
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  hosts:
+    - storage.local.io
+  path: /
+
+consoleService:
+  type: ClusterIP
+  port: 9001
+
+consoleIngress:
+  enabled: true
+  ingressClassName: nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  hosts:
+    - console.storage.local.io
+  path: /
+
+oidc:
+  enabled: true
+  configUrl: "http://sso.local.io:32080/realms/platform/.well-known/openid-configuration"
+  clientId: "storage"
+  clientSecret: ""
+  # Provide existing client secret from the Kubernetes Secret resource, existing secret will have priority over `clientId` and/or `clientSecret``
+  existingClientSecretName: ""
+  existingClientIdKey: ""
+  existingClientSecretKey: ""
+  claimName: "storage"
+  scopes: "openid"
+  redirectUri: "http://console.storage.local.io:32080/oauth_callback"
+  # Can leave empty
+  claimPrefix: ""
+  comment: "Login with SSO"
+  displayName: "Login with SSO"
+
+policies:
+  - name: minio-ro-policy
+    statements:
+      - effect: Allow
+        actions:
+          - s3:ListBucket
+          - s3:GetObject
+        resources:
+          - 'arn:aws:s3:::*'
+  - name: minio-rw-policy
+    statements:
+      - effect: Allow
+        actions:
+          - s3:GetBucketLocation
+          - s3:ListBucket
+          - s3:GetObject
+          - s3:PutObject
+          - s3:ListMultipartUploadParts
+          - s3:CreateBucket
+          - s3:GetBucketLocation
+          - s3:ListBucketMultipartUploads
+        resources:
+          - 'arn:aws:s3:::*'
+
+buckets:
+  - name: argo-workflows-artifacts-new
+    policy: private
+    versioning: true
+    purge: false
+    objectlocking: true
+
+# customCommands:
+#   - command: "mc admin update ALIAS"
