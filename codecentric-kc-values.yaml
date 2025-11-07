@@ -70,6 +70,8 @@ database:
   database: keycloak_db
   username: keycloak_admin
   password: admin123
+  #existingSecret: "kc-db-password"
+  #existingSecretKey: "password"
 
 ingress:
   enabled: true

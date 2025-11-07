@@ -88,7 +88,7 @@ server:
             vault secrets enable -path=globals -version=2 kv
             vault secrets enable -path=vault-token -version=2 kv
             vault secrets enable -path=metrics -version=2 kv
-            vault secrets enable -path=argo-workflows -version=2 kv
+            vault secrets enable -path=sso -version=2 kv
 
             echo "Storing the init JSON in the internal KV store for safekeeping..."
             vault kv put vault-token/vault/init root_token="$VAULT_TOKEN" keys_file="$(cat "$KEY_FILE")"
@@ -97,7 +97,11 @@ server:
             vault kv put apps/welcome-app APP_USERNAME="usera" APP_PASSWORD="passa"
             vault kv put database/postgres db_username="pguser" db_password="pgpass"
             vault kv put globals/common api_key="globalapikey123"
-            vault kv put argo-workflows/sso client-id="argo-workflow" client-secret="cOfbeYuGYt1dJa814ZqDDTCATuoQLUlw"
+            vault kv put sso/argo-workflow client-id="argo-workflow" client-secret=""
+            vault kv put sso/argo-cd client-id="argo-cd" client-secret=""
+            vault kv put sso/grafana client-id="grafana" client-secret=""
+            vault kv put sso/storage client-id="storage" client-secret=""
+            vault kv put sso/oauth client-id="oauth" client-secret=""
 
             echo "Writing policies (admin, reader, app, eso-read, read-metrics)"
             printf '%s\n' \
