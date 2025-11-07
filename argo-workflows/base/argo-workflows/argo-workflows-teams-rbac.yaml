@@ -1,0 +1,138 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: user-default-login
+  namespace: argo-workflows
+  annotations:
+    workflows.argoproj.io/rbac-rule-precedence: "0"
+    workflows.argoproj.io/rbac-rule: "true"
+    workflows.argoproj.io/service-account-token.name: user-default-login-token
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: user-default-login-token
+  namespace: argo-workflows
+  annotations:
+    kubernetes.io/service-account.name: user-default-login
+type: kubernetes.io/service-account-token
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: admin-user-token
+  namespace: argo-workflows
+  annotations:
+    kubernetes.io/service-account.name: admin-user-sa
+type: kubernetes.io/service-account-token
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin-user-sa
+  namespace: argo-workflows
+  annotations:
+    workflows.argoproj.io/rbac-rule: "'devops' in groups"
+    workflows.argoproj.io/rbac-rule-precedence: "999"
+    workflows.argoproj.io/service-account-token.name: admin-user-token
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: argo-workflow-admin
+subjects:
+  - kind: ServiceAccount
+    name: admin-user-sa
+    namespace: argo-workflows
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin   # This role is already defined in kind cluster
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: eng-user-login
+  namespace: argo-workflows
+  annotations:
+    workflows.argoproj.io/rbac-rule: "'engineering' in groups"
+    workflows.argoproj.io/rbac-rule-precedence: "10"
+    workflows.argoproj.io/service-account-token.name: eng-user-login-token
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: eng-user-login-token
+  namespace: argo-workflows
+  annotations:
+    kubernetes.io/service-account.name: eng-user-login
+type: kubernetes.io/service-account-token
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: eng-role
+  namespace: welcome-app
+rules:
+  # k8s standard APIs
+  - apiGroups:
+      - ""
+    resources:
+      - events
+      - pods
+      - pods/log
+      - pods/exec
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+  - apiGroups:
+    - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - watch
+      - list
+      - create
+  - apiGroups:
+    - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - create
+      - list
+  - apiGroups:
+    - argoproj.io
+    resources:
+      - eventsources
+      - sensors
+      - workflows
+      - workfloweventbindings
+      - workflowtemplates
+      - clusterworkflowtemplates
+      - cronworkflows
+      - workflowtaskresults
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: eng-rolebinding
+  namespace: welcome-app
+subjects:
+  - kind: ServiceAccount
+    name: eng-user-login
+    namespace: argo-workflows
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: eng-role
+---

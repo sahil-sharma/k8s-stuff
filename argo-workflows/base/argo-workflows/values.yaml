@@ -1,0 +1,74 @@
+crds:
+  install: true
+  keep: false
+
+workflow:
+  serviceAccount:
+    create: true
+    name: argo-workflow
+  rbac:
+    serviceAccounts:
+      - name: admin-user-sa
+        namespace: argo-workflows
+      - name: eng-user-sa
+        namespace: welcome-app
+      - name: data-team-sa
+        namespace: data-app
+
+controller:
+  enabled: true
+  workflowNamespaces:
+    - default
+    - welcome-app
+    - data-app
+  serviceAccount:
+    create: true
+    name: argo-workflows-controller
+  metricsConfig:
+    enabled: true
+
+metrics:
+  enabled: true
+
+server:
+  enabled: true
+  authModes:
+    - sso
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    hosts:
+      - jobs.local.io
+    pathType: Prefix
+    paths:
+      - /
+  extraEnv:
+    - name: SSO_DELEGATE_RBAC_TO_NAMESPACE
+      value: "true"
+  sso:
+    enabled: true
+    issuer: http://sso.local.io:32080/realms/platform
+    clientId:
+      name: argo-workflows-sso-secret
+      key: client-id
+    clientSecret:
+      name: argo-workflows-sso-secret
+      key: client-secret
+    scopes:
+      - groups
+    insecureSkipVerify: false
+    rbac:
+      enabled: true
+
+artifactRepository:
+  archiveLogs: true
+  s3:
+    bucket: argo-workflows-artifacts
+    endpoint: storage.local.io:32080
+    insecure: true
+    accessKeySecret:
+      name: minio-credentials
+      key: accesskey
+    secretKeySecret:
+      name: minio-credentials
+      key: secretkey

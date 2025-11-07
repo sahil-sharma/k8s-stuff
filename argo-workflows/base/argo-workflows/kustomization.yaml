@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+resources:
+  - namespace.yaml
+  - argo-workflows-teams-rbac.yaml
+
+helmCharts:
+  - name: argo-workflows
+    releaseName: argo-workflows
+    namespace: argo-workflows
+    repo: https://argoproj.github.io/argo-helm
+    version: 0.45.27
+    includeCRDs: true
+    valuesFile: values.yaml
