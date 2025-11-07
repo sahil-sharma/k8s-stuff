@@ -74,11 +74,11 @@ MASTER_WRONG_PASSWORD = "admin123456"
 
 # Client secrets (valid)
 SECRETS_MAP = {
-    "argocd": "",
-    "grafana": "",
-    "argo-workflow": "",
-    "auth": "",
-    "secrets": ""
+    "argocd": "lMV6Ped1Eoh3MCiOA1MOtyug2wsKiniT",
+    "grafana": "2LMYyV1IfzwgVEWOneYg3Fyaa2JX0F8m",
+    "argo-workflow": "G2lKyB5YSapVMFo5uOijSXjAAApSgbKl",
+    "auth": "R1T7eOmbB8GoDblJgFP1NxtsJXGV7vyM",
+    "secrets": "hQSD7nFZd3ddIwTdvXundX4Prc9jimTN"
 }
 
 # Auto-generate wrong secrets (10 chars each)

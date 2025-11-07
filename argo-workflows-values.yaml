@@ -2,53 +2,43 @@ crds:
   install: true
   keep: false
 
+workflow:
+  serviceAccount:
+    create: true
+    name: argo-workflow
+  rbac:
+    serviceAccounts:
+      - name: admin-user-sa
+        namespace: argo-workflows
+      - name: eng-user-sa
+        namespace: welcome-app
+      - name: data-team-sa
+        namespace: data-app
+
 controller:
   enabled: true
   workflowNamespaces:
     - default
-  metrics:
-    enabled: true
+    - welcome-app
+    - data-app
   serviceAccount:
     create: true
     name: argo-workflows-controller
   metricsConfig:
     enabled: true
-  podAnnotations:
-    prometheus.io/path: '/metrics'
-    prometheus.io/port: '9090'
-    prometheus.io/scrape: 'true'
 
 metrics:
   enabled: true
 
-workflow:
-  serviceAccount:
-    create: true
-    name: argo-workflow
-    # annotations:
-    #   workflows.argoproj.io/rbac-rule: "'devops' in groups"
-    #   workflows.argoproj.io/rbac-rule-precedence: "1"
-  rbac:
-    create: true
-    serviceAccounts:
-      - name: devops-sa
-        namespace: default
-    # rules:
-    #   - apiGroups: ["*"]
-    #     resources: ["workflows", "workflowtemplates", "cronworkflows", "clusterworkflowtemplates"]
-    #     verbs: ["*"]
-
 server:
   enabled: true
-  logging:
-    level: debug
   authModes:
     - sso
   ingress:
     enabled: true
     ingressClassName: nginx
     hosts:
-      - 41df-2001-871-25e-58eb-4f38-b19e-51c9-33ec.ngrok-free.app
+      - jobs.local.io
     pathType: Prefix
     paths:
       - /
@@ -57,23 +47,28 @@ server:
       value: "true"
   sso:
     enabled: true
-    issuer: https://login.microsoftonline.com/2f51824b-a09c-43f1-976d-2d6c26ae9eee/v2.0
+    issuer: http://sso.local.io:32080/realms/platform
     clientId:
       name: argo-workflows-sso
       key: client-id
     clientSecret:
       name: argo-workflows-sso
       key: client-secret
-    #redirectUrl: https://dc9a-2001-871-25e-58eb-c6a1-fee6-8f78-42c5.ngrok-free.app/oauth2/callback
     scopes:
-      - openid
-      - email
-      - profile
+      - groups
     insecureSkipVerify: false
     rbac:
       enabled: true
-      # policy: |
-      #   p, role:admin, *, *, */*, allow
-      #   g, argo-workflows-admin, role:admin
-      # groups.claim: groups
-      # policy.default: role:readonly
+
+artifactRepository:
+  archiveLogs: true
+  s3:
+    bucket: argo-workflows-artifacts
+    endpoint: http://storage.local.io:32080
+    insecure: true
+    accessKeySecret:
+      name: minio-credentials
+      key: accesskey
+    secretKeySecret:
+      name: minio-credentials
+      key: secretkey

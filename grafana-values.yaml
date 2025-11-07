@@ -8,7 +8,11 @@ service:
 ingress:
   enabled: true
   hosts:
-    - dashboard.local.io
+    - dashboards.local.io
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
 
 resources:
   requests:
@@ -22,15 +26,15 @@ persistence:
   enabled: false
 
 env:
-  SSO_SECRET: "5qmKvVk4zegKYQEgiFiQphtfTPrroj47"
-  DB_PASSWORD: "hello123"
+  SSO_SECRET: "OUCmnkyE1oyEAT6FrtjO94YhoBBYHja5"
+  DB_PASSWORD: "admin123"
 
 grafana.ini:
   dataproxy:
     timeout: 600
   database:
     type: postgres
-    host: db.local.io:32432
+    host: pg.local.io:32434
     name: grafana_db
     user: grafana_admin
     password: ${DB_PASSWORD}
@@ -44,7 +48,7 @@ grafana.ini:
   auth.basic:
     enabled: false
   server:
-    root_url: http://dashboard.local.io:32080
+    root_url: http://dashboards.local.io:32080
   auth.generic_oauth:
     enabled: true
     name: Keycloak
@@ -55,9 +59,9 @@ grafana.ini:
     email_attribute_path: email
     login_attribute_path: username
     name_attribute_path: full_name
-    auth_url: https://login.local.io:32443/realms/platform/protocol/openid-connect/auth
-    token_url: https://login.local.io:32443/realms/platform/protocol/openid-connect/token
-    api_url: https://login.local.io:32443/realms/platform/protocol/openid-connect/userinfo
+    auth_url: http://sso.local.io:32080/realms/platform/protocol/openid-connect/auth
+    token_url: http://sso.local.io:32080/realms/platform/protocol/openid-connect/token
+    api_url: http://sso.local.io:32080/realms/platform/protocol/openid-connect/userinfo
     role_attribute_path: contains(realm_access.roles[*], 'admin') && 'Admin' || contains(realm_access.roles[*], 'editor') && 'Editor' || 'Viewer'
     allow_assign_grafana_admin: true
     tls_skip_verify_insecure: true
@@ -75,25 +79,21 @@ datasources:
         uid: prometheus_uid
         url: http://metrics.local.io:32080
         isDefault: true
-        jsonData:
-        exemplarTraceIdDestinations:
-          - name: traceID
-            datasourceUid: tempo_uid
       - name: Loki
         type: loki
         access: proxy
         uid: loki_uid
-        url: https://logs.local.io:32443
+        url: http://loki.loki:3100
         isDefault: false
         jsonData:
-          derivedFields:
-            - name: trace_id
-              matcherRegex: "trace_id=(\\w+)"
-              url: "${__url}/trace/${__value.raw}"
-              datasourceUid: tempo_uid
+          # derivedFields:
+          #   - name: trace_id
+          #     matcherRegex: "trace_id=(\\w+)"
+          #     url: "${__url}/trace/${__value.raw}"
+          #     datasourceUid: tempo_uid
           tlsSkipVerify: true
-          timeout: 300
-          maxLines: 100
+          timeout: 600
+          maxLines: 50
       - name: Tempo
         type: tempo
         access: proxy
@@ -131,14 +131,37 @@ dashboards:
       gnetId: 19659
       revision: 1
       datasource: Prometheus
+    nginx-ingress:
+      gnetId: 9614
+      revision: 1
+      datasource: Prometheus
     argo-cd:
       gnetId: 14584
       revision: 1
+      datasource: Prometheus
+    vault:
+      gnetId: 12904
+      revision: 2
       datasource: Prometheus
     prometheus:
       gnetId: 3662
       revision: 1
       datasource: Prometheus
+    loki:
+      gnetId: 17781
+      revision: 1
+      datasource: Prometheus
+    argo-workflows:
+      gnetId: 21393
+      revision: 1
+      datasource: Prometheus
+    minio:
+      gnetId: 13502
+      revision: 26
+      datasource:
+        - name: DS_PROMETHEUS
+          value: "Prometheus"
+
 #     flask-app:
 #       gnetId: 11074  # Example dashboard ID for a Python app
 #       revision: 1

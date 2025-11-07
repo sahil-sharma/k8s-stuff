@@ -1,9 +1,21 @@
 replicaCount: 1
 
+auth:
+  environment: development
+  session:
+    secret: ${SESSION_SECRET}
+  providers:
+    keycloak:
+      development:
+        metadataUrl: http://sso.local.io:32080/realms/platform/.well-known/openid-configuration
+        clientId: idp
+        clientSecret: ivdEBnuC8FNA6Vb9W4THpReaDjh0NsUy
+        prompt: auto
+
 backstage:
   appConfig:
     app:
-      baseUrl: http://idp.local.io:32080/backstage
+      baseUrl: http://idp.local.io:32080
       title: Backstage Demo App
     backend:
       baseUrl: http://idp.local.io:32080
@@ -11,6 +23,7 @@ backstage:
         port: 32080
       csp:
         connect-src: ["'self'", 'http:', 'https:']
+        upgrade-insecure-requests: false
       cors:
         origin: http://idp.local.io
         methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
@@ -22,6 +35,31 @@ backstage:
           database: backstage
           user: backstage_admin
           password: admin123
+      auth:
+        environment: development
+        providers:
+          keycloak:
+            development:
+              issuer: http://sso.local.io:32080/realms/platform
+              clientId: idp
+              clientSecret: ivdEBnuC8FNA6Vb9W4THpReaDjh0NsUy
+              prompt: auto
+        # catalog:
+        #   # Required to overwrite app-config.yaml so we don't import anything
+        #   locations: []
+        #   providers:
+        #     keycloakOrg:
+        #       default:
+        #         baseUrl: http://sso.local.io:32080
+        #         realm: platform
+        #         loginRealm: platform
+        #         clientId: idp
+        #         clientSecret: ivdEBnuC8FNA6Vb9W4THpReaDjh0NsUy
+        #         schedule: # Optional (defaults to the configurations below if not provided); same options as in TaskScheduleDefinition
+        #           # supports cron, ISO duration, "human duration" as used in code
+        #           frequency: { minutes: 30 } # Customize this to fit your needs
+        #           # supports ISO duration, "human duration" as used in code
+        #           timeout: { minutes: 3 } # Customize this to fit your needs
 
     techdocs:
       builder: 'local'
@@ -35,6 +73,6 @@ ingress:
   className: "nginx"
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # nginx.ingress.kubernetes.io/ssl-redirect: "false"
   host: idp.local.io
-  path: /backstage
+  path: /
