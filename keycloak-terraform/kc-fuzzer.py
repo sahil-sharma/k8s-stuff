@@ -490,7 +490,7 @@ def main():
         "4": ("argo-workflow", False),
         "5": ("oauth", False),
         "6": ("secrets", False),
-        "7": ("storage", True),
+        "7": ("storage", False),
         "8": ("master", True),
         "9": ("argocd", True),
         "10": ("grafana", True),
