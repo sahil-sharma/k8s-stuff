@@ -81,6 +81,22 @@ extraScrapeConfigs: |
     static_configs:
       - targets: ['keycloak-keycloakx-http.keycloak:80']
 
+  - job_name: 'loki'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['loki.loki:3100']
+
+  - job_name: 'argo-workflows'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['argo-workflows-workflow-controller.argo-workflows:8080']
+
+  - job_name: minio-cluster
+    metrics_path: /minio/v2/metrics/cluster
+    scheme: http
+    static_configs:
+      - targets: ['storage.local.io:32080']
+
   # - job_name: 'blackbox-keycloak'
   #   metrics_path: /probe
   #   params:
@@ -117,6 +133,7 @@ extraScrapeConfigs: |
   #   scheme: http
   #   static_configs:
   #     - targets: ['flask-app-service.app:5000']
+
   - job_name: 'argo-cd application controller'
     metrics_path: /metrics
     scheme: http
