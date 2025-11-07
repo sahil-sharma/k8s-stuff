@@ -1,0 +1,109 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: vault-backup-verify-upload
+  namespace: default
+spec:
+  schedule: "0 */12 * * *"
+  concurrencyPolicy: "Forbid"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+
+  workflowSpec:
+    serviceAccountName: argo-workflow
+    entrypoint: vault-backup-dag
+
+    templates:
+      - name: vault-backup-dag
+        dag:
+          tasks:
+            - name: vault-backup
+              template: vault-backup
+            - name: vault-verify
+              dependencies: [vault-backup]
+              template: vault-verify
+              arguments:
+                artifacts:
+                  - name: vault-snapshot
+                    from: "{{tasks.vault-backup.outputs.artifacts.vault-snapshot}}"
+            - name: upload-to-minio
+              dependencies: [vault-verify]
+              template: upload-to-minio
+              arguments:
+                artifacts:
+                  - name: vault-snapshot
+                    from: "{{tasks.vault-backup.outputs.artifacts.vault-snapshot}}"
+
+      # Step 1: Take backup
+      - name: vault-backup
+        container:
+          image: hashicorp/vault:1.20.1
+          command: ["/bin/sh", "-c"]
+          env:
+            - name: VAULT_ADDR
+              value: http://vault.vault.svc.cluster.local:8200
+            - name: VAULT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: vault-root-token
+                  key: token
+          args:
+            - |
+              set -e
+              TIMESTAMP=$(date +%s)
+              DAY=$(date +%a)
+              FILE_NAME="${DAY}-${TIMESTAMP}.snap"
+              echo "Taking Vault snapshot: ${FILE_NAME}"
+              vault operator raft snapshot save /tmp/${FILE_NAME}
+              echo "${FILE_NAME}" > /tmp/filename.txt
+              cp /tmp/${FILE_NAME} /tmp/snapshot.snap
+              echo "Snapshot saved: ${FILE_NAME}"
+        outputs:
+          artifacts:
+            - name: vault-snapshot
+              path: /tmp/snapshot.snap
+
+      # Step 2: Verify backup
+      - name: vault-verify
+        inputs:
+          artifacts:
+            - name: vault-snapshot
+              path: /tmp/snapshot.snap
+        container:
+          image: hashicorp/vault:1.20.1
+          command: ["/bin/sh", "-c"]
+          env:
+            - name: VAULT_ADDR
+              value: http://vault.vault.svc.cluster.local:8200
+          args:
+            - |
+              set -e
+              echo "Verifying snapshot integrity..."
+              vault operator raft snapshot inspect -details=true -depth 3 /tmp/snapshot.snap > /tmp/inspect.json
+              cat /tmp/inspect.json
+              if grep -iq "error" /tmp/inspect.json; then
+                echo "Snapshot verification failed!"
+                exit 1
+              fi
+              echo "Snapshot verified successfully."
+
+      # Step 3: Upload to MinIO
+      - name: upload-to-minio
+        inputs:
+          artifacts:
+            - name: vault-snapshot
+              path: /tmp/snapshot.snap
+        container:
+          image: amazon/aws-cli:latest
+          command: ["/bin/sh", "-c"]
+          envFrom:
+            - secretRef:
+                name: minio-credentials
+          args:
+            - |
+              set -e
+              FILE_NAME=$(date +%a-%s).snap
+              echo "Uploading ${FILE_NAME} to MinIO..."
+              aws s3 cp /tmp/snapshot.snap s3://vault-backup/${FILE_NAME} \
+                --endpoint-url http://storage.local.io:32080
+              echo "Upload complete."
