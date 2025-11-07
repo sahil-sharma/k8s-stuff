@@ -21,17 +21,25 @@ serverDefinitions:
 persistentVolume:
   enabled: false
 
+networkPolicy:
+  enabled: false
+
+service:
+  annotations:
+  kubernetes.io/service-proxy-name: "kube-proxy"
+
 ingress:
   enabled: true
   ingressClassName: "nginx"
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /pgadmin4
+    nginx.ingress.kubernetes.io/service-upstream: "true"
+    # nginx.ingress.kubernetes.io/proxy-redirect-from: "~^http://([^/]+):32080/(pgadmin4/)?(.*)$"
+    # nginx.ingress.kubernetes.io/proxy-redirect-to: "http://$1:32080/pgadmin4/$3"
     nginx.ingress.kubernetes.io/configuration-snippet: |
       proxy_set_header X-Script-Name /pgadmin4;
-      proxy_set_header X-Forwarded-Prefix /pgadmin4;
   hosts:
     - host: pgadmin.local.io
       paths:
-        - path: /pgadmin(/|$)(.*)
-          pathType: Prefix
+        - path: /pgadmin4
+          pathType: ImplementationSpecific

@@ -21,7 +21,7 @@ controller:
         5434: 32434 # Grafana DB
         3306: 32306 # MySQL DB
         3200: 32200 # Tempo
-      #   6379: 32379
+        6379: 32379 # Redis
 
   ingressClassResource:
     name: nginx

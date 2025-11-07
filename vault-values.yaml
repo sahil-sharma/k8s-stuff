@@ -63,9 +63,9 @@ server:
           export VAULT_ADDR=http://vault.vault:8200
           export KEY_FILE="/vault/init-keys.txt"
           export K8S_HOST="https://10.0.0.251"
-          export K8S_PORT="38217"
+          export K8S_PORT="44941"
           export OIDC_CLIENT_ID="secrets"
-          export OIDC_CLIENT_SECRET="SECRET"
+          export OIDC_CLIENT_SECRET="BEaxqMYKgE7zQwzMq1FCD2GPdet8EzAz"
 
           if vault status | grep -q 'Initialized.*false'; then
             echo "Vault not initialized. Starting to initialize Vault..."
@@ -86,20 +86,20 @@ server:
             vault secrets enable -path=apps -version=2 kv
             vault secrets enable -path=database -version=2 kv
             vault secrets enable -path=globals -version=2 kv
-            vault secrets enable -path=sso -version=2 kv
-            vault secrets enable -path=aiml -version=2 kv
+            vault secrets enable -path=vault-token -version=2 kv
             vault secrets enable -path=metrics -version=2 kv
+            vault secrets enable -path=argo-workflows -version=2 kv
 
             echo "Storing the init JSON in the internal KV store for safekeeping..."
-            vault kv put sso/vault/init root_token="$VAULT_TOKEN" keys_file="$(cat "$KEY_FILE")"
+            vault kv put vault-token/vault/init root_token="$VAULT_TOKEN" keys_file="$(cat "$KEY_FILE")"
 
             echo "Creating example secrets"
             vault kv put apps/welcome-app APP_USERNAME="usera" APP_PASSWORD="passa"
             vault kv put database/postgres db_username="pguser" db_password="pgpass"
             vault kv put globals/common api_key="globalapikey123"
-            vault kv put aiml/models llm_api_key="apikey123"
+            vault kv put argo-workflows/sso client-id="argo-workflow" client-secret="cOfbeYuGYt1dJa814ZqDDTCATuoQLUlw"
 
-            echo "Writing policies (admin, reader, app, eso-read, data-reader, read-metrics)"
+            echo "Writing policies (admin, reader, app, eso-read, read-metrics)"
             printf '%s\n' \
             'path "*" { capabilities = ["create","read","update","delete","list","sudo"] }' \
             > /tmp/admin.hcl
@@ -120,8 +120,8 @@ server:
             'path "database/metadata/*" { capabilities = ["list"] }' \
             'path "globals/data/*" { capabilities = ["read","list"] }' \
             'path "globals/metadata/*" { capabilities = ["list"] }' \
-            'path "/aiml/data/*" { capabilities = ["read","list"] }' \
-            'path "/aiml/metadata/*" { capabilities = ["list"] }' \
+            'path "argo-workflows/data/*" { capabilities = ["read","list"] }' \
+            'path "argo-workflows/metadata/*" { capabilities = ["list"] }' \
             > /tmp/app.hcl
             vault policy write app /tmp/app.hcl
 
@@ -154,11 +154,6 @@ server:
             'path "sys/capabilities-self" { capabilities = ["update"] }' \
             > /tmp/default.hcl
             vault policy write default-role /tmp/default.hcl
-
-            printf '%s\n' \
-            'path "sys/metrics" { capabilities = ["read"] }' \
-            > /tmp/read-metrics.hcl
-            vault policy write read-metrics /tmp/read-metrics.hcl
 
             echo "Enabling OIDC auth method..."
             vault auth enable -path=oidc oidc
@@ -234,6 +229,12 @@ server:
               bound_service_account_names="prometheus-server" \
               bound_service_account_namespaces="prometheus" \
               policies="read-metrics" \
+              audience="https://kubernetes.default.svc.cluster.local"
+
+            vault write auth/kubernetes/role/read-argo-workflows-sso-secret-role \
+              bound_service_account_names="argo-workflow" \
+              bound_service_account_namespaces="argo-workflows" \
+              policies="eso-read" \
               audience="https://kubernetes.default.svc.cluster.local"
 
             echo "Initscript executed successfully, idling..."
