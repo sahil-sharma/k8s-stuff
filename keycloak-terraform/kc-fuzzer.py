@@ -63,22 +63,23 @@ KC_URL = "http://sso.local.io:32080"
 MASTER_REALM = "master"
 PLATFORM_REALM = "platform"
 
-# Common credentials for platform realm clients
+# Common credentials for platform realm users
 PLATFORM_USERNAME = "bob"
-PLATFORM_PASSWORD = "PkiRiXmB9TZ1KcEJ"
+PLATFORM_PASSWORD = ""
 
 # Master realm credentials
 MASTER_USERNAME = "admin"
 MASTER_PASSWORD = "admin123"
 MASTER_WRONG_PASSWORD = "admin123456"
 
-# Client secrets (valid)
+# Client secrets (valid) for platform realm clients
 SECRETS_MAP = {
-    "argocd": "lMV6Ped1Eoh3MCiOA1MOtyug2wsKiniT",
-    "grafana": "2LMYyV1IfzwgVEWOneYg3Fyaa2JX0F8m",
-    "argo-workflow": "G2lKyB5YSapVMFo5uOijSXjAAApSgbKl",
-    "auth": "R1T7eOmbB8GoDblJgFP1NxtsJXGV7vyM",
-    "secrets": "hQSD7nFZd3ddIwTdvXundX4Prc9jimTN"
+    "argocd": "",
+    "grafana": "",
+    "argo-workflow": "",
+    "auth": "",
+    "secrets": "",
+    "storage": ""
 }
 
 # Auto-generate wrong secrets (10 chars each)
@@ -151,6 +152,16 @@ CLIENTS = {
         "username": PLATFORM_USERNAME,
         "password": PLATFORM_PASSWORD,
         "wrong_client_secret": WRONG_SECRETS_MAP["secrets"]
+    },
+    "storage": {
+        "name": "MinIO/Storage Client",
+        "realm": PLATFORM_REALM,
+        "grant_type": "password",
+        "client_id": "secrets",
+        "client_secret": SECRETS_MAP["storage"],
+        "username": PLATFORM_USERNAME,
+        "password": PLATFORM_PASSWORD,
+        "wrong_client_secret": WRONG_SECRETS_MAP["storage"]
     }
 }
 
@@ -425,22 +436,24 @@ def show_menu():
     print("\n" + "="*60)
     print("Keycloak Load Tester")
     print("="*60)
-    print("\nValid Credentials:")
+    print("\n With Valid Credentials:")
     print("  1) Master Realm Login")
     print("  2) ArgoCD Client")
     print("  3) Grafana Client")
     print("  4) Argo Workflow Client")
     print("  5) OAuth2 Proxy Client")
-    print("  6) Secrets/Vault Client")
-    print("\nInvalid Credentials:")
-    print("  7) Master Realm Login (WRONG)")
-    print("  8) ArgoCD Client (WRONG)")
-    print("  9) Grafana Client (WRONG)")
-    print(" 10) Argo Workflow Client (WRONG)")
-    print(" 11) OAuth2 Proxy Client (WRONG)")
-    print(" 12) Secrets/Vault Client (WRONG)")
-    print("\nAutomated:")
-    print(" 13) Random fuzzing (mix of valid/invalid)")
+    print("  6) Secrets Client")
+    print("  7) Storage Client")
+    print("\n With Invalid Credentials:")
+    print("  8) Master Realm Login")
+    print("  9) ArgoCD Client")
+    print(" 10) Grafana Client")
+    print(" 11) Argo Workflow Client")
+    print(" 12) OAuth2 Proxy Client")
+    print(" 13) Secrets Client")
+    print(" 14) Storage Client")
+    print("\n Automated:")
+    print(" 15) Random fuzzing (mix of valid/invalid)")
     print("  q) Quit")
     print("="*60)
 
