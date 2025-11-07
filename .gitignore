@@ -1,0 +1,3 @@
+# Ignore specific chart output directories recursively anywhere
+charts/
+chart_outputs/
