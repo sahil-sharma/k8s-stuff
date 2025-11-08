@@ -3,8 +3,11 @@
 > Ensure External Secret is already installed
 
 ```bash
-# Add Grafana Helm Repo
-helm repo add argocd https://argoproj.github.io/argo-helm
+# Add External Secret Helm repo
+helm repo add external-secrets https://charts.external-secrets.io
+
+# Add ArgoCD Helm Repo
+helm repo add argo-cd https://argoproj.github.io/argo-helm
 
 # Update Helm Repo
 helm repo update
