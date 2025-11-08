@@ -3,6 +3,9 @@
 > Ensure External Secret and Grafana PostgreSQL is already installed
 
 ```bash
+# Add External Secret Helm repo
+helm repo add external-secrets https://charts.external-secrets.io
+
 # Add Grafana Helm Repo
 helm repo add grafana https://grafana.github.io/helm-charts
 
