@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - grafana/
+  - externalsecrets/
+
+# Apply ordering:
+# Helm (Grafana) -> then ExternalSecret (depends on Grafana SA)
+# Kustomize itself doesn't enforce order during build,
+# but you can apply with kubectl using the right sequence:
+# kubectl apply -k . --prune --wait=false
