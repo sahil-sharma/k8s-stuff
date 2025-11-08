@@ -1,0 +1,173 @@
+# adminUser: admin
+# adminPassword: admin123
+
+testFramework:
+  enabled: false
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  hosts:
+    - dashboards.local.io
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+persistence:
+  enabled: false
+
+envFromSecret: grafana-sso-secret
+
+grafana.ini:
+  dataproxy:
+    timeout: 600
+  database:
+    type: postgres
+    host: pg.local.io:32434
+    name: grafana_db
+    user: grafana_admin
+    password: ${DB_PASSWORD}
+    sslmode: disable
+  log:
+    level: info
+  auth:
+    disable_login_form: true
+  auth.anonymous:
+    enabled: false
+  auth.basic:
+    enabled: false
+  server:
+    root_url: http://dashboards.local.io:32080
+  auth.generic_oauth:
+    enabled: true
+    name: SSO
+    client_id: ${OIDC_CLIENT_ID}
+    client_secret: ${OIDC_CLIENT_SECRET}
+    scopes: openid email profile roles
+    allow_sign_up: true
+    email_attribute_path: email
+    login_attribute_path: username
+    name_attribute_path: full_name
+    auth_url: http://sso.local.io:32080/realms/platform/protocol/openid-connect/auth
+    token_url: http://sso.local.io:32080/realms/platform/protocol/openid-connect/token
+    api_url: http://sso.local.io:32080/realms/platform/protocol/openid-connect/userinfo
+    role_attribute_path: contains(realm_access.roles[*], 'admin') && 'Admin' || contains(realm_access.roles[*], 'editor') && 'Editor' || 'Viewer'
+    allow_assign_grafana_admin: true
+    tls_skip_verify_insecure: true
+
+plugins:
+  - novatec-sdg-panel
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        uid: prometheus_uid
+        url: http://metrics.local.io:32080
+        isDefault: true
+      - name: Loki
+        type: loki
+        access: proxy
+        uid: loki_uid
+        url: http://loki.loki:3100
+        isDefault: false
+        jsonData:
+          # derivedFields:
+          #   - name: trace_id
+          #     matcherRegex: "trace_id=(\\w+)"
+          #     url: "${__url}/trace/${__value.raw}"
+          #     datasourceUid: tempo_uid
+          tlsSkipVerify: true
+          timeout: 600
+          maxLines: 50
+      - name: Tempo
+        type: tempo
+        access: proxy
+        uid: tempo_uid
+        url: http://tempo.tempo:3200
+        isDefault: false
+        editable: true
+        # jsonData:
+        #   tlsSkipVerify: true
+        # jsonData:
+        #   httpHeaderName1: "X-Scope-OrgID"
+        # secureJsonData:
+        #   httpHeaderValue1: "flask-app"
+
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+      - name: 'default'
+        orgId: 1
+        folder: ''
+        type: file
+        disableDeletion: false
+        updateIntervalSeconds: 30
+        options:
+          path: /var/lib/grafana/dashboards/default
+
+dashboards:
+  default:
+    keycloak-quarkus-metrics:
+      gnetId: 14390
+      revision: 7
+      datasource: Prometheus
+    keycloak-spi-metrics:
+      gnetId: 19659
+      revision: 1
+      datasource: Prometheus
+    nginx-ingress:
+      gnetId: 9614
+      revision: 1
+      datasource: Prometheus
+    argo-cd:
+      gnetId: 14584
+      revision: 1
+      datasource: Prometheus
+    vault:
+      gnetId: 12904
+      revision: 2
+      datasource: Prometheus
+    prometheus:
+      gnetId: 3662
+      revision: 1
+      datasource: Prometheus
+    loki:
+      gnetId: 17781
+      revision: 1
+      datasource: Prometheus
+    argo-workflows:
+      gnetId: 21393
+      revision: 1
+      datasource: Prometheus
+    minio:
+      gnetId: 13502
+      revision: 26
+      datasource:
+        - name: DS_PROMETHEUS
+          value: "Prometheus"
+
+#     flask-app:
+#       gnetId: 11074  # Example dashboard ID for a Python app
+#       revision: 1
+#       datasource: Prometheus
+#     flask-app-logs:
+#       gnetId: 13639  # Grafana Loki Logs dashboard
+#       revision: 1
+#       datasource: Loki
