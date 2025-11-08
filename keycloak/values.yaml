@@ -116,11 +116,6 @@ extraEnv: |
   - name: KC_HEALTH_ENABLED
     value: "true"
 
-# - name: KC_METRICS_ENABLED
-#   value: "true"
-# - name: KC_SPI_METRICS_ENABLED
-#   value: "true"
-
 # # Optional: expose /metrics and /health over Ingress
 # podAnnotations:
 #   prometheus.io/scrape: "true"
