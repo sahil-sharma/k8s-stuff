@@ -240,9 +240,27 @@ server:
               policies="read-metrics" \
               audience="https://kubernetes.default.svc.cluster.local"
 
-            vault write auth/kubernetes/role/read-sso-secret-role \
+            vault write auth/kubernetes/role/argocd-sso-secret-role \
               bound_service_account_names="argo-cd-sso-sa" \
               bound_service_account_namespaces="argo-cd" \
+              policies="eso-read" \
+              audience="https://kubernetes.default.svc.cluster.local"
+
+            vault write auth/kubernetes/role/grafana-sso-secret-role \
+              bound_service_account_names="grafana-sso-sa" \
+              bound_service_account_namespaces="grafana" \
+              policies="eso-read" \
+              audience="https://kubernetes.default.svc.cluster.local"
+
+            vault write auth/kubernetes/role/minio-sso-secret-role \
+              bound_service_account_names="minio-sso-sa" \
+              bound_service_account_namespaces="minio" \
+              policies="eso-read" \
+              audience="https://kubernetes.default.svc.cluster.local"
+
+            vault write auth/kubernetes/role/argo-workflow-sso-secret-role \
+              bound_service_account_names="argo-workflow-sso-sa" \
+              bound_service_account_namespaces="argo-workflows" \
               policies="eso-read" \
               audience="https://kubernetes.default.svc.cluster.local"
 
