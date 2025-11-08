@@ -13,5 +13,8 @@ helm repo update
 helm upgrade --install keycloak codecentric/keycloakx -f values.yaml --namespace keycloak --create-namespace'
 
 # Delete Keycloak
-helm uninstall keycloak -n keycloak'
+helm uninstall keycloak -n keycloak
 ```
+
+## Configure Keycloak with Terraform
+Follow [this](https://github.com/sahil-sharma/k8s-stuff/tree/main/keycloak-terraform) for more instructions
