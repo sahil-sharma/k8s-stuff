@@ -2,6 +2,8 @@
 
 > Ensure Keycloak PG is already installed
 
+> Hostname: http://sso.local.io:32080
+
 ```bash
 # Add Keycloak Helm Repo
 helm repo add keycloak https://codecentric.github.io/helm-charts

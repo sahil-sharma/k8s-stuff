@@ -2,6 +2,8 @@
 
 > Ensure External Secret and Grafana PostgreSQL is already installed
 
+> Hostname: http://dashboards.local.io:32080
+
 ```bash
 # Add External Secret Helm repo
 helm repo add external-secrets https://charts.external-secrets.io
