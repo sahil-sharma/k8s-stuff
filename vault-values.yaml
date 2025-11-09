@@ -103,7 +103,7 @@ server:
             # ArgoCD base64 encoded secrets
             vault kv put sso/argo-cd CLIENT_ID="YXJnby1jZAo=" CLIENT_SECRET="UmJrdVhQY3lnNDlMSVA4dFZSd2ZmeEpFa0NYNEhRWXcK"
             
-            vault kv put sso/grafana CLIENT_ID="grafana" CLIENT_SECRET="9hUrr8g8ZAzCQlrmxjUbSnZUAMAYuGRT"
+            vault kv put sso/grafana CLIENT_ID="grafana" CLIENT_SECRET="9hUrr8g8ZAzCQlrmxjUbSnZUAMAYuGRT" DB_PASSWORD="admin123"
             
             vault kv put sso/storage CLIENT_ID="storage" CLIENT_SECRET="1Bhf1L1OGGj5PkpYSViSw408aP4GxCZD"
             vault kv put sso/oauth CLIENT_ID="auth" CLIENT_SECRET="dlhUeaCEUOMdtgRUgojSAvLziFKIata7"

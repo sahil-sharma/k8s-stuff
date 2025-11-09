@@ -1,4 +1,4 @@
-# 🔐 Keycloak Terraform Configuration
+# Keycloak Terraform Configuration
 
 This Terraform project bootstraps a complete Keycloak realm setup for use with Argo CD and Argo Workflows SSO, including:
 
@@ -12,16 +12,16 @@ This Terraform project bootstraps a complete Keycloak realm setup for use with A
 
 ---
 
-## 📦 Features
+## Features
 
 - Automates full Keycloak setup with `terraform-provider-keycloak`
-- Uses a self-hosted Keycloak instance (e.g., `https://keycloak.local.io:32443`)
+- Uses a self-hosted Keycloak instance (e.g., `http://sso.local.io:32080`)
 - Supports secrets via Terraform variables or `.tfvars` file
-- SSO-ready for Argo CD and Argo Workflows
+- SSO-ready for applications that supports OIDC
 
 ---
 
-## 📁 Structure
+## Structure
 
 ```bash
 .
@@ -38,17 +38,17 @@ This Terraform project bootstraps a complete Keycloak realm setup for use with A
 ```
 ---
 
-## ⚙️ Prerequisites
+## Prerequisites
 
 ```bash
-Keycloak running and accessible via HTTPS (e.g., via NodePort or Ingress)
+Keycloak running and accessible via HTTP (e.g., via NodePort or Ingress)
 Admin credentials (username/password or client credentials)
 Terraform >= 1.12
-DNS resolution to keycloak.local.io inside the cluster (you may need to update CoreDNS)
+DNS resolution to sso.local.io inside the cluster (Update CoreDNS for appications to reach Keycloak over hostname)
 ```
 ---
 
-## 🔑 Setup
+## Setup
 
 ### 1. Create terraform.tfvars
 ```bash
@@ -216,41 +216,41 @@ terraform output users
 | -------- | -----------|
 | DevOps   | bob, dave  |
 | Backend  | alice, john|
-| Business | eve, marry |
+| Business | eve        |
 
 * Randomly generated password
-* Password must be reset on first login
+* Password must be reset on first login if enabled
 
-## 🔐 Clients
+## Example Clients
 
 | Client ID     | Use Case          | Secret Source                     |
 | ------------- | ----------------- | --------------------------------- |
 | argo-cd       | Argo CD SSO       | `var.argo-cd_client_secret`       |
 | argo-workflow |Argo Workflows SSO | `var.argo-workflow_client_secret` |
 
-## 🧠 Notes
+## Notes
 
 * The groups client scope is added as a default scope to both clients, and includes a Group Membership mapper (claim: groups).
 * If you see "Account is not fully set up" when logging in, ensure you reset the password as prompted.
-* If DNS fails on login (no such host), configure CoreDNS to resolve keycloak.local.io. Follow steps mentioned [here](https://github.com/sahil-sharma/k8s-stuff/blob/main/update-coredns-configmap.txt).
-* Add keycloak self-signed certificates to Operating System CA so that Terraform can make an API call to Keycloak over HTTPS:
+* If DNS fails on login (no such host), configure CoreDNS to resolve sso.local.io. Follow steps mentioned [here](https://github.com/sahil-sharma/k8s-stuff/blob/main/update-coredns-configmap.txt).
+* Add keycloak self-signed certificates to Operating System CA so that Terraform can make an API call to Keycloak over HTTPS if enabled:
 ```bash
-# openssl s_client -showcerts -connect keycloak.local.io:32443 </dev/null 2>/dev/null | openssl x509 -outform PEM > /tmp/keycloak.crt
-# sudo cp /tmp/keycloak.crt /usr/local/share/ca-certificates/keycloak.crt
+# openssl s_client -showcerts -connect sso.local.io:32443 </dev/null 2>/dev/null | openssl x509 -outform PEM > /tmp/sso.crt
+# sudo cp /tmp/sso.crt /usr/local/share/ca-certificates/sso.crt
 # sudo update-ca-certificates
 ```
-## 🧪 Debug Tips
+## Debug Tips
 
 ```bash
 # Test DNS resolution inside a pod
 kubectl run -i --tty dns-test --image=busybox:latest --rm --restart=Never -- sh
-nslookup keycloak.local.io
+nslookup sso.local.io
 
-# Get Keycloak client secret
+# Get configured client secret
 terraform output -json | jq -r '.argo_cd_client_secret.value'
 ```
 
-## 📤 Outputs
+## Outputs
 
 * `client IDs and secrets`: Display all client-id and client-secrets 
 * `user credentials`: All users will have a randomly generated password
@@ -258,7 +258,7 @@ terraform output -json | jq -r '.argo_cd_client_secret.value'
 You can set a SHELL alias to get easy outputs:
 
 ```bash
-alias tfout='terraform output -state=$HOME/k8s-stuff/keycloak-terraform/terraform.tfstate'
+alias tfout='terraform output -state=$HOME/keycloak-terraform/terraform.tfstate'
 
 tfout users && tfout clients
 ```
@@ -271,10 +271,12 @@ pip install requests
 pip3 install aiohttp
 pip3 install aiolimiter
 
+# Add valid client-ids and client-secrets in python script: kc-fuzzer.py
+
 python3 kc-fuzzer.py --rps 100 --duration 300 --concurrency 50
 ```
 
-## 🧼 Cleanup
+## Cleanup
 ```bash
 terraform destroy -auto-approve
 ```
