@@ -2,6 +2,8 @@
 
 > Ensure External Secret is already installed
 
+> Hostname: http://jobs.local.io:32080
+
 ```bash
 # Add External Secret Helm repo
 helm repo add external-secrets https://charts.external-secrets.io
