@@ -32,7 +32,6 @@ resource "keycloak_openid_client_default_scopes" "default_groups_scope" {
   ]
 }
 
-
 resource "keycloak_openid_client_scope" "client_roles_scope" {
   realm_id               = keycloak_realm.realm.id
   name                   = "client-roles"
@@ -88,7 +87,9 @@ resource "keycloak_generic_protocol_mapper" "client_roles_mapper" {
   protocol        = "openid-connect"
   protocol_mapper = "oidc-usermodel-client-role-mapper"
   config = {
-    "claim.name"           = "resource_access.${each.key}.roles"
+    # "claim.name"           = "resource_access.${each.key}.roles"
+    # "claim.name"           = "resource_access.${each.value.token_claim_name != null ? each.value.token_claim_name : each.key}.roles"
+    "claim.name"           = lookup(each.value, "token_claim_name", "resource_access.${each.key}.roles")
     "jsonType.label"       = "String"
     "multivalued"          = "true"
     "userinfo.token.claim" = "true"

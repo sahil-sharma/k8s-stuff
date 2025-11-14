@@ -28,6 +28,7 @@ variable "clients" {
     valid_post_logout_redirect_uris = list(string)
     roles                           = list(string)
     web_origins                     = list(string)
+    token_claim_name                = optional(string)
   }))
   description = "Clients and their roles"
 }
