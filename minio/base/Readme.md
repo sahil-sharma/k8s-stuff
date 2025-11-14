@@ -11,7 +11,7 @@
 helm repo add external-secrets https://charts.external-secrets.io
 
 # Add MinIO Helm Repo
-helm repo add argocd https://argoproj.github.io/argo-helm
+helm repo add minio https://charts.min.io/
 
 # Update Helm Repo
 helm repo update
@@ -20,8 +20,8 @@ helm repo update
 helm upgrade --install external-secrets external-secrets/external-secrets --set image.crds.systemAuthDelegator=true --set installCRDs=true --namespace external-secrets --create-namespace
 
 # Install MinIO
-k kustomize . --enable-helm --load-restrictor=LoadRestrictionsNone | k apply -f -
+k kustomize . --enable-helm --load-restrictor=LoadRestrictionsNone | k apply -f - -n minio
 
 # Uninstall MinIO
-k kustomize . --enable-helm --load-restrictor=LoadRestrictionsNone | k delete -f -
+k kustomize . --enable-helm --load-restrictor=LoadRestrictionsNone | k delete -f - -n minio
 ```
