@@ -30,6 +30,21 @@ persistence:
 
 envFromSecret: grafana-sso-secret
 
+# Init container to wait for DB
+extraInitContainers:
+  - name: wait-for-db
+    image: busybox:latest
+    command:
+      - sh
+      - -c
+      - |
+        echo "Waiting for PostgreSQL to be ready..."
+        until nc -z grafana-db-rw.grafana-pg.svc.cluster.local 5432; do
+          echo "Still waiting for DB..."
+          sleep 3
+        done
+        echo "Database is ready!"
+
 grafana.ini:
   dataproxy:
     timeout: 600
