@@ -94,5 +94,17 @@ buckets:
     purge: false
     objectlocking: true
 
+  - name: vault-backup
+    policy: private
+    versioning: true
+    purge: false
+    objectlocking: true
+
+# users:
+#   - accessKey: externalSecret
+#     existingSecret: vault-backup-credentials
+#     existingSecretKey: VAULT_BACKUP_SECRET_KEY
+#     policy: readwrite
+
 # customCommands:
 #   - command: "mc admin update ALIAS"
