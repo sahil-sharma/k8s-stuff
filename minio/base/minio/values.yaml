@@ -71,7 +71,8 @@ policies:
           - s3:ListBucket
           - s3:GetObject
         resources:
-          - 'arn:aws:s3:::*'
+          - 'arn:aws:s3:::vault-backup'
+          - 'arn:aws:s3:::vault-backup/*'
   - name: minio-rw-policy
     statements:
       - effect: Allow
@@ -85,7 +86,8 @@ policies:
           - s3:GetBucketLocation
           - s3:ListBucketMultipartUploads
         resources:
-          - 'arn:aws:s3:::*'
+          - 'arn:aws:s3:::vault-backup'
+          - 'arn:aws:s3:::vault-backup/*'
 
 buckets:
   - name: argo-workflows-artifacts
