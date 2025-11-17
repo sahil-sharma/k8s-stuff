@@ -31,6 +31,10 @@ server:
           prometheus_retention_time = "30s"
           disable_hostname = true
         }
+  dataStorage:
+    enabled: true
+    size: 2Gi
+    storageClass: "standard"     
 
   ingress:
     enabled: true
@@ -63,9 +67,30 @@ server:
           export VAULT_ADDR=http://vault.vault:8200
           export KEY_FILE="/vault/init-keys.txt"
           export K8S_HOST="https://10.0.0.251"
-          export K8S_PORT="40949"
-          export OIDC_CLIENT_ID="secrets"
-          export OIDC_CLIENT_SECRET="iVNhysbFvvfkNIg8C45bExpSBXNwUe9P"
+          export K8S_PORT="37043"
+
+          # MinIO Credentials
+          export MINIO_URL="http://storage.local.io:32080"
+          export MINIO_ROOT_USER="admin"
+          export MINIO_ROOT_PASSWORD="admin123"
+          
+          export VAULT_OIDC_CLIENT_ID="secrets"
+          export VAULT_OIDC_CLIENT_SECRET="4FUKmrsFW2n92o3kHZ2SnL11gbWQBs2J"
+
+          export ARGOCD_OIDC_CLIENT_ID="argocd"
+          export ARGOCD_OIDC_CLIENT_SECRET=""
+
+          export GRAFANA_OIDC_CLIENT_ID="grafana"
+          export GRAFANA_OIDC_CLIENT_SECRET="9hUrr8g8ZAzCQlrmxjUbSnZUAMAYuGRT"
+
+          export AUTH_OIDC_CLIENT_ID="auth"
+          export AUTH_OIDC_CLIENT_SECRET="dlhUeaCEUOMdtgRUgojSAvLziFKIata7"
+
+          export MINIO_OIDC_CLIENT_ID="storage"
+          export MINIO_OIDC_CLIENT_SECRET="wUwli633XilbCRtUL3ffcBRvCLEWbCAo"
+
+          export ARGO_WORKFLOW_OIDC_CLIENT_ID="argo-workflow"
+          export ARGO_WORKFLOW_OIDC_CLIENT_SECRET="DA5uutvqYEBow2K9NNf2VXS3KYdHtmbt"
 
           if vault status | grep -q 'Initialized.*false'; then
             echo "Vault not initialized. Starting to initialize Vault..."
@@ -89,24 +114,70 @@ server:
             vault secrets enable -path=vault-token -version=2 kv
             vault secrets enable -path=metrics -version=2 kv
             vault secrets enable -path=sso -version=2 kv
+            # vault secrets enable -path=minio aws
 
             echo "Storing the init JSON in the internal KV store for safekeeping..."
             vault kv put vault-token/vault/init root_token="$VAULT_TOKEN" keys_file="$(cat "$KEY_FILE")"
 
+            # vault write minio/config/root \
+            #   endpoint="$MINIO_URL" \
+            #   accessKey="$MINIO_ROOT_USER" \
+            #   secretKey="$MINIO_ROOT_PASSWORD" \
+            #   useSSL="false" \
+            #   disable_renewal="true"
+
+            # echo "Creating MinIO policy for Vault backups..."
+            # echo '{
+            #   "Version": "2012-10-17",
+            #   "Statement": [
+            #     {
+            #       "Effect": "Allow",
+            #       "Action": [
+            #         "s3:PutObject",
+            #         "s3:GetObject",
+            #         "s3:ListBucket"
+            #       ],
+            #       "Resource": [
+            #         "arn:aws:s3:::vault-backup",
+            #         "arn:aws:s3:::vault-backup/*"
+            #       ]
+            #     }
+            #   ]
+            # }' > /tmp/vault-backup-policy.json
+
+            # echo "Creating Vault role for MinIO dynamic credentials..."
+            # vault write minio/roles/vault-backup \
+            #   credential_type=iam_user \
+            #   policy_document=@/tmp/vault-backup-policy.json
+
             echo "Creating example secrets"
+            
+            # Application credentials
             vault kv put apps/welcome-app APP_USERNAME="usera" APP_PASSWORD="passa"
+            
+            # Application Database credentials
             vault kv put database/app-db DB_USERNAME="admin" DB_PASSWORD="admin123"
+            
+            # Global API Key
             vault kv put globals/common API_KEY="globalapikey123"
+
+            # MinIO root login credentials
+            vault kv put apps/minio-root-login MINIO_ROOT_USER="$MINIO_ROOT_USER" MINIO_ROOT_PASSWORD="$MINIO_ROOT_PASSWORD"
             
-            vault kv put sso/argo-workflow CLIENT_ID="argo-workflow"LIENT_SECRET="e6PHVQUvrUIj4UQOiQa5ZQocOj0o9qDh"
+            # Argo Workflows OIDC secrets
+            vault kv put sso/argo-workflow CLIENT_ID="$ARGO_WORKFLOW_OIDC_CLIENT_ID" CLIENT_SECRET="$ARGO_WORKFLOW_OIDC_CLIENT_SECRET"
             
-            # ArgoCD base64 encoded secrets
-            vault kv put sso/argo-cd CLIENT_ID="YXJnby1jZAo=" CLIENT_SECRET="UmJrdVhQY3lnNDlMSVA4dFZSd2ZmeEpFa0NYNEhRWXcK"
+            # ArgoCD OIDC secrets
+            vault kv put sso/argo-cd CLIENT_ID="$ARGOCD_OIDC_CLIENT_ID" CLIENT_SECRET="$ARGOCD_OIDC_CLIENT_SECRET"
             
-            vault kv put sso/grafana CLIENT_ID="grafana" CLIENT_SECRET="9hUrr8g8ZAzCQlrmxjUbSnZUAMAYuGRT" DB_PASSWORD="admin123"
+            # Grafana OIDC secrets
+            vault kv put sso/grafana CLIENT_ID="$GRAFANA_OIDC_CLIENT_ID" CLIENT_SECRET="$GRAFANA_OIDC_CLIENT_SECRET" DB_PASSWORD="admin123"
             
-            vault kv put sso/storage CLIENT_ID="storage" CLIENT_SECRET="1Bhf1L1OGGj5PkpYSViSw408aP4GxCZD"
-            vault kv put sso/oauth CLIENT_ID="auth" CLIENT_SECRET="dlhUeaCEUOMdtgRUgojSAvLziFKIata7"
+            # MinIO OIDC secrets
+            vault kv put sso/storage CLIENT_ID="$MINIO_OIDC_CLIENT_ID" CLIENT_SECRET="$MINIO_OIDC_CLIENT_SECRET"
+
+            # OAuth2 Proxy OIDC secrets
+            vault kv put sso/oauth CLIENT_ID="$AUTH_OIDC_CLIENT_ID" CLIENT_SECRET="$AUTH_OIDC_CLIENT_SECRET"
 
             echo "Writing policies (admin, reader, app, eso-read, read-metrics)"
             printf '%s\n' \
@@ -169,8 +240,8 @@ server:
 
             vault write auth/oidc/config \
               oidc_discovery_url="http://sso.local.io:32080/realms/platform" \
-              oidc_client_id="$OIDC_CLIENT_ID" \
-              oidc_client_secret="$OIDC_CLIENT_SECRET" \
+              oidc_client_id="$VAULT_OIDC_CLIENT_ID" \
+              oidc_client_secret="$VAULT_OIDC_CLIENT_SECRET" \
               default_role="reader"
 
             vault write auth/oidc/role/admin \
@@ -258,11 +329,33 @@ server:
               policies="eso-read" \
               audience="https://kubernetes.default.svc.cluster.local"
 
+            vault write auth/kubernetes/role/minio-root-secret-role \
+              bound_service_account_names="minio-root-login-sa" \
+              bound_service_account_namespaces="minio" \
+              policies="eso-read" \
+              audience="https://kubernetes.default.svc.cluster.local"
+
             vault write auth/kubernetes/role/argo-workflow-sso-secret-role \
-              bound_service_account_names="argo-workflow-sso-sa" \
+              bound_service_account_names="argo-workflow" \
               bound_service_account_namespaces="argo-workflows" \
               policies="eso-read" \
               audience="https://kubernetes.default.svc.cluster.local"
+
+            vault write auth/kubernetes/role/oauth-sso-secret-role \
+              bound_service_account_names="oauth-sso-sa" \
+              bound_service_account_namespaces="oauth" \
+              policies="eso-read" \
+              audience="https://kubernetes.default.svc.cluster.local"
+
+            # echo "Enabling AppRole auth method..."
+            # vault auth enable approle
+
+            # vault write auth/approle/role/eso-minio \
+            #   policies="eso-read" \
+            #   token_ttl=24h
+
+            # vault read auth/approle/role/eso-minio/role-id
+            # vault write -f auth/approle/role/eso-minio/secret-id
 
             echo "Initscript executed successfully, idling..."
           else
