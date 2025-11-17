@@ -19,6 +19,7 @@ controller:
         5432: 32432 # Keycloak DB
         5433: 32433 # Backstage DB
         5434: 32434 # Grafana DB
+        5435: 32435 # App DB
         3306: 32306 # MySQL DB
         3200: 32200 # Tempo
         6379: 32379 # Redis
