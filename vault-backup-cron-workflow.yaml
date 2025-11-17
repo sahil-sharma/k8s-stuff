@@ -19,6 +19,7 @@ spec:
           tasks:
             - name: vault-backup
               template: vault-backup
+
             - name: vault-verify
               dependencies: [vault-backup]
               template: vault-verify
@@ -26,6 +27,7 @@ spec:
                 artifacts:
                   - name: vault-snapshot
                     from: "{{tasks.vault-backup.outputs.artifacts.vault-snapshot}}"
+
             - name: upload-to-minio
               dependencies: [vault-verify]
               template: upload-to-minio
@@ -50,9 +52,8 @@ spec:
           args:
             - |
               set -e
-              TIMESTAMP=$(date +%s)
-              DAY=$(date +%a)
-              FILE_NAME="${DAY}-${TIMESTAMP}.snap"
+              DATE=$(date +"%d-%b-%Y-%H:%M:%S")
+              FILE_NAME="${DATE}.snap"
               echo "Taking Vault snapshot: ${FILE_NAME}"
               vault operator raft snapshot save /tmp/${FILE_NAME}
               echo "${FILE_NAME}" > /tmp/filename.txt
@@ -102,7 +103,8 @@ spec:
           args:
             - |
               set -e
-              FILE_NAME=$(date +%a-%s).snap
+              DATE=$(date +"%d-%b-%Y-%H:%M:%S")
+              FILE_NAME="${DATE}.snap"
               echo "Uploading ${FILE_NAME} to MinIO..."
               aws s3 cp /tmp/snapshot.snap s3://vault-backup/${FILE_NAME} \
                 --endpoint-url http://storage.local.io:32080
