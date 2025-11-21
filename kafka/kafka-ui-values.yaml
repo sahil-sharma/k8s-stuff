@@ -1,0 +1,104 @@
+yamlApplicationConfig:
+  logging:
+    level:
+      org.springframework.security: TRACE
+      io.kafbat.ui.service.rbac: TRACE
+
+  dynamic.config.enabled: true
+
+  # server:
+  #   port: 9090 # prevent clashes with keycloak ports
+
+  auth:
+    type: OAUTH2
+    oauth2:
+      client:
+        keycloak:
+          clientId: kafka-ui
+          clientSecret: sQjTdE6Abzi0McmJ8sVZNX5aWFXiwRVg
+          scope: openid,email,roles
+          client-name: SSO
+          provider: keycloak
+          redirect-uri: http://kafka-ui.local.io:32080/login/oauth2/code/keycloak
+          issuer-uri: http://sso.local.io:32080/realms/master
+          user-name-attribute: username
+          custom-params:
+            type: oauth
+            roles-field: groups
+
+  rbac:
+    roles:
+      - name: "admins"
+        clusters:
+          - local
+        subjects:
+          - provider: oauth
+            type: role
+            value: ops
+        permissions:
+          - resource: applicationconfig
+            actions: all
+
+          - resource: clusterconfig
+            actions: all
+
+          - resource: topic
+            value: ".*"
+            actions: all
+
+          - resource: consumer
+            value: ".*"
+            actions: all
+
+          - resource: schema
+            value: ".*"
+            actions: all
+
+          - resource: connect
+            value: ".*"
+            actions: all
+
+          - resource: ksql
+            actions: all
+
+          - resource: acl
+            actions: all
+
+          - resource: audit
+            actions: all
+
+      - name: "readonly"
+        clusters:
+          - local
+        subjects:
+          - provider: oauth
+            type: role
+            value: ronly
+        permissions:
+          - resource: clusterconfig
+            actions: [ "view" ]
+          - resource: topic
+            value: ".*"
+            actions:
+              - VIEW
+              - MESSAGES_READ
+          - resource: consumer
+            value: ".*"
+            actions: [ view ]
+          - resource: schema
+            value: ".*"
+            actions: [ view ]
+          - resource: connect
+            value: ".*"
+            actions: [ view ]
+          - resource: acl
+            actions: [ view ]
+
+# env:
+#   - name: SERVER_SERVLET_CONTEXT_PATH
+#     value: "/kafka-ui"
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  host: kafka-ui.local.io
