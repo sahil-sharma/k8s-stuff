@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - minio-sso-external-secret.yaml
   - minio-root-login-external-secret.yaml
+  # - minio-argowf-user-external-secret.yaml

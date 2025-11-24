@@ -6,14 +6,15 @@ workflow:
   serviceAccount:
     create: true
     name: argo-workflow
-  # rbac:
-  #   serviceAccounts:
-  #     - name: admin-user-sa
-  #       namespace: argo-workflows
-  #     - name: default
-  #       namespace: welcome-app
-      # - name: data-team-sa
-      #   namespace: data-app
+  rbac:
+    create: true
+    serviceAccounts:
+      - name: admin-user-sa
+        namespace: argo-workflows
+      - name: eng-user-login-sa
+        namespace: argo-workflows
+      # - name: default
+      #   namespace: default
 
 controller:
   enabled: true

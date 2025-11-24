@@ -1,3 +1,7 @@
+env:
+  - name: LOGGING_LEVEL_ROOT
+    value: DEBUG
+
 yamlApplicationConfig:
   logging:
     level:
@@ -6,22 +10,20 @@ yamlApplicationConfig:
 
   dynamic.config.enabled: true
 
-  # server:
-  #   port: 9090 # prevent clashes with keycloak ports
-
   auth:
     type: OAUTH2
     oauth2:
       client:
         keycloak:
           clientId: kafka-ui
-          clientSecret: sQjTdE6Abzi0McmJ8sVZNX5aWFXiwRVg
-          scope: openid,email,roles
+          clientSecret: 9aeXKPZOoueZjI7rmeIT1ClcCC0eENbM
+          scope: openid,email,roles,groups
           client-name: SSO
           provider: keycloak
+          authorization-grant-type: authorization_code
           redirect-uri: http://kafka-ui.local.io:32080/login/oauth2/code/keycloak
-          issuer-uri: http://sso.local.io:32080/realms/master
-          user-name-attribute: username
+          issuer-uri: http://sso.local.io:32080/realms/platform
+          user-name-attribute: name
           custom-params:
             type: oauth
             roles-field: groups
@@ -34,7 +36,7 @@ yamlApplicationConfig:
         subjects:
           - provider: oauth
             type: role
-            value: ops
+            value: admin
         permissions:
           - resource: applicationconfig
             actions: all
@@ -73,7 +75,7 @@ yamlApplicationConfig:
         subjects:
           - provider: oauth
             type: role
-            value: ronly
+            value: readonly
         permissions:
           - resource: clusterconfig
             actions: [ "view" ]

@@ -1,3 +1,4 @@
+# Default Service Account for all other users who do not match any team-specific RBAC rules
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -18,6 +19,9 @@ metadata:
     kubernetes.io/service-account.name: user-default-login-sa
 type: kubernetes.io/service-account-token
 ---
+
+# Admin User Service Account and ClusterRoleBinding
+
 apiVersion: v1
 kind: Secret
 metadata:
@@ -50,6 +54,33 @@ roleRef:
   kind: ClusterRole
   name: cluster-admin   # This role is already defined in kind cluster
 ---
+
+# Vault Backup Job Service Account and Secret
+
+---
+# apiVersion: v1
+# kind: ServiceAccount
+# metadata:
+#   name: vault-backup-login-sa
+#   namespace: argo-workflows
+#   annotations:
+#     workflows.argoproj.io/rbac-rule: "'engineering' in groups"
+#     workflows.argoproj.io/rbac-rule-precedence: "990"
+#     workflows.argoproj.io/service-account-token.name: vault-backup-login-token
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: vault-backup-login-token
+#   namespace: argo-workflows
+#   annotations:
+#     kubernetes.io/service-account.name: vault-backup-login-sa
+# type: kubernetes.io/service-account-token
+---
+
+# Engineering Team Service Account and RoleBinding
+
+---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -57,7 +88,7 @@ metadata:
   namespace: argo-workflows
   annotations:
     workflows.argoproj.io/rbac-rule: "'engineering' in groups"
-    workflows.argoproj.io/rbac-rule-precedence: "10"
+    workflows.argoproj.io/rbac-rule-precedence: "990"
     workflows.argoproj.io/service-account-token.name: eng-user-login-token
 ---
 apiVersion: v1
@@ -68,6 +99,7 @@ metadata:
   annotations:
     kubernetes.io/service-account.name: eng-user-login-sa
 type: kubernetes.io/service-account-token
+
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -136,3 +168,92 @@ roleRef:
   kind: Role
   name: eng-role
 ---
+
+# # Data Team Service Account and RoleBinding
+
+# apiVersion: v1
+# kind: ServiceAccount
+# metadata:
+#   name: data-user-login-sa
+#   namespace: data-app
+#   annotations:
+#     workflows.argoproj.io/rbac-rule: "'data' in groups"
+#     workflows.argoproj.io/rbac-rule-precedence: "11"
+#     workflows.argoproj.io/service-account-token.name: data-user-login-token
+# ---
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: data-user-login-token
+#   namespace: data-app
+#   annotations:
+#     kubernetes.io/service-account.name: data-user-login-sa
+# type: kubernetes.io/service-account-token
+# ---
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: Role
+# metadata:
+#   name: data-role
+#   namespace: data-app
+# rules:
+#   # k8s standard APIs
+#   - apiGroups:
+#       - ""
+#     resources:
+#       - events
+#       - pods
+#       - pods/log
+#       - pods/exec
+#     verbs:
+#       - get
+#       - list
+#       - watch
+#       - create
+#   - apiGroups:
+#     - ""
+#     resources:
+#       - configmaps
+#     verbs:
+#       - get
+#       - watch
+#       - list
+#       - create
+#   - apiGroups:
+#     - ""
+#     resources:
+#       - secrets
+#     verbs:
+#       - get
+#       - create
+#       - list
+#   - apiGroups:
+#     - argoproj.io
+#     resources:
+#       - eventsources
+#       - sensors
+#       - workflows
+#       - workfloweventbindings
+#       - workflowtemplates
+#       - clusterworkflowtemplates
+#       - cronworkflows
+#       - workflowtaskresults
+#     verbs:
+#       - get
+#       - list
+#       - watch
+#       - create
+# ---
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: RoleBinding
+# metadata:
+#   name: data-rolebinding
+#   namespace: data-app
+# subjects:
+#   - kind: ServiceAccount
+#     name: data-user-login-sa
+#     namespace: data-app
+# roleRef:
+#   apiGroup: rbac.authorization.k8s.io
+#   kind: Role
+#   name: data-role
+# ---
