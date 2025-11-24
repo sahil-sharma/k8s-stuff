@@ -1,0 +1,29 @@
+kubectl create secret generic kafka-ui-secret --from-literal=clientSecret='rv4XXXXXXXXXXXXXXX' -n kafka
+
+export KAFKA_OPTS="-Dorg.apache.kafka.sasl.oauthbearer.allowed.urls=http://sso.local.io:32080/realms/platform/protocol/openid-connect/token"
+
+cat <<EOF > /tmp/producer.properties
+bootstrap.servers=kafka-kafka-bootstrap.kafka:9093
+security.protocol=SASL_PLAINTEXT
+sasl.oauthbearer.token.endpoint.url=http://sso.local.io:32080/realms/platform/protocol/openid-connect/token
+sasl.login.callback.handler.class=org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginCallbackHandler
+
+sasl.mechanism=OAUTHBEARER
+sasl.jaas.config= \
+  org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required \
+    clientId='kafka' \
+    clientSecret='4Q5wYXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+EOF
+
+
+bash /opt/kafka/bin/kafka-console-producer.sh \
+  --topic my-kafka-topic \
+  --bootstrap-server kafka-kafka-bootstrap.kafka:9093 \
+  --producer.config /tmp/producer.properties
+
+
+bash /opt/kafka/bin/kafka-console-consumer.sh \
+  --bootstrap-server kafka-kafka-bootstrap.kafka:9093 \
+  --topic my-kafka-topic \
+  --from-beginning \
+  --consumer.config /tmp/producer.properties
