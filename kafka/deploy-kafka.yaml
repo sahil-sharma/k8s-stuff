@@ -1,4 +1,4 @@
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: KafkaNodePool
 metadata:
   name: controller
@@ -13,7 +13,7 @@ spec:
     type: persistent-claim
     size: 1Gi
 ---
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: KafkaNodePool
 metadata:
   name: broker
@@ -28,7 +28,7 @@ spec:
     type: persistent-claim
     size: 1Gi
 ---
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: Kafka
 metadata:
   name: kafka
@@ -51,16 +51,16 @@ spec:
           clientSecret:
             secretName: kafka-client-secret
             key: clientSecret
-          checkIssuer: true
-          checkAccessTokenType: true
-          accessTokenIsJwt: true
-          checkAudience: false
-          enableOauthBearer: true
-          tokenEndpointUri: http://sso.local.io:32080/realms/master/protocol/openid-connect/token
-          validIssuerUri: http://sso.local.io:32080/realms/master
-          jwksEndpointUri: http://sso.local.io:32080/realms/master/protocol/openid-connect/certs
+          # checkIssuer: true
+          # checkAccessTokenType: true
+          # accessTokenIsJwt: true
+          # checkAudience: false
+          # enableOauthBearer: true
+          tokenEndpointUri: http://sso.local.io:32080/realms/platform/protocol/openid-connect/token
+          # validIssuerUri: http://sso.local.io:32080/realms/platform
+          jwksEndpointUri: http://sso.local.io:32080/realms/platform/protocol/openid-connect/certs
           userNameClaim: preferred_username
-          customClaimCheck: "'kafka' in @.realm_access.roles"
+          customClaimCheck: "'admin' in @.realm_access.roles"
         configuration:
           bootstrap:
             alternativeNames:
