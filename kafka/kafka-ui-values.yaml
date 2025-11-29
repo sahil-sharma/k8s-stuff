@@ -3,10 +3,25 @@ env:
     value: DEBUG
 
 yamlApplicationConfig:
+  kafka:
+    clusters:
+      - name: my-cluster
+        bootstrapServers: my-cluster-kafka-bootstrap.kafka.svc:9092
+        properties:
+          security.protocol: SASL_PLAINTEXT
+          sasl.mechanism: OAUTHBEARER
+          sasl.jaas.config: >
+            org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required
+            oauth.client.id="kafka"
+            oauth.client.secret="NqRxNVQ2JiNziFl95gRYxuqsIWvWwnLb"
+            oauth.token.endpoint.uri="http://sso.local.io:32080/realms/platform/protocol/openid-connect/token"
+            oauth.audience="kafka"
+            ;
   logging:
     level:
       org.springframework.security: TRACE
       io.kafbat.ui.service.rbac: TRACE
+      io.kafbat.ui.service.rbac.extractor: TRACE
 
   dynamic.config.enabled: true
 
@@ -16,7 +31,7 @@ yamlApplicationConfig:
       client:
         keycloak:
           clientId: kafka-ui
-          clientSecret: 9aeXKPZOoueZjI7rmeIT1ClcCC0eENbM
+          clientSecret: bxMTlPZUZA61mVsK3jH9YjQ0vs0FlSSS
           scope: openid,email,roles,groups
           client-name: SSO
           provider: keycloak
@@ -26,13 +41,13 @@ yamlApplicationConfig:
           user-name-attribute: name
           custom-params:
             type: oauth
-            roles-field: groups
+            roles-field: realm_access.roles
 
   rbac:
     roles:
       - name: "admins"
         clusters:
-          - local
+          - my-cluster
         subjects:
           - provider: oauth
             type: role
@@ -71,7 +86,7 @@ yamlApplicationConfig:
 
       - name: "readonly"
         clusters:
-          - local
+          - my-cluster
         subjects:
           - provider: oauth
             type: role
