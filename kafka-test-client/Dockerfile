@@ -22,6 +22,9 @@ ENV PATH="${JAVA_HOME}/bin:${KAFKA_HOME}/bin:${PATH}"
 # Whitelist keycloak Token end-point
 ENV KAFKA_OPTS="-Dorg.apache.kafka.sasl.oauthbearer.allowed.urls=http://sso.local.io:32080/realms/platform/protocol/openid-connect/token"
 
+ENV REALM_NAME=platform
+ENV SSO_URL=http://sso.local.io:32080/realms/$REALM_NAME/protocol/openid-connect/token
+
 # Download Kafka
 RUN curl -sL "https://downloads.apache.org/kafka/${KAFKA_VERSION}/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz" \
     | tar xz -C /opt
