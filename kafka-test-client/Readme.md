@@ -19,3 +19,12 @@ Do change below in the script:
 
 - Kafka Bootstrap address
 - Kafka topic name
+
+## How to run a Kafka Client Test Pod inside your cluster
+
+```bash
+kubectl -n default run -i --rm \
+    --restart=Never \
+    --tty kafka-client-test-pod \
+    --image=bonyscott/kafka-test-client:v1 -- bash
+```
