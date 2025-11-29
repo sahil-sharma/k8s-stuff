@@ -19,11 +19,11 @@ ENV SCALA_VERSION=2.13
 ENV KAFKA_HOME=/opt/kafka_${SCALA_VERSION}-${KAFKA_VERSION}
 ENV PATH="${JAVA_HOME}/bin:${KAFKA_HOME}/bin:${PATH}"
 
-# Whitelist keycloak Token end-point
-ENV KAFKA_OPTS="-Dorg.apache.kafka.sasl.oauthbearer.allowed.urls=http://sso.local.io:32080/realms/platform/protocol/openid-connect/token"
-
 ENV REALM_NAME=platform
-ENV SSO_URL=http://sso.local.io:32080/realms/$REALM_NAME/protocol/openid-connect/token
+ENV SSO_TOKEN_URL=http://sso.local.io:32080/realms/${REALM_NAME}/protocol/openid-connect/token
+
+# Whitelist Token end-point
+ENV KAFKA_OPTS="-Dorg.apache.kafka.sasl.oauthbearer.allowed.urls=${SSO_TOKEN_URL}"
 
 # Download Kafka
 RUN curl -sL "https://downloads.apache.org/kafka/${KAFKA_VERSION}/kafka_${SCALA_VERSION}-${KAFKA_VERSION}.tgz" \
@@ -51,5 +51,7 @@ RUN cp ${OAUTH_SRC}/oauth-common/target/kafka-oauth-common-*.jar ${KAFKA_HOME}/l
 COPY client.properties /opt/client.properties
 COPY test.sh /opt/test.sh
 RUN chmod +x /opt/test.sh
+
+WORKDIR /opt
 
 CMD ["sleep", "infinity"]
