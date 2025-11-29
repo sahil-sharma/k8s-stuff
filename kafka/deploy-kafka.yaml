@@ -1,92 +1,108 @@
-apiVersion: kafka.strimzi.io/v1
+apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaNodePool
 metadata:
   name: controller
   namespace: kafka
   labels:
-    strimzi.io/cluster: kafka
+    strimzi.io/cluster: my-cluster
 spec:
-  replicas: 3
+  replicas: 1
   roles:
     - controller
   storage:
     type: persistent-claim
     size: 1Gi
 ---
-apiVersion: kafka.strimzi.io/v1
+apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaNodePool
 metadata:
   name: broker
   namespace: kafka
   labels:
-    strimzi.io/cluster: kafka
+    strimzi.io/cluster: my-cluster
 spec:
-  replicas: 3
+  replicas: 1
   roles:
     - broker
   storage:
     type: persistent-claim
     size: 1Gi
 ---
-apiVersion: kafka.strimzi.io/v1
+apiVersion: kafka.strimzi.io/v1beta2
 kind: Kafka
 metadata:
-  name: kafka
+  name: my-cluster
   namespace: kafka
   annotations:
     strimzi.io/node-pools: enabled
     strimzi.io/kraft: enabled
 spec:
   kafka:
-    version: 4.1.0
-    metadataVersion: "4.1"
+    version: 4.0.0
     listeners:
-      - name: keycloak
+      - name: plain
+        port: 9092
         type: internal
         tls: false
-        port: 9093
         authentication:
           type: oauth
-          clientId: "kafka"
+          validIssuerUri: http://sso.local.io:32080/realms/platform
+          jwksEndpointUri: http://sso.local.io:32080/realms/platform/protocol/openid-connect/certs
+          userNameClaim: preferred_username
+          clientId: kafka
           clientSecret:
             secretName: kafka-client-secret
             key: clientSecret
-          # checkIssuer: true
-          # checkAccessTokenType: true
-          # accessTokenIsJwt: true
-          # checkAudience: false
-          # enableOauthBearer: true
-          tokenEndpointUri: http://sso.local.io:32080/realms/platform/protocol/openid-connect/token
-          # validIssuerUri: http://sso.local.io:32080/realms/platform
-          jwksEndpointUri: http://sso.local.io:32080/realms/platform/protocol/openid-connect/certs
-          userNameClaim: preferred_username
           customClaimCheck: "'admin' in @.realm_access.roles"
-        configuration:
-          bootstrap:
-            alternativeNames:
-              - kafka-kafka-bootstrap.kafka
-          brokers:
-            - broker: 0
-              advertisedHost: kafka-broker-0.kafka-kafka-brokers.kafka
-            - broker: 1
-              advertisedHost: kafka-broker-1.kafka-kafka-brokers.kafka
-            - broker: 2
-              advertisedHost: kafka-broker-2.kafka-kafka-brokers.kafka
+          groupsClaim: groups
+          maxSecondsWithoutReauthentication: 3600
+          # checkAccessTokenType: false
+          # validIssuerUri: http://sso.local.io:32080/realms/platform
+          # introspectionEndpointUri: http://sso.local.io:32080/realms/platform/protocol/openid-connect/token/introspect
+          # jwksEndpointUri: http://sso.local.io:32080/realms/platform/protocol/openid-connect/certs
+          # userNameClaim: preferred_username
+          # clientId: kafka
+          # clientSecret:
+            # secretName: kafka-client-secret
+            # key: clientSecret
+          # checkAccessTokenType: false
+          # customClaimCheck: "@.typ && @.typ == 'Bearer'"
+          # the next option is only available since Strimzi 0.20.0
+          # remove it if using an older version of Strimzi
+          # maxSecondsWithoutReauthentication: 3600
+    # configuration:
+    #   bootstrap:
+    #     alternativeNames:
+    #       - kafka-kafka-bootstrap.kafka
+    #   brokers:
+    #     - broker: 0
+    #       advertisedHost: kafka-broker-0.kafka-kafka-brokers.kafka
+    #     - broker: 1
+    #       advertisedHost: kafka-broker-1.kafka-kafka-brokers.kafka
+    #     - broker: 2
+    #       advertisedHost: kafka-broker-2.kafka-kafka-brokers.kafka
     config:
-      offsets.topic.replication.factor: 3
-      transaction.state.log.replication.factor: 3
-      transaction.state.log.min.isr: 2
-      default.replication.factor: 3
-      min.insync.replicas: 2
+      offsets.topic.replication.factor: 1
+      transaction.state.log.replication.factor: 1
+      transaction.state.log.min.isr: 1
+      # default.replication.factor: 3
+      # min.insync.replicas: 2
       auto.create.topics.enable: false
-      num.partitions: 3
+      # num.partitions: 3
       delete.topic.enable: true
-    authorization:
-      type: simple
+    # authorization:
+    #   type: keycloak
+    #   clientId: kafka
+    #   tokenEndpointUri: http://sso.local.io:32080/realms/platform/protocol/openid-connect/token
+    #   delegateToKafkaAcls: true
+    #   superUsers:
+    #   - service-account-kafka
     logging:
       type: inline
       loggers:
-        kafka.root.logger.level: INFO
+        log4j.logger.io.strimzi: "TRACE"
+        log4j.logger.kafka: "DEBUG"
+        log4j.logger.org.apache.kafka: "DEBUG"
   entityOperator:
     topicOperator: {}
     userOperator: {}

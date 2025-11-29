@@ -1,4 +1,7 @@
-kubectl create secret generic kafka-ui-secret --from-literal=clientSecret='rv4XXXXXXXXXXXXXXX' -n kafka
+kubectl create secret generic kafka-ui-secret --from-literal=clientSecret='icQWIOYiFlPdXBYs45yqripLGzGrkyJY' -n kafka
+
+kubectl apply -f https://strimzi.io/install/latest/?namespace=kafka -n kafka
+
 
 export KAFKA_OPTS="-Dorg.apache.kafka.sasl.oauthbearer.allowed.urls=http://sso.local.io:32080/realms/platform/protocol/openid-connect/token"
 

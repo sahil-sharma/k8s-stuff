@@ -4,7 +4,7 @@ metadata:
   name: service-account-kafka
   namespace: kafka
   labels:
-    strimzi.io/cluster: kafka
+    strimzi.io/cluster: my-cluster
 spec:
   authorization:
     type: simple
