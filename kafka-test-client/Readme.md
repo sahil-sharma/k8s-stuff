@@ -36,4 +36,11 @@ kubectl -n default run -i --rm \
     --restart=Never \
     --tty kafka-client-test-pod \
     --image=bonyscott/kafka-test-client:v1 -- bash
+
+# Exec into Test Client Pod
+k -n default exec -it kafkaclientpod -- bash
+
+# Change Environment variables in test.sh script if needed
+cd /opt
+bash test.sh
 ```
