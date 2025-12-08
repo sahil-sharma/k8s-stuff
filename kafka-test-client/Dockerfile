@@ -48,7 +48,6 @@ RUN cp ${OAUTH_SRC}/oauth-common/target/kafka-oauth-common-*.jar ${KAFKA_HOME}/l
     cp ${OAUTH_SRC}/oauth-server/target/lib/json-smart-*.jar ${KAFKA_HOME}/libs/ && \
     cp ${OAUTH_SRC}/oauth-server/target/lib/accessors-smart-*.jar ${KAFKA_HOME}/libs/
 
-COPY client.properties /opt/client.properties
 COPY test.sh /opt/test.sh
 RUN chmod +x /opt/test.sh
 
