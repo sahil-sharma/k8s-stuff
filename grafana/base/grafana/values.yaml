@@ -177,6 +177,10 @@ dashboards:
       datasource:
         - name: DS_PROMETHEUS
           value: "Prometheus"
+    kubernetes-cluster-metrics:
+      gnetId: 15826
+      revision: 7
+      datasource: Prometheus
 
 #     flask-app:
 #       gnetId: 11074  # Example dashboard ID for a Python app
