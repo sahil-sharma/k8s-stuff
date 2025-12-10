@@ -1,5 +1,8 @@
 alertmanager:
   enabled: true
+  persistence:
+    enabled: false
+    size: 1Gi
 
   service:
     type: ClusterIP
@@ -15,6 +18,14 @@ pushgateway:
   enabled: false
 
 server:
+  extraVolumeMounts:
+    - name: oauth-token-volume
+      mountPath: /etc/prometheus/secrets
+      readOnly: true
+  extraVolumes:
+    - name: oauth-token-volume
+      secret:
+        secretName: oauth-token
   persistentVolume:
     enabled: false
   service:
@@ -81,21 +92,30 @@ extraScrapeConfigs: |
     static_configs:
       - targets: ['keycloak-keycloakx-http.keycloak:80']
 
-  - job_name: 'loki'
+  - job_name: 'kafka'
     metrics_path: /metrics
+    scrape_interval: 10s
+    scrape_timeout: 10s
     static_configs:
-      - targets: ['loki.loki:3100']
-
-  - job_name: 'argo-workflows'
-    metrics_path: /metrics
-    static_configs:
-      - targets: ['argo-workflows-workflow-controller.argo-workflows:8080']
-
-  - job_name: minio-cluster
-    metrics_path: /minio/v2/metrics/cluster
+      - targets: ['kafka-metrics.kafka-operator.svc:9404']
+    bearer_token_file: /etc/prometheus/secrets/oauth_token
     scheme: http
-    static_configs:
-      - targets: ['storage.local.io:32080']
+   
+  # - job_name: 'loki'
+  #   metrics_path: /metrics
+  #   static_configs:
+  #     - targets: ['loki.loki:3100']
+
+  # - job_name: 'argo-workflows'
+  #   metrics_path: /metrics
+  #   static_configs:
+  #     - targets: ['argo-workflows-workflow-controller.argo-workflows:8080']
+
+  # - job_name: minio-cluster
+  #   metrics_path: /minio/v2/metrics/cluster
+  #   scheme: http
+  #   static_configs:
+  #     - targets: ['storage.local.io:32080']
 
   # - job_name: 'blackbox-keycloak'
   #   metrics_path: /probe
@@ -134,41 +154,41 @@ extraScrapeConfigs: |
   #   static_configs:
   #     - targets: ['flask-app-service.app:5000']
 
-  - job_name: 'argo-cd application controller'
-    metrics_path: /metrics
-    scheme: http
-    static_configs:
-      - targets: ['argocd-application-controller-metrics.argocd:8082']
+  # - job_name: 'argo-cd application controller'
+  #   metrics_path: /metrics
+  #   scheme: http
+  #   static_configs:
+  #     - targets: ['argocd-application-controller-metrics.argocd:8082']
 
-  - job_name: 'argo-cd applicationset controller'
-    metrics_path: /metrics
-    scheme: http
-    static_configs:
-      - targets: ['argocd-applicationset-controller-metrics.argocd:8080']
+  # - job_name: 'argo-cd applicationset controller'
+  #   metrics_path: /metrics
+  #   scheme: http
+  #   static_configs:
+  #     - targets: ['argocd-applicationset-controller-metrics.argocd:8080']
 
-  - job_name: 'argo-cd notifications controller'
-    metrics_path: /metrics
-    scheme: http
-    static_configs:
-      - targets: ['argocd-notifications-controller-metrics.argocd:9001']
+  # - job_name: 'argo-cd notifications controller'
+  #   metrics_path: /metrics
+  #   scheme: http
+  #   static_configs:
+  #     - targets: ['argocd-notifications-controller-metrics.argocd:9001']
 
-  - job_name: 'argo-cd redis'
-    metrics_path: /metrics
-    scheme: http
-    static_configs:
-      - targets: ['argocd-redis-metrics.argocd:9121']
+  # - job_name: 'argo-cd redis'
+  #   metrics_path: /metrics
+  #   scheme: http
+  #   static_configs:
+  #     - targets: ['argocd-redis-metrics.argocd:9121']
 
-  - job_name: 'argo-cd repo server'
-    metrics_path: /metrics
-    scheme: http
-    static_configs:
-      - targets: ['argocd-repo-server-metrics.argocd:8084']
+  # - job_name: 'argo-cd repo server'
+  #   metrics_path: /metrics
+  #   scheme: http
+  #   static_configs:
+  #     - targets: ['argocd-repo-server-metrics.argocd:8084']
 
-  - job_name: 'argo-cd server'
-    metrics_path: /metrics
-    scheme: http
-    static_configs:
-      - targets: ['argocd-server-metrics.argocd:8083']
+  # - job_name: 'argo-cd server'
+  #   metrics_path: /metrics
+  #   scheme: http
+  #   static_configs:
+  #     - targets: ['argocd-server-metrics.argocd:8083']
 
 # Scrape configs can be added to target your Flask app
 # additionalScrapeConfigs:
