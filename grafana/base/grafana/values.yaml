@@ -30,6 +30,24 @@ persistence:
 
 envFromSecret: grafana-sso-secret
 
+extraVolumes:
+  - name: kafka-metrics-dashboard
+    configMap:
+      name: kafka-metrics
+  - name: kafka-oauth-metrics-dashboard
+    configMap:
+      name: kafka-oauth-metrics
+
+extraVolumeMounts:
+  - name: kafka-metrics-dashboard
+    mountPath: /var/lib/grafana/dashboards/default/kafka-metrics.json
+    subPath: strimzi-kafka-metrics.json
+    readOnly: true
+  - name: kafka-oauth-metrics-dashboard
+    mountPath: /var/lib/grafana/dashboards/default/kafka-oauth-metrics.json
+    subPath: strimzi-kafka-oauth-metrics.json
+    readOnly: true
+
 # Init container to wait for DB
 extraInitContainers:
   - name: wait-for-db
@@ -139,6 +157,10 @@ dashboardProviders:
 
 dashboards:
   default:
+    strimzi-kafka-metrics:
+      file: /var/lib/grafana/dashboards/strimzi-kafka-metrics.json
+    strimui-kafka-oauth-metrics:
+      file: /var/lib/grafana/dashboards/strimzi-kafka-oauth-metrics.json
     keycloak-quarkus-metrics:
       gnetId: 14390
       revision: 7
