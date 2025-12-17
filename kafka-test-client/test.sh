@@ -58,8 +58,18 @@ case $choice in
       --from-beginning \
       --consumer.config "$KAFKA_PROPERTIES_FILE"
     ;;
+  3)
+    echo "Start sending messages from 1 to 5000 to producer for topic: $KAFKA_TOPIC_NAME"
+    for i in {1..5000}; do
+      echo "Message $i"
+      sleep 1
+    done | bash "$KAFKA_HOME/bin/kafka-console-producer.sh" \
+      --bootstrap-server "$KAFKA_BOOTSTRAP_SERVER" \
+      --topic "$KAFKA_TOPIC_NAME" \
+      --producer.config "$KAFKA_PROPERTIES_FILE"
+    ;;
   *)
-    echo "Invalid option. Please enter 1 or 2."
+    echo "Invalid option. Please enter 1, 2, or 3."
     exit 1
     ;;
 esac
