@@ -35,7 +35,7 @@ Please use `test.sh` script located in `/opt` directory. Do change below in the 
 kubectl -n default run -i --rm \
     --restart=Never \
     --tty kafka-client-test-pod \
-    --image=bonyscott/kafka-test-client:v1 -- bash
+    --image=bonyscott/kafka-test-client:v2 -- bash
 
 # Exec into Test Client Pod
 k -n default exec -it kafkaclientpod -- bash
