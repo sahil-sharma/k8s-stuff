@@ -18,6 +18,7 @@ pushgateway:
   enabled: false
 
 server:
+# This is needed to mount the OAuth token secret for scraping Kafka metrics
   extraVolumeMounts:
     - name: oauth-token-volume
       mountPath: /etc/prometheus/secrets
@@ -94,12 +95,48 @@ extraScrapeConfigs: |
 
   - job_name: 'kafka'
     metrics_path: /metrics
+    kubernetes_sd_configs:
+    - role: pod
+      namespaces:
+        names:
+          - kafka-operator
     scrape_interval: 10s
     scrape_timeout: 10s
-    static_configs:
-      - targets: ['kafka-metrics.kafka-operator.svc:9404']
     bearer_token_file: /etc/prometheus/secrets/oauth_token
     scheme: http
+    relabel_configs:
+      - action: replace
+        source_labels: [__meta_kubernetes_pod_label_strimzi_io_cluster]
+        target_label: cluster
+
+      # Only keep pods exposing port 9404 (Kafka metrics)
+      - action: keep
+        source_labels: [__meta_kubernetes_pod_container_port_number]
+        regex: "9404"
+
+      # Map Strimzi labels from pod labels
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(strimzi_io_.+)
+
+      # Namespace
+      - action: replace
+        source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
+
+      # Pod name
+      - action: replace
+        source_labels: [__meta_kubernetes_pod_name]
+        target_label: kubernetes_pod_name
+
+      # Node name
+      - action: replace
+        source_labels: [__meta_kubernetes_pod_node_name]
+        target_label: node_name
+
+      # Node IP
+      - action: replace
+        source_labels: [__meta_kubernetes_pod_host_ip]
+        target_label: node_ip
    
   # - job_name: 'loki'
   #   metrics_path: /metrics
