@@ -6,6 +6,8 @@ generatorOptions:
 
 resources:
   - namespace.yaml
+  - kafka-metrics-configmap.yaml
+  - kafka-oauth-metrics-configmap.yaml
 
 helmCharts:
   - name: grafana
