@@ -40,7 +40,8 @@ echo ""
 echo "Select an option:"
 echo "1) Produce message"
 echo "2) Consume message"
-read -rp "Enter choice (1 or 2): " choice
+echo "3) Produce messages in a loop (1 to 5000)"
+read -rp "Enter choice (1, 2, or 3): " choice
 
 case $choice in
   1)

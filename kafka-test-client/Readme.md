@@ -32,15 +32,21 @@ Please use `test.sh` script located in `/opt` directory. Do change below in the 
 ## How to run a Kafka Client Test Pod inside your cluster
 
 ```bash
+# Ubuntu image
 kubectl -n default run -i --rm \
     --restart=Never \
     --tty kafka-client-test-pod \
-    --image=bonyscott/kafka-test-client:v2 -- bash
+    --image=bonyscott/kafka-test-client:v3 -- bash
+
+# Alpine image
+kubectl -n default run -i --rm \
+    --restart=Never \
+    --tty kafka-client-test-pod \
+    --image=bonyscott/kafka-test-client:v1-slim -- bash
 
 # Exec into Test Client Pod
-k -n default exec -it kafkaclientpod -- bash
+k -n default exec -it kafka-client-test-pod -- bash
 
-# Change Environment variables in test.sh script if needed
-cd /opt
+# Change Environment variables in test.sh script if needed (/opt)
 bash test.sh
 ```
