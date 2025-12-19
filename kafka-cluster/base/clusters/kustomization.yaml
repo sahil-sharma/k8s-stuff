@@ -5,6 +5,6 @@ resources:
   # - namespace.yaml
   - deploy-cluster.yaml
   - topic.yaml
-  - user.yaml
+  # - user.yaml
   - metrics-configmap.yaml
   - metrics-service.yaml
