@@ -50,8 +50,12 @@ spec:
           listenerConfig:
             sasl.enabled.mechanisms: OAUTHBEARER
             oauthbearer.sasl.server.callback.handler.class: io.strimzi.kafka.oauth.server.JaasServerOauthValidatorCallbackHandler
-            oauthbearer.sasl.jaas.config: |
-              org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required unsecuredLoginStringClaim_sub="thePrincipalName" oauth.valid.issuer.uri="http://sso.local.io:32080/realms/kafka-authz" oauth.jwks.endpoint.uri="http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/certs" oauth.username.claim="preferred_username" oauth.enable.metrics="true";
+            oauthbearer.sasl.jaas.config: >
+              org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required unsecuredLoginStringClaim_sub="thePrincipalName"
+              oauth.valid.issuer.uri="http://sso.local.io:32080/realms/kafka-authz"
+              oauth.jwks.endpoint.uri="http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/certs"
+              oauth.username.claim="preferred_username"
+              oauth.enable.metrics="true";
             connections.max.reauth.ms: 3600
     authorization:
       type: custom
@@ -62,6 +66,7 @@ spec:
       # Needed for Oauth authentication and Keycloak authroization
       principal.builder.class: io.strimzi.kafka.oauth.server.OAuthKafkaPrincipalBuilder
       authorizer.class.name: io.strimzi.kafka.oauth.server.authorizer.KeycloakAuthorizer
+      oauth.pricipal.claim.name: preferred_username
       # Needed for Keycloak authorization
       strimzi.authorization.client.id: kafka
       strimzi.authorization.token.endpoint.uri: http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token
