@@ -4,7 +4,7 @@ This repository contains the Terraform configuration to bootstrap a production-r
 
 ---
 
-## 🏗 Architecture Overview
+## Architecture Overview
 
 The configuration automates the following Keycloak components using a **No-Hardcode** approach (all data is driven by `.tfvars`):
 
@@ -16,11 +16,9 @@ The configuration automates the following Keycloak components using a **No-Hardc
   - **Confidential:** `broker`, `kafka`, `team-a-client`, `team-b-client` (All with **random 32-character secrets**).
 - **Authorization Services:** Logic to protect Kafka Topics, Groups, and Clusters via OIDC Resources, Scopes, and Policies.
 
-
-
 ---
 
-## 📂 File Structure
+## File Structure
 
 | File | Description |
 | :--- | :--- |
@@ -38,7 +36,7 @@ The configuration automates the following Keycloak components using a **No-Hardc
 
 ---
 
-## 🔐 Security Model: Who Can Do What?
+## Security Model: Who Can Do What?
 
 Access is governed by the intersection of **Policies** (Who you are) and **Resources** (What you are accessing).
 
@@ -61,7 +59,7 @@ Access is governed by the intersection of **Policies** (Who you are) and **Resou
 
 ---
 
-## 🚀 Deployment & Setup
+## Deployment & Setup
 
 ### 1. Prerequisites
 - Terraform `>= 1.0.0`
@@ -70,7 +68,69 @@ Access is governed by the intersection of **Policies** (Who you are) and **Resou
 
 ### 2. Configure Credentials
 Update your `terraform.tfvars` with your instance details:
-```hcl
-keycloak_url                  = "[http://sso.local.io:32080](http://sso.local.io:32080)"
+```bash
+keycloak_url                  = "http://sso.local.io:32080"
 keycloak_admin_login_username = "admin"
 keycloak_admin_login_password = "your-password"
+```
+
+### Sample `tfvars` file
+
+```bash
+keycloak_url                  = "http://sso.local.io:32080"
+keycloak_admin_login_username = "admin"
+keycloak_admin_login_password = "admin123"
+admin_client_id               = "admin-cli"
+
+realm_config = {
+  realm = "kafka-authz-new", enabled = true, ssl_required = "external"
+}
+
+realm_roles = {
+  "Dev Team A" = { description = "Developer on Dev Team A" }
+  "Dev Team B" = { description = "Developer on Dev Team B" }
+  "Ops Team"   = { description = "Operations team member" }
+}
+
+groups = ["ClusterManager Group", "ClusterManager-my-cluster Group", "Ops Team Group"]
+
+users = {
+  "alice" = { email = "alice@local.io", first_name = "Alice", last_name = "User", enabled = true, group_memberships = ["ClusterManager Group"] }
+  "bob"   = { email = "bob@local.io", first_name = "Bob", last_name = "User", enabled = true, group_memberships = ["ClusterManager-my-cluster Group"] }
+}
+
+clients = {
+  "team-a-client" = { public_client = false, service_accounts_enabled = true, authorization_enabled = false, direct_access_grants_enabled = true, service_account_roles = ["Dev Team A"] }
+  "team-b-client" = { public_client = false, service_accounts_enabled = true, authorization_enabled = false, direct_access_grants_enabled = true, service_account_roles = ["Dev Team B"] }
+  "kafka"     = { public_client = false, service_accounts_enabled = true, authorization_enabled = true, direct_access_grants_enabled = true, service_account_roles = [] }
+  "kafka-cli" = { public_client = true, service_accounts_enabled = false, authorization_enabled = false, direct_access_grants_enabled = true, service_account_roles = [] }
+  # "broker"        = { public_client = false, service_accounts_enabled = true, authorization_enabled = false, direct_access_grants_enabled = true, service_account_roles = [] }
+}
+
+auth_scopes = ["Create", "Read", "Write", "Delete", "Alter", "Describe", "ClusterAction", "DescribeConfigs", "AlterConfigs", "IdempotentWrite"]
+
+kafka_resources = [
+  { name = "Topic:a_*", type = "Topic", scopes = ["Create", "Delete", "Describe", "Write", "Read", "Alter", "DescribeConfigs", "AlterConfigs"] },
+  { name = "Topic:x_*", type = "Topic", scopes = ["Create", "Delete", "Describe", "Write", "Read", "Alter", "DescribeConfigs", "AlterConfigs"] },
+  { name = "kafka-cluster:my-cluster,Cluster:*", type = "Cluster", scopes = ["IdempotentWrite"] }
+  # Add other resources from JSON here...
+]
+
+kafka_policies_role = [
+  { name = "Dev Team A", role_name = "Dev Team A" },
+  { name = "Dev Team B", role_name = "Dev Team B" }
+]
+
+kafka_policies_group = [
+  {
+    name       = "ClusterManager Group",
+    group_path = "/ClusterManager Group"
+  }
+]
+
+kafka_permissions = [
+  { name = "Dev Team A owns topics that start with a_", type = "resource", resources = ["Topic:a_*"], policies = ["Dev Team A"], scopes = [] },
+  { name = "Dev Team A can write to x topics", type = "scope", resources = ["Topic:x_*"], policies = ["Dev Team A"], scopes = ["Describe", "Write"] },
+  { name = "Dev Team A IdempotentWrite", type = "scope", resources = ["kafka-cluster:my-cluster,Cluster:*"], policies = ["Dev Team A"], scopes = ["IdempotentWrite"] }
+]
+```
