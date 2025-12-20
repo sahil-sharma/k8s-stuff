@@ -1,4 +1,4 @@
-# Keycloak Infrastructure as Code (Kafka Authorization)
+# Keycloak configuration for Kafka with Terraform
 
 This repository contains the Terraform configuration to bootstrap a production-ready Keycloak Realm specifically designed for **Kafka Fine-Grained Authorization**. It implements a Zero-Trust security model where every Kafka resource is protected by specific OIDC policies.
 
