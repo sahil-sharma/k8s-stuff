@@ -25,6 +25,7 @@ RUN apk add --no-cache \
     curl \
     jq \
     bash \
+    nano \
     ca-certificates \
     && update-ca-certificates
 
