@@ -234,3 +234,10 @@ kafka_permissions = [
   },
 ]
 ```
+
+### Terraform Output
+
+```bash
+terraform output -json -state=terraform.tfstate | jq -r ".clients.value"
+terraform output -json -state=terraform.tfstate | jq -r ".users.value"
+```
