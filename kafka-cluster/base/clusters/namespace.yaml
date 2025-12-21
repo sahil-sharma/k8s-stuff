@@ -4,4 +4,4 @@ metadata:
   name: cluster-1
   labels:
     app: kafka
-    environment: production
+    environment: development

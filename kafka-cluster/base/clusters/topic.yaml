@@ -2,22 +2,10 @@
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaTopic
 metadata:
-  name: superapp-topic
-  namespace: kafka-operator
-  labels:
-    strimzi.io/cluster: cluster-1
-spec:
-  topicName: superapp_topic
-  partitions: 1
-  replicas: 1
----
-apiVersion: kafka.strimzi.io/v1beta2
-kind: KafkaTopic
-metadata:
   name: x-topic
   namespace: kafka-operator
   labels:
-    strimzi.io/cluster: cluster-1
+    strimzi.io/cluster: my-cluster
 spec:
   topicName: x_topic
   partitions: 1
@@ -29,7 +17,7 @@ metadata:
   name: a-topic
   namespace: kafka-operator
   labels:
-    strimzi.io/cluster: cluster-1
+    strimzi.io/cluster: my-cluster
 spec:
   topicName: a_topic
   partitions: 1
@@ -41,9 +29,21 @@ metadata:
   name: b-topic
   namespace: kafka-operator
   labels:
-    strimzi.io/cluster: cluster-1
+    strimzi.io/cluster: my-cluster
 spec:
   topicName: b_topic
+  partitions: 1
+  replicas: 1
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: z-topic
+  namespace: kafka-operator
+  labels:
+    strimzi.io/cluster: cluster-1
+spec:
+  topicName: z_topic
   partitions: 1
   replicas: 1
 ---
