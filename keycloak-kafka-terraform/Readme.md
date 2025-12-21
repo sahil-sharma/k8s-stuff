@@ -68,15 +68,7 @@ Access is governed by the intersection of **Policies** (Who you are) and **Resou
 - Keycloak admin credentials for the `master` realm.
 - `admin-cli` client must have "Direct Access Grants" enabled.
 
-### 2. Configure Credentials
-Update your `terraform.tfvars` with your instance details:
-```bash
-keycloak_url                  = "http://sso.local.io:32080"
-keycloak_admin_login_username = "admin"
-keycloak_admin_login_password = "your-password"
-```
-
-### Sample `tfvars` file
+### 2. Sample `tfvars` file 
 
 ```bash
 keycloak_url                  = "http://sso.local.io:32080"
