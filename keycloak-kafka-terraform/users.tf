@@ -32,3 +32,13 @@ resource "keycloak_user_groups" "user_groups" {
   user_id   = keycloak_user.human_users[each.key].id
   group_ids = [for g in each.value.group_memberships : keycloak_group.groups[g].id]
 }
+
+resource "keycloak_user_roles" "user_roles" {
+  for_each = var.users
+  realm_id = keycloak_realm.realm.id
+  user_id  = keycloak_user.human_users[each.key].id
+
+  role_ids = [
+    for r in each.value.roles : keycloak_role.roles[r].id
+  ]
+}

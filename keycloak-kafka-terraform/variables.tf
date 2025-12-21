@@ -40,11 +40,15 @@ variable "groups" {
 variable "clients" {
   description = "Map of clients configuration"
   type = map(object({
-    public_client                = bool
-    service_accounts_enabled     = bool
-    authorization_enabled        = bool
-    direct_access_grants_enabled = bool
-    service_account_roles        = list(string) # Added this to map roles to SAs
+    public_client                = optional(bool, false)
+    service_accounts_enabled     = optional(bool, false)
+    authorization_enabled        = optional(bool, false)
+    direct_access_grants_enabled = optional(bool, false)
+    standard_flow_enabled        = optional(bool, false)
+    web_origins                  = optional(list(string), [])
+    service_account_roles        = optional(list(string), [])
+    valid_redirect_uris          = optional(list(string), [])
+    add_groups_mapper            = optional(bool, false)
   }))
 }
 
@@ -56,6 +60,7 @@ variable "users" {
     enabled           = bool
     group_memberships = list(string)
     email_verified    = optional(bool, true)
+    roles             = list(string)
   }))
 }
 
