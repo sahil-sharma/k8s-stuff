@@ -5,6 +5,17 @@ env:
 yamlApplicationConfig:
   kafka:
     clusters:
+      - name: my-cluster
+        bootstrapServers: my-cluster-kafka-bootstrap.kafka-operator.svc:9093
+        properties:
+          security.protocol: SASL_PLAINTEXT
+          sasl.mechanism: OAUTHBEARER
+          ssl.endpoint.identification.algorithm: ""
+          socket.connection.setup.timeout.max.ms: 30000
+          socket.connection.setup.timeout.ms: 30000
+          sasl.oauthbearer.token.endpoint.url: http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token
+          sasl.login.callback.handler.class: org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler
+          sasl.jaas.config: org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required clientId='kafka' clientSecret='i7rFdpCdFpZSUjO5WKV9eJNruQhwjzOh' scope='openid';
       - name: cluster-1
         bootstrapServers: cluster-1-kafka-bootstrap.kafka-operator.svc:9093
         properties:
@@ -15,7 +26,7 @@ yamlApplicationConfig:
           socket.connection.setup.timeout.ms: 30000
           sasl.oauthbearer.token.endpoint.url: http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token
           sasl.login.callback.handler.class: org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler
-          sasl.jaas.config: org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required clientId='kafka' clientSecret='kafka-secret' scope='openid';
+          sasl.jaas.config: org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required clientId='kafka' clientSecret='i7rFdpCdFpZSUjO5WKV9eJNruQhwjzOh' scope='openid';
   logging:
     level:
       org.springframework.security: TRACE
@@ -30,7 +41,7 @@ yamlApplicationConfig:
       client:
         keycloak:
           clientId: kafka-ui
-          clientSecret: p2n00kRBo82nYFb48E7Fq7ECCW1bhps1
+          clientSecret: 2TmxQatNjWNgAOnrO3zeFVIvhLBWJNBz
           scope: openid
           client-name: SSO
           provider: keycloak
@@ -46,6 +57,7 @@ yamlApplicationConfig:
     roles:
       - name: "admins"
         clusters:
+          - my-cluster
           - cluster-1
         subjects:
           - provider: oauth
@@ -85,6 +97,7 @@ yamlApplicationConfig:
 
       - name: "readonly"
         clusters:
+          - my-cluster
           - cluster-1
         subjects:
           - provider: oauth
