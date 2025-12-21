@@ -22,6 +22,7 @@ variable "admin_client_id" {
 variable "realm_config" {
   type = object({
     realm        = string
+    display_name = optional(string, null)
     enabled      = bool
     ssl_required = string
   })

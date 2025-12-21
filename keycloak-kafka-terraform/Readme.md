@@ -84,6 +84,7 @@ admin_client_id               = "admin-cli"
 
 realm_config = {
   realm        = "kafka-authz",
+  display_name = "Kafka Authorization Realm",
   enabled      = true,
   ssl_required = "external"
 }
@@ -100,8 +101,30 @@ realm_roles = {
 groups = ["ClusterManager Group", "ClusterManager-my-cluster Group", "Ops Team Group"]
 
 users = {
-  "alice" = { email = "alice@local.io", first_name = "Alice", last_name = "User", enabled = true, group_memberships = ["ClusterManager Group"], roles = ["readonly"] }
-  "bob"   = { email = "bob@local.io", first_name = "Bob", last_name = "User", enabled = true, group_memberships = ["ClusterManager-my-cluster Group"], roles = ["admin"] }
+  "alice" = {
+    email      = "alice@local.io",
+    first_name = "Alice",
+    last_name  = "User",
+    enabled    = true,
+    group_memberships = [
+      "ClusterManager Group"
+    ],
+    roles = [
+      "readonly"
+    ]
+  }
+  "bob" = {
+    email      = "bob@local.io",
+    first_name = "Bob",
+    last_name  = "User",
+    enabled    = true,
+    group_memberships = [
+      "ClusterManager-my-cluster Group"
+    ],
+    roles = [
+      "admin"
+    ]
+  }
 }
 
 clients = {
@@ -121,13 +144,6 @@ clients = {
     service_account_roles        = ["Dev Team B"]
     web_origins                  = ["+"]
   },
-  # "broker"        = {
-  #   public_client = false,
-  #   service_accounts_enabled = true,
-  #   authorization_enabled = false, 
-  #   direct_access_grants_enabled = true,
-  #   service_account_roles = []
-  # },
   "kafka" = {
     public_client                = false,
     service_accounts_enabled     = true,
@@ -160,9 +176,26 @@ clients = {
 auth_scopes = ["Create", "Read", "Write", "Delete", "Alter", "Describe", "ClusterAction", "DescribeConfigs", "AlterConfigs", "IdempotentWrite"]
 
 kafka_resources = [
-  { name = "Topic:a_*", type = "Topic", scopes = ["Create", "Delete", "Describe", "Write", "Read", "Alter", "DescribeConfigs", "AlterConfigs"] },
-  { name = "Topic:x_*", type = "Topic", scopes = ["Create", "Delete", "Describe", "Write", "Read", "Alter", "DescribeConfigs", "AlterConfigs"] },
-  { name = "kafka-cluster:my-cluster,Cluster:*", type = "Cluster", scopes = ["IdempotentWrite"] }
+  {
+    name   = "Topic:a_*",
+    type   = "Topic",
+    scopes = ["Create", "Delete", "Describe", "Write", "Read", "Alter", "DescribeConfigs", "AlterConfigs"]
+  },
+  {
+    name   = "Topic:x_*",
+    type   = "Topic",
+    scopes = ["Create", "Delete", "Describe", "Write", "Read", "Alter", "DescribeConfigs", "AlterConfigs"]
+  },
+  {
+    name   = "kafka-cluster:my-cluster,Cluster:*",
+    type   = "Cluster",
+    scopes = ["IdempotentWrite"]
+  },
+  {
+    name   = "kafka-cluster:cluster-1,Cluster:*",
+    type   = "Cluster",
+    scopes = ["IdempotentWrite"]
+  }
   # Add other resources from JSON here...
 ]
 
@@ -185,8 +218,25 @@ kafka_policies_group = [
 ]
 
 kafka_permissions = [
-  { name = "Dev Team A owns topics that start with a_", type = "resource", resources = ["Topic:a_*"], policies = ["Dev Team A"], scopes = [] },
-  { name = "Dev Team A can write to x topics", type = "scope", resources = ["Topic:x_*"], policies = ["Dev Team A"], scopes = ["Describe", "Write"] },
-  { name = "Dev Team A IdempotentWrite", type = "scope", resources = ["kafka-cluster:my-cluster,Cluster:*"], policies = ["Dev Team A"], scopes = ["IdempotentWrite"] }
+  {
+    name      = "Dev Team A owns topics that start with a_",
+    type      = "resource",
+    resources = ["Topic:a_*"],
+    policies  = ["Dev Team A"],
+    scopes    = []
+  },
+  {
+    name      = "Dev Team A can write to x topics",
+    type      = "scope",
+    resources = ["Topic:x_*"],
+    policies  = ["Dev Team A"],
+    scopes    = ["Describe", "Write"]
+  },
+  {
+    name      = "Dev Team A IdempotentWrite",
+    type      = "scope",
+    resources = ["kafka-cluster:my-cluster,Cluster:*"],
+    policies  = ["Dev Team A"], scopes = ["IdempotentWrite"]
+  },
 ]
 ```
