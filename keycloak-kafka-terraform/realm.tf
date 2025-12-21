@@ -1,5 +1,6 @@
 resource "keycloak_realm" "realm" {
   realm                    = var.realm_config.realm
+  display_name             = var.realm_config.display_name
   enabled                  = var.realm_config.enabled
   ssl_required             = var.realm_config.ssl_required
   access_token_lifespan    = "1h"
