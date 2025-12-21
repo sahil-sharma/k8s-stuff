@@ -21,17 +21,26 @@ variable "realm_name" {
 }
 
 variable "clients" {
-  type = list(object({
-    client_id                       = string
-    root_url                        = string
-    valid_redirect_uris             = list(string)
-    valid_post_logout_redirect_uris = list(string)
-    roles                           = list(string)
-    web_origins                     = list(string)
-    token_claim_name                = optional(string)
-  }))
   description = "Clients and their roles"
+
+  type = list(object({
+    client_id = string
+
+    root_url                        = optional(string)
+    valid_redirect_uris             = optional(list(string), [])
+    valid_post_logout_redirect_uris = optional(list(string), [])
+    web_origins                     = optional(list(string), [])
+
+    roles            = optional(list(string), [])
+    token_claim_name = optional(string)
+
+    enable_authorization   = optional(bool, false)
+    enable_standard_flow   = optional(bool, false)
+    enable_direct_grant    = optional(bool, false)
+    enable_service_account = optional(bool, false)
+  }))
 }
+
 
 variable "groups" {
   type        = list(string)

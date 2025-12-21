@@ -1,5 +1,5 @@
 output "users" {
-  description = "Map of usernames to their generated temporary passwords"
+  description = "Map of usernames to their generated passwords"
   value = {
     for username, pwd in random_password.user_passwords :
     username => pwd.result

@@ -98,3 +98,19 @@ resource "keycloak_generic_protocol_mapper" "client_roles_mapper" {
     "aggregate.attrs"      = "false"
   }
 }
+
+resource keycloak_generic_protocol_mapper "resource_access" {
+  realm_id        = keycloak_realm.realm.id
+  client_id       = keycloak_openid_client.clients["kafka"].id
+  name            = "resource-access"
+  protocol        = "openid-connect"
+  protocol_mapper = "oidc-resource-access-mapper"
+  config = {
+    "claim.name"           = "resource_access"
+    "multivalued"          = "true"
+    "id.token.claim"       = "true"
+    "access.token.claim"   = "true"
+    "userinfo.token.claim" = "true"
+  }
+}
+
