@@ -5,6 +5,6 @@ resources:
   # - namespace.yaml
   - deploy-cluster.yaml
   - topic.yaml
-  # - user.yaml
+  # - user.yaml         # Users will be picked up from Keycloak
   - metrics-configmap.yaml
   - metrics-service.yaml
