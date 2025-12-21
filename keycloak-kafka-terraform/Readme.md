@@ -83,28 +83,78 @@ keycloak_admin_login_password = "admin123"
 admin_client_id               = "admin-cli"
 
 realm_config = {
-  realm = "kafka-authz-new", enabled = true, ssl_required = "external"
+  realm        = "kafka-authz",
+  enabled      = true,
+  ssl_required = "external"
 }
 
 realm_roles = {
   "Dev Team A" = { description = "Developer on Dev Team A" }
   "Dev Team B" = { description = "Developer on Dev Team B" }
   "Ops Team"   = { description = "Operations team member" }
+  "admin"      = { description = "Kafka UI Administrator" }
+  "readonly"   = { description = "Kafka UI Read Only" }
+  "readwrite"  = { description = "Kafka UI Read Write" }
 }
 
 groups = ["ClusterManager Group", "ClusterManager-my-cluster Group", "Ops Team Group"]
 
 users = {
-  "alice" = { email = "alice@local.io", first_name = "Alice", last_name = "User", enabled = true, group_memberships = ["ClusterManager Group"] }
-  "bob"   = { email = "bob@local.io", first_name = "Bob", last_name = "User", enabled = true, group_memberships = ["ClusterManager-my-cluster Group"] }
+  "alice" = { email = "alice@local.io", first_name = "Alice", last_name = "User", enabled = true, group_memberships = ["ClusterManager Group"], roles = ["readonly"] }
+  "bob"   = { email = "bob@local.io", first_name = "Bob", last_name = "User", enabled = true, group_memberships = ["ClusterManager-my-cluster Group"], roles = ["admin"] }
 }
 
 clients = {
-  "team-a-client" = { public_client = false, service_accounts_enabled = true, authorization_enabled = false, direct_access_grants_enabled = true, service_account_roles = ["Dev Team A"] }
-  "team-b-client" = { public_client = false, service_accounts_enabled = true, authorization_enabled = false, direct_access_grants_enabled = true, service_account_roles = ["Dev Team B"] }
-  "kafka"     = { public_client = false, service_accounts_enabled = true, authorization_enabled = true, direct_access_grants_enabled = true, service_account_roles = [] }
-  "kafka-cli" = { public_client = true, service_accounts_enabled = false, authorization_enabled = false, direct_access_grants_enabled = true, service_account_roles = [] }
-  # "broker"        = { public_client = false, service_accounts_enabled = true, authorization_enabled = false, direct_access_grants_enabled = true, service_account_roles = [] }
+  "team-a-client" = {
+    public_client                = false,
+    service_accounts_enabled     = true,
+    authorization_enabled        = false,
+    direct_access_grants_enabled = true,
+    service_account_roles        = ["Dev Team A"]
+    web_origins                  = ["+"]
+  },
+  "team-b-client" = {
+    public_client                = false,
+    service_accounts_enabled     = true,
+    authorization_enabled        = false,
+    direct_access_grants_enabled = true,
+    service_account_roles        = ["Dev Team B"]
+    web_origins                  = ["+"]
+  },
+  # "broker"        = {
+  #   public_client = false,
+  #   service_accounts_enabled = true,
+  #   authorization_enabled = false, 
+  #   direct_access_grants_enabled = true,
+  #   service_account_roles = []
+  # },
+  "kafka" = {
+    public_client                = false,
+    service_accounts_enabled     = true,
+    authorization_enabled        = true,
+    direct_access_grants_enabled = true,
+    service_account_roles        = []
+    web_origins                  = ["+"]
+  },
+  "kafka-cli" = {
+    public_client                = true,
+    service_accounts_enabled     = false,
+    authorization_enabled        = false,
+    direct_access_grants_enabled = true,
+    service_account_roles        = []
+    web_origins                  = ["+"]
+  },
+  "kafka-ui" = {
+    public_client                = false
+    service_accounts_enabled     = true
+    authorization_enabled        = true
+    direct_access_grants_enabled = false
+    service_account_roles        = []
+    valid_redirect_uris          = ["http://kafka-ui.local.io:32080/login/oauth2/code/keycloak"]
+    web_origins                  = ["+"]
+    add_groups_mapper            = true
+    standard_flow_enabled        = true
+  },
 }
 
 auth_scopes = ["Create", "Read", "Write", "Delete", "Alter", "Describe", "ClusterAction", "DescribeConfigs", "AlterConfigs", "IdempotentWrite"]
@@ -117,8 +167,14 @@ kafka_resources = [
 ]
 
 kafka_policies_role = [
-  { name = "Dev Team A", role_name = "Dev Team A" },
-  { name = "Dev Team B", role_name = "Dev Team B" }
+  {
+    name      = "Dev Team A",
+    role_name = "Dev Team A"
+  },
+  {
+    name      = "Dev Team B",
+    role_name = "Dev Team B"
+  }
 ]
 
 kafka_policies_group = [
