@@ -2,6 +2,8 @@
 
 This repository contains the Terraform configuration to bootstrap a production-ready Keycloak Realm specifically designed for **Kafka Fine-Grained Authorization**. It implements a Zero-Trust security model where every Kafka resource is protected by specific OIDC policies.
 
+> Note: Below set-up is inspired from Strimzi Kafka Keycloak realm JSON [file](https://github.com/strimzi/strimzi-kafka-operator/blob/main/examples/security/keycloak-authorization/kafka-authz-realm.json)
+
 ---
 
 ## Architecture Overview
