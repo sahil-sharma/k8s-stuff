@@ -1,0 +1,38 @@
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: virtualservice
+  namespace: keycloak
+spec:
+  hosts:
+    - sso.local.io
+  gateways:
+    - gateway
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: keycloakx-http.keycloak.svc.cluster.local
+            port:
+              number: 80
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: keycloak-db-virtualservice
+  namespace: keycloak-pg
+spec:
+  hosts:
+  - pg.local.io
+  gateways:
+    - keycloak-db-gateway
+  tcp:
+  - match:
+    - port: 5432
+    route:
+    - destination:
+        host: keycloak-db-rw.keycloak-pg.svc.cluster.local
+        port:
+          number: 5432

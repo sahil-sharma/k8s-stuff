@@ -49,6 +49,22 @@ health:
 dbchecker:
   enabled: false
 
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 80
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 80
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  failureThreshold: 3
+
 service:
   type: ClusterIP
   port: 9000
@@ -74,7 +90,7 @@ database:
   #existingSecretKey: "password"
 
 ingress:
-  enabled: true
+  enabled: false
   ingressClassName: nginx
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
