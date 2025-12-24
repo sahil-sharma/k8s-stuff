@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: prometheus
+  namespace: prometheus
+spec:
+  hosts:
+    - metrics.local.io
+  gateways:
+    - prometheus-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: prometheus-server.prometheus.svc.cluster.local
+            port:
+              number: 80
