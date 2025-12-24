@@ -1,7 +1,7 @@
-apiVersion: networking.istio.io/v1beta1
+apiVersion: networking.istio.io/v1
 kind: Gateway
 metadata:
-  name: prometheus-gateway
+  name: gateway
   namespace: prometheus
 spec:
   selector:
