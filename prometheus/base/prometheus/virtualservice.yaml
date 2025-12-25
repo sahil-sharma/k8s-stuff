@@ -7,7 +7,7 @@ spec:
   hosts:
     - metrics.local.io
   gateways:
-    - prometheus-gateway
+    - gateway
   http:
     - match:
         - uri:
