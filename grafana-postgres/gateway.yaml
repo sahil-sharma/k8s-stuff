@@ -1,0 +1,16 @@
+apiVersion: networking.istio.io/v1
+kind: Gateway
+metadata:
+  name: gateway
+  namespace: grafana-pg
+spec:
+  selector:
+    app: istio-gateway
+  servers:
+  - port:
+      number: 5434
+      name: grafana-postgres
+      protocol: TCP
+    hosts:
+    - "*"
+---
