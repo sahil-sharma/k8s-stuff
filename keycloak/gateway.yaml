@@ -5,7 +5,7 @@ metadata:
   namespace: keycloak
 spec:
   selector:
-    istio: ingressgateway
+    app: istio-gateway
   servers:
     - port:
         number: 80
@@ -13,20 +13,4 @@ spec:
         protocol: HTTP
       hosts:
         - sso.local.io
----
-apiVersion: networking.istio.io/v1
-kind: Gateway
-metadata:
-  name: keycloak-db-gateway
-  namespace: keycloak-pg
-spec:
-  selector:
-    istio: ingressgateway
-  servers:
-  - port:
-      number: 5432
-      name: tcp-postgres
-      protocol: TCP
-    hosts:
-    - "*"
 ---

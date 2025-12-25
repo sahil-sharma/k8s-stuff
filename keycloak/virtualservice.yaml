@@ -18,21 +18,3 @@ spec:
             port:
               number: 80
 ---
-apiVersion: networking.istio.io/v1
-kind: VirtualService
-metadata:
-  name: keycloak-db-virtualservice
-  namespace: keycloak-pg
-spec:
-  hosts:
-  - pg.local.io
-  gateways:
-    - keycloak-db-gateway
-  tcp:
-  - match:
-    - port: 5432
-    route:
-    - destination:
-        host: keycloak-db-rw.keycloak-pg.svc.cluster.local
-        port:
-          number: 5432
