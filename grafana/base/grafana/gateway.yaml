@@ -5,7 +5,7 @@ metadata:
   namespace: grafana
 spec:
   selector:
-    istio: ingressgateway
+    app: istio-gateway
   servers:
     - port:
         number: 80
