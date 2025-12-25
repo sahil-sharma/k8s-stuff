@@ -33,11 +33,11 @@ server:
         }
   dataStorage:
     enabled: true
-    size: 2Gi
+    size: 1Gi
     storageClass: "standard"     
 
   ingress:
-    enabled: true
+    enabled: false
     ingressClassName: "nginx"
     pathType: Prefix
     hosts:
@@ -67,7 +67,11 @@ server:
           export VAULT_ADDR=http://vault.vault:8200
           export KEY_FILE="/vault/init-keys.txt"
           export K8S_HOST="https://10.0.0.251"
-          export K8S_PORT="37043"
+          export K8S_PORT="37327"
+
+          # Kafka Realm ClientId and ClientSecret
+          export KAFKA_OIDC_CLIENT_ID="kafka"
+          export KAFKA_OIDC_CLIENT_SECRET="kafka-secret"
 
           # MinIO Credentials
           export MINIO_URL="http://storage.local.io:32080"
@@ -75,22 +79,22 @@ server:
           export MINIO_ROOT_PASSWORD="admin123"
           
           export VAULT_OIDC_CLIENT_ID="secrets"
-          export VAULT_OIDC_CLIENT_SECRET="4FUKmrsFW2n92o3kHZ2SnL11gbWQBs2J"
+          export VAULT_OIDC_CLIENT_SECRET="ivAlJ6vREFe0oMiYt4OmcYBxOzgOzi6I"
 
           export ARGOCD_OIDC_CLIENT_ID="argocd"
           export ARGOCD_OIDC_CLIENT_SECRET=""
 
           export GRAFANA_OIDC_CLIENT_ID="grafana"
-          export GRAFANA_OIDC_CLIENT_SECRET="9hUrr8g8ZAzCQlrmxjUbSnZUAMAYuGRT"
+          export GRAFANA_OIDC_CLIENT_SECRET="2vKykjw2hY5zhwtIb5mDjYLe60CBwkWX"
 
           export AUTH_OIDC_CLIENT_ID="auth"
-          export AUTH_OIDC_CLIENT_SECRET="dlhUeaCEUOMdtgRUgojSAvLziFKIata7"
+          export AUTH_OIDC_CLIENT_SECRET=""
 
           export MINIO_OIDC_CLIENT_ID="storage"
-          export MINIO_OIDC_CLIENT_SECRET="wUwli633XilbCRtUL3ffcBRvCLEWbCAo"
+          export MINIO_OIDC_CLIENT_SECRET=""
 
           export ARGO_WORKFLOW_OIDC_CLIENT_ID="argo-workflow"
-          export ARGO_WORKFLOW_OIDC_CLIENT_SECRET="DA5uutvqYEBow2K9NNf2VXS3KYdHtmbt"
+          export ARGO_WORKFLOW_OIDC_CLIENT_SECRET=""
 
           if vault status | grep -q 'Initialized.*false'; then
             echo "Vault not initialized. Starting to initialize Vault..."
@@ -175,6 +179,9 @@ server:
             
             # MinIO OIDC secrets
             vault kv put sso/storage CLIENT_ID="$MINIO_OIDC_CLIENT_ID" CLIENT_SECRET="$MINIO_OIDC_CLIENT_SECRET"
+
+            # Kafka OIDC secrets
+            # vault kv put sso/kafka-oauth CLIENT_ID="$KAFKA_OIDC_CLIENT_ID" CLIENT_SECRET="$KAFKA_OIDC_CLIENT_SECRET"
 
             # OAuth2 Proxy OIDC secrets
             vault kv put sso/oauth CLIENT_ID="$AUTH_OIDC_CLIENT_ID" CLIENT_SECRET="$AUTH_OIDC_CLIENT_SECRET"
@@ -322,6 +329,12 @@ server:
               bound_service_account_namespaces="grafana" \
               policies="eso-read" \
               audience="https://kubernetes.default.svc.cluster.local"
+
+            # vault write auth/kubernetes/role/kafka-oauth-secret-role \
+            #   bound_service_account_names="kafka-oauth-sa" \
+            #   bound_service_account_namespaces="prometheus" \
+            #   policies="eso-read" \
+            #   audience="https://kubernetes.default.svc.cluster.local"
 
             vault write auth/kubernetes/role/minio-sso-secret-role \
               bound_service_account_names="minio-sso-sa" \
