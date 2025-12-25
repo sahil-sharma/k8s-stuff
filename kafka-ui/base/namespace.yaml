@@ -3,4 +3,4 @@ kind: Namespace
 metadata:
   name: kafka-ui
   labels:
-    app: kafka-ui
+    istio-injection: enabled

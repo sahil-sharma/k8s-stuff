@@ -62,11 +62,10 @@ spec:
       authorizerClass: io.strimzi.kafka.oauth.server.authorizer.KeycloakAuthorizer
       superUsers:
         - service-account-kafka
-      superUserRole: "admin"
     config:
       # Needed for Oauth authentication and Keycloak authroization
       principal.builder.class: io.strimzi.kafka.oauth.server.OAuthKafkaPrincipalBuilder
-      authorizer.class.name: io.strimzi.kafka.oauth.server.authorizer.KeycloakAuthorizer
+      # authorizer.class.name: io.strimzi.kafka.oauth.server.authorizer.KeycloakAuthorizer
       oauth.pricipal.claim.name: preferred_username
       # Needed for Keycloak authorization
       strimzi.authorization.client.id: kafka
@@ -159,17 +158,18 @@ spec:
       authorizerClass: io.strimzi.kafka.oauth.server.authorizer.KeycloakAuthorizer
       superUsers:
         - service-account-kafka
-      superUserRole: "admin"
+        - service-account-team-a-client
+        - service-account-team-b-client
     config:
       # Needed for Oauth authentication and Keycloak authroization
       principal.builder.class: io.strimzi.kafka.oauth.server.OAuthKafkaPrincipalBuilder
-      authorizer.class.name: io.strimzi.kafka.oauth.server.authorizer.KeycloakAuthorizer
+      # authorizer.class.name: io.strimzi.kafka.oauth.server.authorizer.KeycloakAuthorizer
       oauth.pricipal.claim.name: preferred_username
       # Needed for Keycloak authorization
       strimzi.authorization.client.id: kafka
       strimzi.authorization.token.endpoint.uri: http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token
       strimzi.authorization.ssl.endpoint.identification.algorithm: ""
-      strimzi.authorization.delegate.to.kafka.acl: "true"
+      strimzi.authorization.delegate.to.kafka.acl: "false"
       # Other Kafka configuration options
       offsets.topic.replication.factor: 1
       transaction.state.log.replication.factor: 1
