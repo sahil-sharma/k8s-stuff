@@ -9,7 +9,7 @@ service:
   port: 80
 
 ingress:
-  enabled: true
+  enabled: false
   hosts:
     - dashboards.local.io
   annotations:
@@ -68,7 +68,7 @@ grafana.ini:
     timeout: 600
   database:
     type: postgres
-    host: pg.local.io:32434
+    host: grafana-db-rw.grafana-pg.svc.cluster.local:5432
     name: grafana_db
     user: grafana_admin
     password: ${DB_PASSWORD}
