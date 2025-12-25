@@ -5,7 +5,7 @@ metadata:
   namespace: prometheus
 spec:
   selector:
-    istio: ingressgateway
+    app: istio-gateway
   servers:
     - port:
         number: 80
