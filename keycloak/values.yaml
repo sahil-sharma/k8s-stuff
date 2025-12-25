@@ -49,22 +49,6 @@ health:
 dbchecker:
   enabled: false
 
-livenessProbe:
-  httpGet:
-    path: /health
-    port: 80
-  initialDelaySeconds: 30
-  periodSeconds: 10
-  failureThreshold: 3
-
-readinessProbe:
-  httpGet:
-    path: /health
-    port: 80
-  initialDelaySeconds: 10
-  periodSeconds: 5
-  failureThreshold: 3
-
 service:
   type: ClusterIP
   port: 9000
@@ -81,7 +65,7 @@ command:
 
 database:
   vendor: postgres
-  hostname: pg.local.io
+  hostname: kcdb.local.io
   port: 32432
   database: keycloak_db
   username: keycloak_admin
