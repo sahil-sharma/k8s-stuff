@@ -13,5 +13,4 @@ helmCharts:
     releaseName: keycloakx
     namespace: keycloak
     repo: https://codecentric.github.io/helm-charts
-    # includeCRDs: true
     valuesFile: values.yaml
