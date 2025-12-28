@@ -9,11 +9,11 @@ service:
       port: 443
       targetPort: 8443
       nodePort: 32443
-    - name: keycloak-postgres
-      port: 5432
-      targetPort: 5432
-      nodePort: 32432
-    - name: grafana-postgres
-      port: 5434
-      targetPort: 5432
-      nodePort: 32434
+    # - name: keycloak-postgres
+    #   port: 5432
+    #   targetPort: 5432
+    #   nodePort: 32432
+    # - name: grafana-postgres
+    #   port: 5434
+    #   targetPort: 5432
+    #   nodePort: 32434
