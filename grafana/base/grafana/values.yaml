@@ -203,6 +203,26 @@ dashboards:
       gnetId: 15826
       revision: 7
       datasource: Prometheus
+    istio-mesh-dashboard:
+      gnetId: 7639
+      revision: 283
+      datasource: Prometheus
+    istio-performance-dashboard:
+      gnetId: 11829
+      revision: 283
+      datasource: Prometheus
+    istio-service-dashboard:
+      gnetId: 7636
+      revision: 283
+      datasource: Prometheus
+    istio-workload-dashboard:
+      gnetId: 7630
+      revision: 283
+      datasource: Prometheus
+    istio-control-plane-dashboard:
+      gnetId: 7645
+      revision: 283
+      datasource: Prometheus
 
 #     flask-app:
 #       gnetId: 11074  # Example dashboard ID for a Python app
