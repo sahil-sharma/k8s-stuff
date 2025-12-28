@@ -2,9 +2,10 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - values.yaml
   - gateway.yaml
   - virtualservice.yaml
+  - sso-external-secret.yaml
+  - values.yaml
 
 helmCharts:
   - name: kiali-server
@@ -12,4 +13,3 @@ helmCharts:
     version: 2.20.0
     releaseName: kiali-server
     namespace: kiali-operator
-    includeCRDs: true
