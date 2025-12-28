@@ -65,8 +65,8 @@ command:
 
 database:
   vendor: postgres
-  hostname: kcdb.local.io
-  port: 32432
+  hostname: keycloak-db-rw.keycloak-pg.svc.cluster.local
+  port: 5432
   database: keycloak_db
   username: keycloak_admin
   password: admin123
