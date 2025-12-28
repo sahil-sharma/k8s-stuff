@@ -142,7 +142,17 @@ extraScrapeConfigs: |
       - action: replace
         source_labels: [__meta_kubernetes_pod_host_ip]
         target_label: node_ip
-   
+
+  - job_name: 'istio'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['istiod.istio-system:15014']
+
+  - job_name: 'kiali'
+    metrics_path: /
+    static_configs:
+      - targets: ['kiali.kiali-operator.svc.cluster.local:9090']
+
   # - job_name: 'loki'
   #   metrics_path: /metrics
   #   static_configs:
