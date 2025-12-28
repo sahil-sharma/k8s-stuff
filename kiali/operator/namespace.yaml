@@ -1,0 +1,7 @@
+# kiali/operator/namespace.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kiali-operator
+  labels:
+    istio-injection: enabled
