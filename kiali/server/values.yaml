@@ -1,0 +1,35 @@
+apiVersion: kiali.io/v1alpha1
+kind: Kiali
+metadata:
+  name: kiali
+  namespace: kiali-operator
+spec:
+  auth:
+    strategy: openid
+    openid:
+      authentication_timeout: 600
+      insecure_skip_verify_tls: true
+      disable_rbac: true
+      client_id: kiali
+      issuer_uri: http://sso.local.io:32080/realms/platform
+      scopes:
+        - openid
+        - profile
+        - email
+      username_claim: email
+
+  deployment:
+    cluster_wide_access: true
+    # accessible_namespaces:
+    #  - '**'
+
+  external_services:
+    prometheus:
+      url: http://metrics.local.io:32080
+
+    grafana:
+      enabled: true
+      internal_url: http://dashboards.local.io:32080
+
+  server:
+    web_root: /
