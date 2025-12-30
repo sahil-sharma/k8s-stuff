@@ -1,0 +1,131 @@
+{
+    "title": "Strimzi Kafka OAuth",
+    "editable": true,
+    "schemaVersion": 39,
+    "version": 1,
+    "refresh": "5s",
+    "time": {
+    "from": "now-1h",
+    "to": "now"
+    },
+    "timezone": "",
+    "tags": ["Strimzi", "Kafka", "OAuth"],
+    "panels": [
+    {
+        "type": "row",
+        "title": "OAuth Metrics",
+        "id": 1,
+        "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0}
+    },
+    {
+        "type": "timeseries",
+        "title": "OAuth HTTP Request Count",
+        "id": 2,
+        "datasource": "${DS_PROMETHEUS}",
+        "targets": [
+        {
+            "expr": "irate(strimzi_oauth_http_requests_count_total{namespace=\"$kubernetes_namespace\"}[$__rate_interval]) * 30",
+            "legendFormat": "[{{context}}] (Status: {{status}})",
+            "refId": "A",
+            "format": "time_series"
+        }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 1}
+    },
+    {
+        "type": "timeseries",
+        "title": "OAuth Validation Request Count",
+        "id": 3,
+        "datasource": "${DS_PROMETHEUS}",
+        "targets": [
+        {
+            "expr": "irate(strimzi_oauth_http_requests_count_total{namespace=\"$kubernetes_namespace\"}[$__rate_interval]) * 30",
+            "legendFormat": "[{{context}}] (Outcome: {{outcome}})",
+            "refId": "A",
+            "format": "time_series"
+        }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 1}
+    },
+    {
+        "type": "timeseries",
+        "title": "OAuth HTTP Request Avg Time (ms)",
+        "id": 4,
+        "datasource": "${DS_PROMETHEUS}",
+        "targets": [
+        {
+            "expr": "strimzi_oauth_http_requests_avgtimems{namespace=\"$kubernetes_namespace\"}",
+            "legendFormat": "[{{context}}] (Status: {{status}})",
+            "refId": "A",
+            "format": "time_series"
+        }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 9}
+    },
+    {
+        "type": "timeseries",
+        "title": "OAuth Validation Avg Time (ms)",
+        "id": 5,
+        "datasource": "${DS_PROMETHEUS}",
+        "targets": [
+        {
+            "expr": "strimzi_oauth_http_requests_avgtimems{namespace=\"$kubernetes_namespace\"}",
+            "legendFormat": "[{{context}}] (Outcome: {{outcome}})",
+            "refId": "A",
+            "format": "time_series"
+        }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 9}
+    },
+    {
+        "type": "timeseries",
+        "title": "OAuth HTTP Total Time / Request (ms)",
+        "id": 6,
+        "datasource": "${DS_PROMETHEUS}",
+        "targets": [
+        {
+            "expr": "strimzi_oauth_http_requests_totaltimems_total{namespace=\"$kubernetes_namespace\"} / strimzi_oauth_http_requests_count_total{namespace=\"$kubernetes_namespace\"}",
+            "legendFormat": "[{{context}}] (Status: {{status}})",
+            "refId": "A",
+            "format": "time_series"
+        }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 17}
+    },
+    {
+        "type": "timeseries",
+        "title": "OAuth Validation Total Time / Request (ms)",
+        "id": 7,
+        "datasource": "${DS_PROMETHEUS}",
+        "targets": [
+        {
+            "expr": "strimzi_oauth_http_requests_totaltimems_total{namespace=\"$kubernetes_namespace\"} / strimzi_oauth_http_requests_count_total{namespace=\"$kubernetes_namespace\"}",
+            "legendFormat": "[{{context}}] (Outcome: {{outcome}})",
+            "refId": "A",
+            "format": "time_series"
+        }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 17}
+    }
+    ],
+    "templating": {
+    "list": [
+        {
+        "name": "DS_PROMETHEUS",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": {},
+        "label": "Datasource"
+        },
+        {
+        "name": "kubernetes_namespace",
+        "type": "query",
+        "datasource": "${DS_PROMETHEUS}",
+        "query": "query_result(strimzi_oauth_http_requests_count_total)",
+        "regex": "/.*namespace=\"([^\"]*).*/",
+        "current": {},
+        "label": "Namespace"
+        }
+    ]
+    }
+}
