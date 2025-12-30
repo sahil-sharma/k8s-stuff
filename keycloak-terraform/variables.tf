@@ -15,9 +15,13 @@ variable "keycloak_admin_login_password" {
   sensitive   = true
 }
 
-variable "realm_name" {
-  type        = string
-  description = "Keycloak realm name"
+variable "realm_config" {
+  type = object({
+    realm        = string
+    display_name = optional(string, null)
+    enabled      = bool
+    ssl_required = string
+  })
 }
 
 variable "clients" {
@@ -31,8 +35,9 @@ variable "clients" {
     valid_post_logout_redirect_uris = optional(list(string), [])
     web_origins                     = optional(list(string), [])
 
-    roles            = optional(list(string), [])
-    token_claim_name = optional(string)
+    roles                 = optional(list(string), [])
+    token_claim_name      = optional(string)
+    realm_role_claim_name = optional(string)
 
     enable_authorization   = optional(bool, false)
     enable_standard_flow   = optional(bool, false)
@@ -41,20 +46,19 @@ variable "clients" {
   }))
 }
 
-
 variable "groups" {
   type        = list(string)
-  description = "List of groups"
+  description = "List of group names to create"
 }
 
-# variable "realm_roles" {
-#   type        = list(string)
-#   description = "List of realm roles"
-# }
+variable "realm_roles" {
+  type        = list(string)
+  description = "List of realm roles"
+}
 
 variable "group_realm_roles" {
   type        = map(list(string))
-  description = "Map of group names to realm role names"
+  description = "Map of Group Names to a list of Realm Roles they should inherit"
 }
 
 variable "users" {

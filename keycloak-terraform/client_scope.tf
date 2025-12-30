@@ -63,11 +63,12 @@ resource "keycloak_generic_protocol_mapper" "realm_roles_mapper" {
 
   realm_id        = keycloak_realm.realm.id
   client_id       = keycloak_openid_client.clients[each.key].id
-  name            = "realm-roles"
+  name            = "realm-roles-mapper"
   protocol        = "openid-connect"
   protocol_mapper = "oidc-usermodel-realm-role-mapper"
   config = {
-    "claim.name"           = "realm_access.roles"
+    # "claim.name"           = lookup(each.value, "realm_role_claim_name", "realm_access.roles")
+    "claim.name"           = try(each.value.realm_role_claim_name, "realm_access.roles")
     "jsonType.label"       = "String"
     "multivalued"          = "true"
     "userinfo.token.claim" = "true"
@@ -83,7 +84,7 @@ resource "keycloak_generic_protocol_mapper" "client_roles_mapper" {
 
   realm_id        = keycloak_realm.realm.id
   client_id       = keycloak_openid_client.clients[each.key].id
-  name            = "client-roles"
+  name            = "client-roles-mapper"
   protocol        = "openid-connect"
   protocol_mapper = "oidc-usermodel-client-role-mapper"
   config = {
@@ -96,3 +97,6 @@ resource "keycloak_generic_protocol_mapper" "client_roles_mapper" {
     "aggregate.attrs"      = "false"
   }
 }
+
+
+
