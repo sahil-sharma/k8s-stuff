@@ -1,95 +1,93 @@
-apiVersion: kafka.strimzi.io/v1beta2
-kind: KafkaNodePool
-metadata:
-  name: cluster-1-controller
-  namespace: kafka-operator
-  labels:
-    strimzi.io/cluster: cluster-1
-spec:
-  replicas: 1
-  roles:
-    - controller
-  storage:
-    type: persistent-claim
-    size: 1Gi
----
-apiVersion: kafka.strimzi.io/v1beta2
-kind: KafkaNodePool
-metadata:
-  name: cluster-1-broker
-  namespace: kafka-operator
-  labels:
-    strimzi.io/cluster: cluster-1
-spec:
-  replicas: 1
-  roles:
-    - broker
-  storage:
-    type: persistent-claim
-    size: 1Gi
----
-apiVersion: kafka.strimzi.io/v1beta2
-kind: Kafka
-metadata:
-  name: cluster-1
-  namespace: kafka-operator
-  annotations:
-    strimzi.io/node-pools: enabled
-    strimzi.io/kraft: enabled
-spec:
-  kafka:
-    version: 4.0.0
-    listeners:
-      - name: tls
-        port: 9093
-        type: internal
-        tls: false
-        authentication:
-          type: custom
-          sasl: true
-          listenerConfig:
-            sasl.enabled.mechanisms: OAUTHBEARER
-            oauthbearer.sasl.server.callback.handler.class: io.strimzi.kafka.oauth.server.JaasServerOauthValidatorCallbackHandler
-            oauthbearer.sasl.jaas.config: >
-              org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required unsecuredLoginStringClaim_sub="thePrincipalName"
-              oauth.valid.issuer.uri="http://sso.local.io:32080/realms/kafka-authz"
-              oauth.jwks.endpoint.uri="http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/certs"
-              oauth.username.claim="preferred_username"
-              oauth.enable.metrics="true";
-            connections.max.reauth.ms: 3600
-    authorization:
-      type: custom
-      authorizerClass: io.strimzi.kafka.oauth.server.authorizer.KeycloakAuthorizer
-      superUsers:
-        - service-account-kafka
-    config:
-      # Needed for Oauth authentication and Keycloak authroization
-      principal.builder.class: io.strimzi.kafka.oauth.server.OAuthKafkaPrincipalBuilder
-      # authorizer.class.name: io.strimzi.kafka.oauth.server.authorizer.KeycloakAuthorizer
-      oauth.pricipal.claim.name: preferred_username
-      # Needed for Keycloak authorization
-      strimzi.authorization.client.id: kafka
-      strimzi.authorization.token.endpoint.uri: http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token
-      strimzi.authorization.ssl.endpoint.identification.algorithm: ""
-      strimzi.authorization.delegate.to.kafka.acl: "false"
-      # Other Kafka configuration options
-      offsets.topic.replication.factor: 1
-      transaction.state.log.replication.factor: 1
-      transaction.state.log.min.isr: 1
-      default.replication.factor: 1
-      min.insync.replicas: 1
-    logging:
-      type: inline
-      loggers:
-        log4j.logger.io.strimzi: "TRACE"
-        log4j.logger.kafka: "DEBUG"
-        log4j.logger.org.apache.kafka: "DEBUG"
-    metricsConfig:
-      type: jmxPrometheusExporter
-      valueFrom:
-        configMapKeyRef:
-          name: kafka-metrics
-          key: kafka-metrics-config.yaml
+# apiVersion: kafka.strimzi.io/v1beta2
+# kind: KafkaNodePool
+# metadata:
+#   name: cluster-1-controller
+#   namespace: kafka-operator
+#   labels:
+#     strimzi.io/cluster: cluster-1
+# spec:
+#   replicas: 1
+#   roles:
+#     - controller
+#   storage:
+#     type: persistent-claim
+#     size: 1Gi
+# ---
+# apiVersion: kafka.strimzi.io/v1beta2
+# kind: KafkaNodePool
+# metadata:
+#   name: cluster-1-broker
+#   namespace: kafka-operator
+#   labels:
+#     strimzi.io/cluster: cluster-1
+# spec:
+#   replicas: 1
+#   roles:
+#     - broker
+#   storage:
+#     type: persistent-claim
+#     size: 1Gi
+# ---
+# apiVersion: kafka.strimzi.io/v1beta2
+# kind: Kafka
+# metadata:
+#   name: cluster-1
+#   namespace: kafka-operator
+#   annotations:
+#     strimzi.io/node-pools: enabled
+#     strimzi.io/kraft: enabled
+# spec:
+#   kafka:
+#     version: 4.0.0
+#     listeners:
+#       - name: plain
+#         port: 9092
+#         type: internal
+#         tls: false
+#         authentication:
+#           type: custom
+#           sasl: true
+#           listenerConfig:
+#             sasl.enabled.mechanisms: OAUTHBEARER
+#             oauthbearer.sasl.server.callback.handler.class: io.strimzi.kafka.oauth.server.JaasServerOauthValidatorCallbackHandler
+#             oauthbearer.sasl.jaas.config: >
+#               org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required unsecuredLoginStringClaim_sub="thePrincipalName"
+#               oauth.valid.issuer.uri="http://sso.local.io:32080/realms/kafka-authz"
+#               oauth.jwks.endpoint.uri="http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/certs"
+#               oauth.username.claim="preferred_username"
+#               oauth.enable.metrics="true";
+#             connections.max.reauth.ms: 3600
+#     authorization:
+#       type: custom
+#       authorizerClass: io.strimzi.kafka.oauth.server.authorizer.KeycloakAuthorizer
+#       superUsers:
+#         - service-account-kafka
+#     config:
+#       # Needed for Oauth authentication and Keycloak authroization
+#       principal.builder.class: io.strimzi.kafka.oauth.server.OAuthKafkaPrincipalBuilder
+#       # Needed for Keycloak authorization
+#       strimzi.authorization.client.id: kafka
+#       strimzi.authorization.token.endpoint.uri: http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token
+#       strimzi.authorization.ssl.endpoint.identification.algorithm: ""
+#       strimzi.authorization.delegate.to.kafka.acl: "false"
+#       # Other Kafka configuration options
+#       offsets.topic.replication.factor: 1
+#       transaction.state.log.replication.factor: 1
+#       transaction.state.log.min.isr: 1
+#       default.replication.factor: 1
+#       min.insync.replicas: 1
+#     logging:
+#       type: inline
+#       loggers:
+#         log4j.logger.io.strimzi: "TRACE"
+#         log4j.logger.kafka: "DEBUG"
+#         log4j.logger.org.apache.kafka: "DEBUG"
+#     metricsConfig:
+#       type: jmxPrometheusExporter
+#       valueFrom:
+#         configMapKeyRef:
+#           name: kafka-metrics
+#           key: kafka-metrics-config.yaml
   # entityOperator:
   #   topicOperator: {}
   #   userOperator: {}
@@ -135,9 +133,10 @@ metadata:
 spec:
   kafka:
     version: 4.0.0
+    metadataVersion: "4.0"
     listeners:
-      - name: tls
-        port: 9093
+      - name: plain
+        port: 9092
         type: internal
         tls: false
         authentication:
@@ -156,39 +155,51 @@ spec:
     authorization:
       type: custom
       authorizerClass: io.strimzi.kafka.oauth.server.authorizer.KeycloakAuthorizer
+      # delegateToKafkaAcls: true
       superUsers:
-        - service-account-kafka
-        - service-account-team-a-client
-        - service-account-team-b-client
+        - User:service-account-kafka
+        - User:admin
     config:
       # Needed for Oauth authentication and Keycloak authroization
       principal.builder.class: io.strimzi.kafka.oauth.server.OAuthKafkaPrincipalBuilder
-      # authorizer.class.name: io.strimzi.kafka.oauth.server.authorizer.KeycloakAuthorizer
-      oauth.pricipal.claim.name: preferred_username
       # Needed for Keycloak authorization
       strimzi.authorization.client.id: kafka
       strimzi.authorization.token.endpoint.uri: http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token
       strimzi.authorization.ssl.endpoint.identification.algorithm: ""
-      strimzi.authorization.delegate.to.kafka.acl: "false"
+      strimzi.authorization.delegate.to.kafka.acl: "true"
       # Other Kafka configuration options
       offsets.topic.replication.factor: 1
       transaction.state.log.replication.factor: 1
       transaction.state.log.min.isr: 1
       default.replication.factor: 1
       min.insync.replicas: 1
+    jvmOptions:
+      # optimise for small memory footprint
+      -Xms: 256m
+      -Xmx: 256m
+    template:
+      kafkaContainer:
+        env:
+          - name: OAUTH_ENABLE_METRICS
+            value: "true"
+          - name: STRIMZI_OAUTH_METRIC_REPORTERS
+            value: org.apache.kafka.common.metrics.JmxReporter
     logging:
       type: inline
       loggers:
         log4j.logger.io.strimzi: "TRACE"
         log4j.logger.kafka: "DEBUG"
         log4j.logger.org.apache.kafka: "DEBUG"
+    livenessProbe:
+      initialDelaySeconds: 3600
+      timeoutSeconds: 3600
     metricsConfig:
       type: jmxPrometheusExporter
       valueFrom:
         configMapKeyRef:
           name: kafka-metrics
           key: kafka-metrics-config.yaml
-#   entityOperator:
-#     topicOperator: {}
-#     userOperator: {}
+  entityOperator:
+    topicOperator: {}
+    userOperator: {}
 ---

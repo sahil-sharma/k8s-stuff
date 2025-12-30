@@ -1,0 +1,16 @@
+apiVersion: networking.istio.io/v1
+kind: Gateway
+metadata:
+  name: bridge-gateway
+  namespace: kafka-operator
+spec:
+  selector:
+    app: istio-gateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - kafka.local.io
+---
