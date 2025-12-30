@@ -35,15 +35,15 @@ spec:
   partitions: 1
   replicas: 1
 ---
-apiVersion: kafka.strimzi.io/v1beta2
-kind: KafkaTopic
-metadata:
-  name: z-topic
-  namespace: kafka-operator
-  labels:
-    strimzi.io/cluster: cluster-1
-spec:
-  topicName: z_topic
-  partitions: 1
-  replicas: 1
----
+# apiVersion: kafka.strimzi.io/v1beta2
+# kind: KafkaTopic
+# metadata:
+#   name: z-topic
+#   namespace: kafka-operator
+#   labels:
+#     strimzi.io/cluster: cluster-1
+# spec:
+#   topicName: z_topic
+#   partitions: 1
+#   replicas: 1
+# ---

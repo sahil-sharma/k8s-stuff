@@ -8,3 +8,7 @@ resources:
   # - user.yaml         # Users will be picked up from Keycloak
   - metrics-configmap.yaml
   - metrics-service.yaml
+  - bridge.yaml
+  - bridge-metrics-configmap.yaml
+  - bridge-virtualservice.yaml
+  - bridge-gateway.yaml
