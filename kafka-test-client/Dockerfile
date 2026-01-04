@@ -37,9 +37,10 @@ ENV KAFKA_HOME=/opt/kafka_${SCALA_VERSION}-${KAFKA_VERSION}
 ENV PATH="${JAVA_HOME}/bin:${KAFKA_HOME}/bin:${PATH}"
 ARG KAFKA_OAUTH_VERSION=0.17.0
 ENV OAUTH_SRC=/opt/strimzi-kafka-oauth-${KAFKA_OAUTH_VERSION}
+ENV CLASSPATH=${KAFKA_HOME}/libs/*:$CLASSPATH
 
 # ---- OAuth / Keycloak env ----
-ENV REALM_NAME=platform
+ENV REALM_NAME=kafka-authz
 ENV SSO_URL=http://sso.local.io:32080
 ENV SSO_TOKEN_URL=${SSO_URL}/realms/${REALM_NAME}/protocol/openid-connect/token
 ENV KAFKA_OPTS="-Dorg.apache.kafka.sasl.oauthbearer.allowed.urls=${SSO_TOKEN_URL}"
@@ -67,7 +68,9 @@ COPY --from=builder ${OAUTH_SRC}/oauth-server/target/lib/*.jar ${KAFKA_HOME}/lib
 
 # ---- Utilities ----
 COPY test.sh /opt/test.sh
-RUN chmod +x /opt/test.sh
+COPY oauth.sh /opt/oauth.sh
+COPY jwt.sh /opt/jwt.sh
+RUN chmod +x /opt/*.sh
 
 WORKDIR /opt
 CMD ["sleep", "infinity"]
