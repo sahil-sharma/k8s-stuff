@@ -2,31 +2,39 @@ env:
   - name: LOGGING_LEVEL_ROOT
     value: DEBUG
 
+envs:
+  secretMappings:
+    KAFKA_UI_CLIENT_ID:
+      name: kafka-ui-oidc-secret
+      keyName: KAFKA_UI_CLIENT_ID
+    KAFKA_UI_CLIENT_SECRET:
+      name: kafka-ui-oidc-secret
+      keyName: KAFKA_UI_CLIENT_SECRET
+    KAFKA_CLIENT_ID:
+      name: kafka-oidc-secret
+      keyName: KAFKA_CLIENT_ID
+    KAFKA_CLIENT_SECRET:
+      name: kafka-oidc-secret
+      keyName: KAFKA_CLIENT_SECRET
+
 yamlApplicationConfig:
   kafka:
     clusters:
       - name: my-cluster
-        bootstrapServers: my-cluster-kafka-bootstrap.kafka-operator.svc:9093
+        bootstrapServers: my-cluster-kafka-bootstrap.kafka-operator.svc:9092
         properties:
           security.protocol: SASL_PLAINTEXT
           sasl.mechanism: OAUTHBEARER
+          sasl.login.callback.handler.class: io.strimzi.kafka.oauth.client.JaasClientOauthLoginCallbackHandler
           ssl.endpoint.identification.algorithm: ""
           socket.connection.setup.timeout.max.ms: 30000
           socket.connection.setup.timeout.ms: 30000
-          sasl.oauthbearer.token.endpoint.url: http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token
-          sasl.login.callback.handler.class: org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler
-          sasl.jaas.config: org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required clientId='kafka' clientSecret='i7rFdpCdFpZSUjO5WKV9eJNruQhwjzOh' scope='openid';
-      - name: cluster-1
-        bootstrapServers: cluster-1-kafka-bootstrap.kafka-operator.svc:9093
-        properties:
-          security.protocol: SASL_PLAINTEXT
-          sasl.mechanism: OAUTHBEARER
-          ssl.endpoint.identification.algorithm: ""
-          socket.connection.setup.timeout.max.ms: 30000
-          socket.connection.setup.timeout.ms: 30000
-          sasl.oauthbearer.token.endpoint.url: http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token
-          sasl.login.callback.handler.class: org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler
-          sasl.jaas.config: org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required clientId='kafka' clientSecret='i7rFdpCdFpZSUjO5WKV9eJNruQhwjzOh' scope='openid';
+          sasl.jaas.config: >
+            org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required
+              oauth.token.endpoint.uri="http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token"
+              oauth.client.id="${KAFKA_CLIENT_ID}"
+              oauth.client.secret="${KAFKA_CLIENT_SECRET}"
+              oauth.scope='openid';
   logging:
     level:
       org.springframework.security: TRACE
@@ -40,8 +48,8 @@ yamlApplicationConfig:
     oauth2:
       client:
         keycloak:
-          clientId: kafka-ui
-          clientSecret: 2TmxQatNjWNgAOnrO3zeFVIvhLBWJNBz
+          clientId: ${KAFKA_UI_CLIENT_ID}
+          clientSecret: ${KAFKA_UI_CLIENT_SECRET}
           scope: openid
           client-name: SSO
           provider: keycloak
@@ -58,7 +66,6 @@ yamlApplicationConfig:
       - name: "admins"
         clusters:
           - my-cluster
-          - cluster-1
         subjects:
           - provider: oauth
             type: role
@@ -98,7 +105,6 @@ yamlApplicationConfig:
       - name: "readonly"
         clusters:
           - my-cluster
-          - cluster-1
         subjects:
           - provider: oauth
             type: role
@@ -123,11 +129,7 @@ yamlApplicationConfig:
           - resource: acl
             actions: [ view ]
 
-# env:
-#   - name: SERVER_SERVLET_CONTEXT_PATH
-#     value: "/kafka-ui"
-
 ingress:
-  enabled: true
+  enabled: false
   ingressClassName: nginx
   host: kafka-ui.local.io
