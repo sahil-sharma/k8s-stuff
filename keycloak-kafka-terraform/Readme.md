@@ -162,14 +162,34 @@ clients = {
     service_account_roles        = []
     valid_redirect_uris          = ["http://kafka-ui.local.io:32080/login/oauth2/code/keycloak"]
     web_origins                  = ["+"]
-    add_groups_mapper            = true
     standard_flow_enabled        = true
+    mappers = [
+      {
+        name       = "realm-roles"
+        type       = "realm-roles"
+        claim_name = "groups"
+      }
+    ]
   },
+  "kafka-bridge" = {
+    public_client                = false
+    standard_flow_enabled        = false
+    service_accounts_enabled     = true
+    authorization_enabled        = true
+    direct_access_grants_enabled = false
+    # We don't necessarily need mappers for the bridge unless you use RBAC for the bridge
+    mappers = []
+  }
 }
 
 auth_scopes = ["Create", "Read", "Write", "Delete", "Alter", "Describe", "ClusterAction", "DescribeConfigs", "AlterConfigs", "IdempotentWrite"]
 
 kafka_resources = [
+  {
+    name   = "Topic:*",
+    type   = "Topic",
+    scopes = ["Create", "Delete", "Describe", "Write", "Read", "Alter", "DescribeConfigs", "AlterConfigs"]
+  },
   {
     name   = "Topic:a_*",
     type   = "Topic",
@@ -189,6 +209,21 @@ kafka_resources = [
     name   = "kafka-cluster:cluster-1,Cluster:*",
     type   = "Cluster",
     scopes = ["IdempotentWrite"]
+  },
+  {
+    name   = "Group:a_*",
+    type   = "Group",
+    scopes = ["Describe", "Read"]
+  },
+  {
+    name   = "Group:x_*",
+    type   = "Group",
+    scopes = ["Describe", "Read", "Delete"]
+  },
+  {
+    name   = "Group:*",
+    type   = "Group",
+    scopes = ["Describe", "Read", "DescribeConfigs", "AlterConfigs"]
   }
   # Add other resources from JSON here...
 ]
@@ -201,6 +236,18 @@ kafka_policies_role = [
   {
     name      = "Dev Team B",
     role_name = "Dev Team B"
+  },
+  {
+    name      = "Ops Team",
+    role_name = "Ops Team"
+  },
+  {
+    name      = "Kafka UI Admin Policy",
+    role_name = "admin"
+  },
+  {
+    name      = "Kafka Bridge Policy",
+    role_name = "kafka-bridge"
   }
 ]
 
@@ -230,7 +277,29 @@ kafka_permissions = [
     name      = "Dev Team A IdempotentWrite",
     type      = "scope",
     resources = ["kafka-cluster:my-cluster,Cluster:*"],
-    policies  = ["Dev Team A"], scopes = ["IdempotentWrite"]
+    policies  = ["Dev Team A"],
+    scopes    = ["IdempotentWrite"]
+  },
+  {
+    name      = "Dev Team A can use consumer groups that start with a_",
+    type      = "resource",
+    resources = ["Group:a_*"],
+    policies  = ["Dev Team A"],
+    scopes    = [] # Resource-based permission gives access to all scopes on the resource
+  },
+  {
+    name      = "Ops Team full access to all groups",
+    type      = "resource",
+    resources = ["Group:*"],
+    policies  = ["Ops Team", "ClusterManager Group"],
+    scopes    = []
+  },
+  {
+    name      = "Kafka UI has full access",
+    type      = "resource",
+    resources = ["Topic:*", "Group:*", "kafka-cluster:my-cluster,Cluster:*"],
+    policies  = ["Kafka UI Admin Policy"],
+    scopes    = []
   },
 ]
 ```
