@@ -42,11 +42,13 @@ kubectl -n default run -i --rm \
 kubectl -n default run -i --rm \
     --restart=Never \
     --tty kafka-client-test-pod \
-    --image=bonyscott/kafka-test-client:v1-slim -- bash
+    --image=bonyscott/kafka-test-client:v3-slim -- bash
 
 # Exec into Test Client Pod
 k -n default exec -it kafka-client-test-pod -- bash
 
 # Change Environment variables in test.sh script if needed (/opt)
-bash test.sh
+bash /opt/test.sh
+bash /opt/oauth.sh -q <USERNAME> <PASSWORD>
+bash /opt/jwt.sh $REFRESH_TOKEN 
 ```
