@@ -8,6 +8,14 @@ spec:
   bootstrapServers: my-cluster-kafka-bootstrap.kafka-operator.svc:9092
   http:
     port: 8080
+  authentication:
+    type: custom
+    sasl: true
+    config:
+      security.protocol: SASL_PLAINTEXT
+      sasl.mechanism: OAUTHBEARER
+      sasl.login.callback.handler.class: io.strimzi.kafka.oauth.client.JaasClientOauthLoginCallbackHandler
+      sasl.jaas.config: 'org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required oauth.token.endpoint.uri="http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token" oauth.client.id="kafka-bridge" oauth.client.secret="rH48TUHiEfQiIG4yTiVVa2LqIepqEgKh";'
   metricsConfig:
     type: jmxPrometheusExporter
     valueFrom:

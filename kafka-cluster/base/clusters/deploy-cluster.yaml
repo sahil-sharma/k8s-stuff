@@ -160,6 +160,7 @@ spec:
         - User:service-account-kafka
         - User:admin
     config:
+      auto.create.topics.enable: "true"
       # Needed for Oauth authentication and Keycloak authroization
       principal.builder.class: io.strimzi.kafka.oauth.server.OAuthKafkaPrincipalBuilder
       # Needed for Keycloak authorization
@@ -178,6 +179,12 @@ spec:
       -Xms: 256m
       -Xmx: 256m
     template:
+      # pod:
+      #   metadata:
+      #     annotations:
+      #       # This tells Istio NOT to intercept these ports
+      #       traffic.sidecar.istio.io/excludeInboundPorts: "9092,9093,9094"
+      #       traffic.sidecar.istio.io/excludeOutboundPorts: "9092,9093,9094"
       kafkaContainer:
         env:
           - name: OAUTH_ENABLE_METRICS
