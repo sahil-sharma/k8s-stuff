@@ -5,7 +5,6 @@ resources:
   - gateway.yaml
   - virtualservice.yaml
   - sso-external-secret.yaml
-  - values.yaml
 
 helmCharts:
   - name: kiali-server
@@ -13,3 +12,4 @@ helmCharts:
     version: 2.20.0
     releaseName: kiali-server
     namespace: kiali-operator
+    valuesFile: values.yaml
