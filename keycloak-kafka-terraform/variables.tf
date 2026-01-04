@@ -49,7 +49,11 @@ variable "clients" {
     web_origins                  = optional(list(string), [])
     service_account_roles        = optional(list(string), [])
     valid_redirect_uris          = optional(list(string), [])
-    add_groups_mapper            = optional(bool, false)
+    mappers = optional(list(object({
+      name       = string
+      type       = string # Expected: "groups", "realm-roles", or "client-roles"
+      claim_name = string
+    })), [])
   }))
 }
 
