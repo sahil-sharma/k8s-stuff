@@ -132,6 +132,7 @@ metadata:
     strimzi.io/kraft: enabled
 spec:
   kafka:
+    replicas: 1
     version: 4.0.0
     metadataVersion: "4.0"
     listeners:
@@ -155,10 +156,9 @@ spec:
     authorization:
       type: custom
       authorizerClass: io.strimzi.kafka.oauth.server.authorizer.KeycloakAuthorizer
-      # delegateToKafkaAcls: true
       superUsers:
-        - User:service-account-kafka
-        - User:admin
+        - service-account-kafka
+        - service-account-kafka-bridge
     config:
       auto.create.topics.enable: "true"
       # Needed for Oauth authentication and Keycloak authroization
@@ -176,15 +176,9 @@ spec:
       min.insync.replicas: 1
     jvmOptions:
       # optimise for small memory footprint
-      -Xms: 256m
-      -Xmx: 256m
+      -Xms: 512m
+      -Xmx: 512m
     template:
-      # pod:
-      #   metadata:
-      #     annotations:
-      #       # This tells Istio NOT to intercept these ports
-      #       traffic.sidecar.istio.io/excludeInboundPorts: "9092,9093,9094"
-      #       traffic.sidecar.istio.io/excludeOutboundPorts: "9092,9093,9094"
       kafkaContainer:
         env:
           - name: OAUTH_ENABLE_METRICS

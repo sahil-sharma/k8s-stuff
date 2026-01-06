@@ -1,3 +1,28 @@
+# apiVersion: kafka.strimzi.io/v1beta2
+# kind: KafkaBridge
+# metadata:
+#   name: my-cluster-bridge
+#   namespace: kafka-operator
+# spec:
+#   replicas: 1
+#   bootstrapServers: my-cluster-kafka-bootstrap.kafka-operator.svc:9092
+#   http:
+#     port: 8080
+#   authentication:
+#     type: custom
+#     sasl: true
+#     config:
+#       security.protocol: SASL_PLAINTEXT
+#       sasl.mechanism: OAUTHBEARER
+#       sasl.login.callback.handler.class: io.strimzi.kafka.oauth.client.JaasClientOauthLoginCallbackHandler
+#       sasl.jaas.config: 'org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required oauth.token.endpoint.uri="http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token" oauth.client.id="kafka-bridge" oauth.client.secret="f206Gc7AY5SaPPT9NDKTahIWiRJr3KpQ";'
+#   metricsConfig:
+#     type: jmxPrometheusExporter
+#     valueFrom:
+#       configMapKeyRef:
+#         name: bridge-metrics
+#         key: metrics-config.yaml
+---
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaBridge
 metadata:
@@ -15,7 +40,8 @@ spec:
       security.protocol: SASL_PLAINTEXT
       sasl.mechanism: OAUTHBEARER
       sasl.login.callback.handler.class: io.strimzi.kafka.oauth.client.JaasClientOauthLoginCallbackHandler
-      sasl.jaas.config: 'org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required oauth.token.endpoint.uri="http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token" oauth.client.id="kafka-bridge" oauth.client.secret="rH48TUHiEfQiIG4yTiVVa2LqIepqEgKh";'
+      # The Bridge uses these credentials to START UP and fetch metadata
+      sasl.jaas.config: 'org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required oauth.token.endpoint.uri="http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token" oauth.client.id="${KAFKA_BRIDGE_OIDC_CLIENT_ID}" oauth.client.secret="${KAFKA_BRIDGE_OIDC_CLIENT_SECRET}";'
   metricsConfig:
     type: jmxPrometheusExporter
     valueFrom:
