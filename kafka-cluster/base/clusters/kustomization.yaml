@@ -5,10 +5,11 @@ resources:
   # - namespace.yaml
   - deploy-cluster.yaml
   - topic.yaml
-  # - user.yaml         # Users will be picked up from Keycloak
+  # - user.yaml                                     # Users will be picked up from Keycloak
   - metrics-configmap.yaml
   - metrics-service.yaml
   - bridge.yaml
   - bridge-metrics-configmap.yaml
   - bridge-virtualservice.yaml
   - bridge-gateway.yaml
+  - bridge-sso-external-secret.yaml
