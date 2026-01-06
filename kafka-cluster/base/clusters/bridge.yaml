@@ -41,7 +41,20 @@ spec:
       sasl.mechanism: OAUTHBEARER
       sasl.login.callback.handler.class: io.strimzi.kafka.oauth.client.JaasClientOauthLoginCallbackHandler
       # The Bridge uses these credentials to START UP and fetch metadata
-      sasl.jaas.config: 'org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required oauth.token.endpoint.uri="http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token" oauth.client.id="${KAFKA_BRIDGE_OIDC_CLIENT_ID}" oauth.client.secret="${KAFKA_BRIDGE_OIDC_CLIENT_SECRET}";'
+      sasl.jaas.config: 'org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required oauth.token.endpoint.uri="http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token" oauth.client.id="${strimzienv:OAUTH_CLIENT_ID}" oauth.client.secret="${strimzienv:OAUTH_CLIENT_SECRET}";'
+  template:
+    bridgeContainer:
+      env:
+        - name: OAUTH_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: kafka-bridge-sso-secret
+              key: KAFKA_BRIDGE_OIDC_CLIENT_ID
+        - name: OAUTH_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: kafka-bridge-sso-secret
+              key: KAFKA_BRIDGE_OIDC_CLIENT_SECRET
   metricsConfig:
     type: jmxPrometheusExporter
     valueFrom:
