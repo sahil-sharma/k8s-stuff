@@ -25,16 +25,16 @@ yamlApplicationConfig:
         properties:
           security.protocol: SASL_PLAINTEXT
           sasl.mechanism: OAUTHBEARER
-          sasl.login.callback.handler.class: io.strimzi.kafka.oauth.client.JaasClientOauthLoginCallbackHandler
-          ssl.endpoint.identification.algorithm: ""
+          sasl.oauthbearer.token.endpoint.url: http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token
+          sasl.login.callback.handler.class: org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler
           socket.connection.setup.timeout.max.ms: 30000
           socket.connection.setup.timeout.ms: 30000
           sasl.jaas.config: >
             org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required
-              oauth.token.endpoint.uri="http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token"
-              oauth.client.id="${KAFKA_CLIENT_ID}"
-              oauth.client.secret="${KAFKA_CLIENT_SECRET}"
-              oauth.scope='openid';
+              oauth.token.endpoint.uri="
+              clientId="${KAFKA_CLIENT_ID}"
+              clientSecret="${KAFKA_CLIENT_SECRET}"
+              scope="openid";
   logging:
     level:
       org.springframework.security: TRACE
@@ -53,7 +53,6 @@ yamlApplicationConfig:
           scope: openid
           client-name: SSO
           provider: keycloak
-          authorization-grant-type: authorization_code
           redirect-uri: http://kafka-ui.local.io:32080/login/oauth2/code/keycloak
           issuer-uri: http://sso.local.io:32080/realms/kafka-authz
           user-name-attribute: preferred_username
@@ -69,36 +68,28 @@ yamlApplicationConfig:
         subjects:
           - provider: oauth
             type: role
-            value: admin
+            value: kafka-admin
         permissions:
           - resource: applicationconfig
             actions: all
-
           - resource: clusterconfig
             actions: all
-
           - resource: topic
             value: ".*"
             actions: all
-
           - resource: consumer
             value: ".*"
             actions: all
-
           - resource: schema
             value: ".*"
             actions: all
-
           - resource: connect
             value: ".*"
             actions: all
-
           - resource: ksql
             actions: all
-
           - resource: acl
             actions: all
-
           - resource: audit
             actions: all
 
@@ -108,7 +99,7 @@ yamlApplicationConfig:
         subjects:
           - provider: oauth
             type: role
-            value: readonly
+            value: kafka-readonly
         permissions:
           - resource: clusterconfig
             actions: [ "view" ]
