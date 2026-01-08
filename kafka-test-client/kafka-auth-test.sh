@@ -1,0 +1,214 @@
+#!/bin/bash
+
+set -euo pipefail
+
+# Kafka URLs
+SSO_URL="http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token"
+BOOTSTRAP_SERVER_ADDR="my-cluster-kafka-bootstrap.kafka-operator.svc:9092"
+BRIDGE_URL="http://kafka.local.io:32080"
+DISABLE_IDEMPOTENCE="--producer-property enable.idempotence=false"
+
+# User Info
+ALICE_USERNAME="alice"
+BOB_USERNAME="bob"
+ALICE_PASSWORD="8e6xD7UBzGv7gq1K"
+BOB_PASSWORD="PgoYxemjiEZjxKVm"
+
+# Team Info
+A_SECRET="QLOWWHywxoHcm31E8eEbuKp3g7CPy5EI"
+B_SECRET="naTcD0o0uy7GOLBHt1VQQPCxctImLnS9"
+KAFKA_CLI_SECRET="hwogc96GBbUcY42U8ybGsWKWv4uDfrKo"
+BRIDGE_SECRET="O0QUpNEYmYadf3CScsPUmoIYnII5vvKa"
+
+# Property Files
+TEAM_A_PROPERTIES_FILE="/opt/a-team-client.properties"
+TEAM_B_PROPERTIES_FILE="/opt/b-team-client.properties"
+
+# Kafka scripts path
+PRODUCER_SCRIPT="$KAFKA_HOME/bin/kafka-console-producer.sh"
+CONSUMER_SCRIPT="$KAFKA_HOME/bin/kafka-console-consumer.sh"
+LIST_TOPICS="$KAFKA_HOME/bin/kafka-topics.sh"
+LIST_CONSUMER_GROUPS="$KAFKA_HOME/bin/kafka-consumer-groups.sh"
+
+# Topic names
+A_TOPIC="a_topic"
+B_TOPIC="b_topic"
+X_TOPIC="x_topic"
+MY_TOPIC="my_topic"
+
+# Consumer Groups names
+A_CONSUMER_GROUP="a_consumer_group_1"
+B_CONSUMER_GROUP="b_consumer_group_1"
+X_CONSUMER_GROUP_TEAM_A="x_group_team_a"
+X_CONSUMER_GROUP_TEAM_B="x_group_team_b"
+MY_CONSUMER_GROUP="my_consumer_group_1"
+
+show_menu() {
+    clear
+    echo "================================================================"
+    echo "               KAFKA OIDC AUTHORIZATION TESTER"
+    echo "================================================================"
+    echo " TOKEN INSPECTION (UMA / JWT):"
+    echo "  t1) Inspect Team-A Permissions (Aud: kafka)   t3) Inspect Alice Permissions (Aud: kafka-cli)"
+    echo "  t2) Inspect Team-B Permissions (Aud: kafka)   t4) Inspect Bob Permissions (Aud: kafka-cli)"
+    echo "----------------------------------------------------------------"
+    echo " KAFKA BRIDGE (REST API):"
+    echo "  b1) Bridge: Produce to $A_TOPIC (as Bridge Client)"
+    echo "  b2) Bridge: Create Consumer & Subscribe to $A_TOPIC"
+    echo "  b3) Bridge: Read Messages from $A_TOPIC"
+    echo "----------------------------------------------------------------"
+    echo " KAFKA OPERATIONS:"
+    echo "  1) A write to A topic             13) A list topics"
+    echo "  2) A write to B topic (Fail)      14) B list topics"
+    echo "  3) B write to A topic (Fail)      15) A list groups"
+    echo "  4) B write to B topic             16) B list groups"
+    echo "  5) A write to X topic             q) Quit"
+    echo "  6) B write to X topic"
+    echo "  7) A read from A topic"
+    echo "  8) A read from B topic (Fail)"
+    echo "  9) A read from X topic"
+    echo "  10) B read from A topic (Fail)"
+    echo "  11) B read from B topic"
+    echo "  12) B read from X topic"
+    echo "================================================================"
+}
+
+get_message() {
+    read -p "Enter message to send: " USER_MSG
+}
+
+inspect_service_account() {
+    local cid=$1
+    local sec=$2
+    echo "--- Fetching UMA Ticket for $cid ---"
+    TOKEN=$(curl -s -X POST "$SSO_URL" \
+        -d "client_id=$cid" \
+        -d "client_secret=$sec" \
+        -d "grant_type=client_credentials" | jq -r .access_token)
+    
+    curl -s -X POST "$SSO_URL" \
+        -H "Authorization: Bearer $TOKEN" \
+        -d "grant_type=urn:ietf:params:oauth:grant-type:uma-ticket" \
+        -d "audience=kafka" | jq -R 'split(".") | .[1] | @base64d | fromjson' | jq .
+}
+
+inspect_user_uma() {
+    local user=$1
+    local pass=$2
+    local audience=$3
+
+    if [ -z "$pass" ]; then
+        read -s -p "Enter password for $user: " pass
+        echo ""
+    fi
+
+    echo "--- User UMA Exchange for $user (Audience: $audience) ---"
+    echo -e "\n1. Getting Access Token..."
+    
+    USER_TOKEN=$(curl -s -X POST "$SSO_URL" \
+        -d "grant_type=password" \
+        -d "client_id=kafka-cli" \
+        -d "client_secret=$KAFKA_CLI_SECRET" \
+        -d "username=$user" \
+        -d "password=$pass" | jq -r .access_token)
+
+    if [ "$USER_TOKEN" == "null" ] || [ -z "$USER_TOKEN" ]; then
+        echo "Error: Authentication failed."
+        return
+    fi
+
+    echo "2. Exchanging for UMA Permissions Ticket..."
+    curl -s -X POST "$SSO_URL" \
+        -H "Authorization: Bearer $USER_TOKEN" \
+        -d "grant_type=urn:ietf:params:oauth:grant-type:uma-ticket" \
+        -d "audience=$audience" | jq -R 'split(".") | .[1] | @base64d | fromjson' | jq .
+}
+
+# --- Bridge Helper Functions ---
+
+get_bridge_token() {
+    curl -s -X POST "$SSO_URL" \
+        -d "client_id=kafka-bridge" \
+        -d "client_secret=$BRIDGE_SECRET" \
+        -d "grant_type=client_credentials" | jq -r .access_token
+}
+
+bridge_produce() {
+    local topic=$1
+    read -p "Enter message for Bridge: " msg
+    TOKEN=$(get_bridge_token)
+    
+    echo "Sending to Bridge..."
+    curl -s -X POST "$BRIDGE_URL/topics/$topic" \
+        -H "Authorization: Bearer $TOKEN" \
+        -H "content-type: application/vnd.kafka.json.v2+json" \
+        -d "{
+            \"records\": [
+                {
+                    \"value\": \"$msg\"
+                }
+            ]
+        }"
+}
+
+bridge_create_consumer() {
+    TOKEN=$(get_bridge_token)
+    echo "Creating Bridge Consumer in group 'bridge-group'..."
+    curl -s -X POST "$BRIDGE_URL/consumers/bridge-group" \
+        -H "Authorization: Bearer $TOKEN" \
+        -H "content-type: application/vnd.kafka.v2+json" \
+        -d '{
+            "name": \"$A_CONSUMER_GROUP\",
+            "format": "json",
+            "auto.offset.reset": "earliest",
+            "enable.auto.commit": false
+        }'
+    
+    echo -e "\nSubscribing to $A_TOPIC..."
+    curl -s -X POST "$BRIDGE_URL/consumers/bridge-group/instances/bridge-consumer-instance/subscription" \
+        -H "Authorization: Bearer $TOKEN" \
+        -H "content-type: application/vnd.kafka.v2+json" \
+        -d "{ \"topics\": [\"$A_TOPIC\"] }"
+}
+
+bridge_read() {
+    TOKEN=$(get_bridge_token)
+    echo "Fetching messages via Bridge..."
+    curl -s -X GET "$BRIDGE_URL/consumers/bridge-group/instances/$A_CONSUMER_GROUP/records" \
+        -H "Authorization: Bearer $TOKEN" \
+        -H "accept: application/vnd.kafka.json.v2+json"
+}
+
+while true; do
+    show_menu
+    read -p "Option: " opt
+    case $opt in
+        t1) inspect_service_account "team-a-client" "$A_SECRET" ;;
+        t2) inspect_service_account "team-b-client" "$B_SECRET" ;;
+        t3) inspect_user_uma $ALICE_PASSWORD $ALICE_PASSWORD "kafka-cli" ;;
+        t4) inspect_user_uma $BOB_USERNAME $BOB_PASSWORD "kafka-cli" ;;
+        b1) bridge_produce "$A_TOPIC" ;;
+        b2) bridge_create_consumer ;;
+        b3) bridge_read ;;
+        1) get_message; echo "$USER_MSG" | $PRODUCER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $A_TOPIC --producer.config $TEAM_A_PROPERTIES_FILE --producer-property enable.idempotence=false ;;
+        2) get_message; echo "$USER_MSG" | $PRODUCER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $B_TOPIC --producer.config $TEAM_A_PROPERTIES_FILE --producer-property enable.idempotence=false ;;
+        3) get_message; echo "$USER_MSG" | $PRODUCER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $A_TOPIC --producer.config $TEAM_B_PROPERTIES_FILE --producer-property enable.idempotence=false ;;
+        4) get_message; echo "$USER_MSG" | $PRODUCER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $B_TOPIC --producer.config $TEAM_B_PROPERTIES_FILE --producer-property enable.idempotence=false ;;
+        5) get_message; echo "$USER_MSG" | $PRODUCER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $X_TOPIC --producer.config $TEAM_A_PROPERTIES_FILE --producer-property enable.idempotence=false ;;
+        6) get_message; echo "$USER_MSG" | $PRODUCER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $X_TOPIC --producer.config $TEAM_B_PROPERTIES_FILE --producer-property enable.idempotence=false ;;
+        7) $CONSUMER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $A_TOPIC --from-beginning --consumer.config $TEAM_A_PROPERTIES_FILE --group $A_CONSUMER_GROUP ;;
+        8) $CONSUMER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $B_TOPIC --from-beginning --consumer.config $TEAM_A_PROPERTIES_FILE --group $A_CONSUMER_GROUP ;;
+        9) $CONSUMER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $X_TOPIC --from-beginning --consumer.config $TEAM_A_PROPERTIES_FILE --group $X_CONSUMER_GROUP_TEAM_A ;;
+        10) $CONSUMER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $A_TOPIC --from-beginning --consumer.config $TEAM_B_PROPERTIES_FILE --group $B_CONSUMER_GROUP ;;
+        11) $CONSUMER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $B_TOPIC --from-beginning --consumer.config $TEAM_B_PROPERTIES_FILE --group $B_CONSUMER_GROUP ;;
+        12) $CONSUMER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $X_TOPIC --from-beginning --consumer.config $TEAM_B_PROPERTIES_FILE --group $X_CONSUMER_GROUP_TEAM_B ;;
+        13) $LIST_TOPICS --bootstrap-server $BOOTSTRAP_SERVER_ADDR --command-config $TEAM_A_PROPERTIES_FILE --list ;;
+        14) $LIST_TOPICS --bootstrap-server $BOOTSTRAP_SERVER_ADDR --command-config $TEAM_B_PROPERTIES_FILE --list ;;
+        15) $LIST_CONSUMER_GROUPS --bootstrap-server $BOOTSTRAP_SERVER_ADDR --command-config $TEAM_A_PROPERTIES_FILE --list ;;
+        16) $LIST_CONSUMER_GROUPS --bootstrap-server $BOOTSTRAP_SERVER_ADDR --command-config $TEAM_B_PROPERTIES_FILE --list ;;
+        q) exit 0 ;;
+        *) echo "Invalid option" ;;
+    esac
+    echo -e "\nPress Enter to continue..."
+    read
+done
