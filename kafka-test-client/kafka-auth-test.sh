@@ -11,13 +11,13 @@ DISABLE_IDEMPOTENCE="--producer-property enable.idempotence=false"
 # User Info
 ALICE_USERNAME="alice"
 BOB_USERNAME="bob"
-ALICE_PASSWORD="cxWO3A47skPSXXw7"
-BOB_PASSWORD="w7wa5ptDuUaobhaA"
+ALICE_PASSWORD=""
+BOB_PASSWORD=""
 
 # Team Info
-A_SECRET="3Ob7HjCZdGROqjfhrq7IdEedlaS2CyHh"
-B_SECRET="EhhD3dWmkhPaniHUYcQlEGxOwYxht0Um"
-KAFKA_CLI_SECRET="Bf0FT54lQWaHP8QscXiHwdgIxp7BoXni"
+A_SECRET=""
+B_SECRET=""
+KAFKA_CLI_SECRET=""
 
 # Property Files
 TEAM_A_PROPERTIES_FILE="/opt/a-team-client.properties"
