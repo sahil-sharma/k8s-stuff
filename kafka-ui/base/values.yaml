@@ -54,7 +54,7 @@ yamlApplicationConfig:
           client-name: SSO
           provider: keycloak
           redirect-uri: http://kafka-ui.local.io:32080/login/oauth2/code/keycloak
-          issuer-uri: http://sso.local.io:32080/realms/kafka-authz
+          issuer-uri: http://sso.local.io:32080/realms/platform
           user-name-attribute: preferred_username
           custom-params:
             type: oauth
@@ -68,7 +68,7 @@ yamlApplicationConfig:
         subjects:
           - provider: oauth
             type: role
-            value: kafka-admin
+            value: ui-readwrite
         permissions:
           - resource: applicationconfig
             actions: all
@@ -99,7 +99,7 @@ yamlApplicationConfig:
         subjects:
           - provider: oauth
             type: role
-            value: kafka-readonly
+            value: ui-readonly
         permissions:
           - resource: clusterconfig
             actions: [ "view" ]
