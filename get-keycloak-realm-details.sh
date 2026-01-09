@@ -24,7 +24,6 @@ terraform output -state="${PLATFORM_STATE}" -json clients | jq -r '
   "export " + (.key | ascii_upcase | gsub("-"; "_")) + "_CLIENT_SECRET=\"" + .value + "\"\n"
 ' >> "${OUTPUT_FILE}"
 
-echo ""
 # Platform users
 terraform output -state="${PLATFORM_STATE}" -json users | jq -r '
   to_entries[] |
