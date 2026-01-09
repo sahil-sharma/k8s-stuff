@@ -3,7 +3,7 @@ kind: Kustomization
 
 resources:
   # - namespace.yaml
-  - deploy-cluster.yaml
+  - cluster.yaml
   - topic.yaml
   # - user.yaml                                     # Users will be picked up from Keycloak
   - metrics-configmap.yaml
