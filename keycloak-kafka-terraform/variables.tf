@@ -50,9 +50,12 @@ variable "clients" {
     service_account_roles        = optional(list(string), [])
     valid_redirect_uris          = optional(list(string), [])
     mappers = optional(list(object({
-      name       = string
-      type       = string # Expected: "groups", "realm-roles", or "client-roles"
-      claim_name = string
+      name                     = string
+      type                     = string # Expected: "groups", "realm-roles", or "client-roles"
+      claim_name               = string
+      included_custom_audience = optional(string)
+      add_to_id_token          = optional(bool, true)
+      add_to_access_token      = optional(bool, true)
     })), [])
   }))
 }
@@ -110,3 +113,29 @@ variable "kafka_permissions" {
     scopes    = list(string) # Empty if type is 'resource'
   }))
 }
+
+# variable "idp_realm_name" {
+#   description = "The IdP Realm Name"
+#   type        = string
+# }
+
+# variable "idp_client_id" {
+#   description = "The client id for the broker client created in the platform realm"
+#   type        = string
+# }
+
+# variable "idp_client_secret" {
+#   description = "The client secret for the broker client created in the platform realm"
+#   type        = string
+#   sensitive   = true
+# }
+
+# variable "idp_mappings" {
+#   description = "Mapping of roles from the Platform realm to the Kafka-Authz realm"
+#   type = list(object({
+#     name          = string
+#     idp_role_name = string
+#     target_role   = string
+#   }))
+#   default = []
+# }
