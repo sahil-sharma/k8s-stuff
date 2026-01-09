@@ -6,7 +6,7 @@ set -euo pipefail
 SSO_URL="http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token"
 BRIDGE_URL="http://kafka.local.io:32080"
 BRIDGE_ID="kafka-bridge"
-BRIDGE_SECRET="O0QUpNEYmYadf3CScsPUmoIYnII5vvKa"
+BRIDGE_SECRET=""
 
 # Topics
 A_TOPIC="a_topic"
