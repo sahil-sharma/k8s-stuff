@@ -22,7 +22,9 @@ resource "keycloak_openid_client" "clients" {
   dynamic "authorization" {
     for_each = each.value.authorization_enabled ? [1] : []
     content {
-      policy_enforcement_mode = "ENFORCING"
+      policy_enforcement_mode          = "ENFORCING"
+      decision_strategy                = "AFFIRMATIVE"
+      allow_remote_resource_management = true
     }
   }
 }
