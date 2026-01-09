@@ -18,6 +18,7 @@ resources:
   - gateway.yaml
   - virtualservice.yaml
   - peer-authentication.yaml
+  - grafana-external-secret.yaml
 
 helmCharts:
   - name: grafana
