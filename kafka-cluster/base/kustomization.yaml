@@ -2,11 +2,14 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - clusters/
-  # - externalsecrets/
-
-# Apply ordering:
-# Helm (Kafka) -> then ExternalSecret (depends on Kafka SA)
-# Kustomize itself doesn't enforce order during build,
-# but you can apply with kubectl using the right sequence:
-# kubectl apply -k . --prune --wait=false
+  # - namespace.yaml
+  - deploy-cluster.yaml
+  - topic.yaml
+  # - user.yaml                                     # Users will be picked up from Keycloak
+  - metrics-configmap.yaml
+  - metrics-service.yaml
+  - bridge.yaml
+  - bridge-metrics-configmap.yaml
+  - bridge-virtualservice.yaml
+  - bridge-gateway.yaml
+  - bridge-sso-external-secret.yaml
