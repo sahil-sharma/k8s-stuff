@@ -82,42 +82,66 @@ resource "keycloak_openid_client_authorization_permission" "permissions" {
   ]
 }
 
-# # Create the Identity Provider link to Platform Realm
-# resource "keycloak_oidc_identity_provider" "platform_idp" {
-#   realm        = keycloak_realm.realm.id
-#   alias        = "${var.idp_realm_name}-idp"
-#   display_name = "${upper(var.idp_realm_name)} Login"
-#   enabled      = true
-#   store_token  = false # Set to true if you need the original platform token
-#   trust_email  = true
+# Create the Identity Provider link to Platform Realm
+resource "keycloak_oidc_identity_provider" "platform_idp" {
+  realm        = keycloak_realm.realm.id
+  alias        = "platform-idp" # Hardcoded alias to match valid_redirect_uris in platform
+  display_name = "${upper(var.idp_realm_name)} Login"
+  enabled      = true
+  store_token  = false
+  trust_email  = true
 
-#   authorization_url = "${var.keycloak_url}/realms/${var.idp_realm_name}/protocol/openid-connect/auth"
-#   token_url         = "${var.keycloak_url}/realms/${var.idp_realm_name}/protocol/openid-connect/token"
-#   logout_url        = "${var.keycloak_url}/realms/${var.idp_realm_name}/protocol/openid-connect/logout"
-#   user_info_url     = "${var.keycloak_url}/realms/${var.idp_realm_name}/protocol/openid-connect/userinfo"
-#   issuer            = "${var.keycloak_url}/realms/${var.idp_realm_name}"
+  authorization_url = "${var.keycloak_url}/realms/${var.idp_realm_name}/protocol/openid-connect/auth"
+  token_url         = "${var.keycloak_url}/realms/${var.idp_realm_name}/protocol/openid-connect/token"
+  logout_url        = "${var.keycloak_url}/realms/${var.idp_realm_name}/protocol/openid-connect/logout"
+  user_info_url     = "${var.keycloak_url}/realms/${var.idp_realm_name}/protocol/openid-connect/userinfo"
+  issuer            = "${var.keycloak_url}/realms/${var.idp_realm_name}"
 
-#   # These come from the client you just added to the platform realm
-#   client_id     = var.idp_client_id
-#   client_secret = var.idp_client_secret
+  client_id     = var.idp_client_id
+  client_secret = var.idp_client_secret
 
-#   default_scopes = "openid profile email roles"
+  default_scopes = "openid profile email roles"
 
-#   # Skips the 'Review Profile' screen on first login
-#   first_broker_login_flow_alias = "first broker login"
-#   sync_mode                     = "FORCE"
-# }
+  first_broker_login_flow_alias = "first broker login"
+  sync_mode                     = "FORCE"
+}
 
-# # Map Platform Roles to Kafka-Authz Roles automatically
-# resource "keycloak_custom_identity_provider_mapper" "role_mappers" {
-#   for_each                 = { for m in var.idp_mappings : m.name => m }
-#   realm                    = keycloak_realm.realm.id
-#   name                     = each.value.name
-#   identity_provider_alias  = keycloak_oidc_identity_provider.platform_idp.alias
-#   identity_provider_mapper = "oidc-role-idp-mapper"
+resource "keycloak_custom_identity_provider_mapper" "role_mappers" {
+  for_each = { for m in var.idp_mappings : m.name => m }
 
-#   extra_config = {
-#     "claim.value" = each.value.idp_role_name
-#     "target.role" = each.value.target_role
-#   }
-# }
+  realm                    = keycloak_realm.realm.id
+  name                     = each.value.name
+  identity_provider_alias  = keycloak_oidc_identity_provider.platform_idp.alias
+  identity_provider_mapper = "oidc-role-idp-mapper"
+
+  extra_config = {
+    syncMode      = "FORCE"
+    "claim"       = "groups" # This matches 'realm_role_claim_name' from platform
+    "claim.value" = each.value.idp_role_name
+    "role"        = each.value.target_role
+  }
+}
+
+# Create a custom flow that forces the redirect
+resource "keycloak_authentication_flow" "redirect_flow" {
+  realm_id = keycloak_realm.realm.id
+  alias    = "platform-redirect-flow"
+}
+
+resource "keycloak_authentication_execution" "redirect_execution" {
+  realm_id          = keycloak_realm.realm.id
+  parent_flow_alias = keycloak_authentication_flow.redirect_flow.alias
+  authenticator     = "identity-provider-redirector"
+  requirement       = "ALTERNATIVE"
+}
+
+# Configure the Execution to use your Platform IdP
+resource "keycloak_authentication_execution_config" "redirect_config" {
+  realm_id     = keycloak_realm.realm.id
+  execution_id = keycloak_authentication_execution.redirect_execution.id
+  alias        = "platform-redirect-config"
+  config = {
+    # This MUST match the alias of your keycloak_oidc_identity_provider
+    "defaultProvider" = "platform-idp"
+  }
+}
