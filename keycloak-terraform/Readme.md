@@ -56,7 +56,12 @@ keycloak_url                  = "http://sso.local.io:32080"
 keycloak_admin_login_username = "admin"
 keycloak_admin_login_password = "admin123"
 
-realm_name = "platform"
+realm_config = {
+  realm        = "platform",
+  display_name = "Platform Realm by Terraform",
+  enabled      = true,
+  ssl_required = "external"
+}
 
 clients = [
   {
@@ -65,8 +70,12 @@ clients = [
     root_url                        = "http://cd.local.io:32080"
     valid_redirect_uris             = ["http://cd.local.io:32080/auth/callback"]
     valid_post_logout_redirect_uris = ["http://cd.local.io:32080"]
-    roles                           = ["admin", "editor", "viewer"]
+    roles                           = ["admin", "readwrite", "readonly"]
     web_origins                     = ["+"]
+    enable_authorization            = true
+    enable_direct_grant             = true
+    enable_service_account          = true
+    enable_standard_flow            = true
   },
   {
     client_id                       = "secrets"
@@ -74,8 +83,12 @@ clients = [
     root_url                        = "http://secrets.local.io:32080"
     valid_redirect_uris             = ["http://secrets.local.io:32080/ui/vault/auth/oidc/oidc/callback", "http://secrets.local.io:32080/oidc/oidc/callback"]
     valid_post_logout_redirect_uris = ["http://secrets.local.io:32080"]
-    roles                           = ["admin", "editor", "viewer", "reader"]
+    roles                           = ["admin", "readwrite", "readonly"]
     web_origins                     = ["+"]
+    enable_authorization            = true
+    enable_direct_grant             = true
+    enable_service_account          = true
+    enable_standard_flow            = true
   },
   {
     client_id                       = "argo-workflow"
@@ -83,8 +96,13 @@ clients = [
     root_url                        = "http://jobs.local.io:32080"
     valid_redirect_uris             = ["http://jobs.local.io:32080/oauth2/callback"]
     valid_post_logout_redirect_uris = ["http://jobs.local.io:32080/workflows"]
-    roles                           = ["admin", "editor", "viewer"]
+    roles                           = ["admin", "readwrite", "readonly"]
     web_origins                     = ["+"]
+    enable_authorization            = true
+    enable_direct_grant             = true
+    enable_service_account          = true
+    enable_standard_flow            = true
+
   },
   {
     client_id                       = "grafana"
@@ -92,8 +110,12 @@ clients = [
     root_url                        = "http://dashboards.local.io:32080"
     valid_redirect_uris             = ["http://dashboards.local.io:32080/login/generic_oauth"]
     valid_post_logout_redirect_uris = ["http://dashboards.local.io:32080"]
-    roles                           = ["admin", "editor", "viewer"]
+    roles                           = ["admin", "readwrite", "readonly"]
     web_origins                     = ["+"]
+    enable_authorization            = true
+    enable_direct_grant             = true
+    enable_service_account          = true
+    enable_standard_flow            = true
   },
   {
     client_id                       = "auth"
@@ -101,17 +123,12 @@ clients = [
     root_url                        = "http://auth.local.io:32080"
     valid_redirect_uris             = ["http://auth.local.io:32080/oauth2/callback"]
     valid_post_logout_redirect_uris = ["http://auth.local.io:32080"]
-    roles                           = ["admin", "editor", "viewer"]
+    roles                           = ["admin", "readwrite", "readonly"]
     web_origins                     = ["+"]
-  },
-  {
-    client_id                       = "idp"
-    name                            = "Backstage IDP"
-    root_url                        = "http://idp.local.io:32080"
-    valid_redirect_uris             = ["http://idp.local.io:32080/oauth2/callback"]
-    valid_post_logout_redirect_uris = ["http://idp.local.io:32080"]
-    roles                           = ["admin", "editor", "viewer"]
-    web_origins                     = ["+"]
+    enable_authorization            = true
+    enable_direct_grant             = true
+    enable_service_account          = true
+    enable_standard_flow            = true
   },
   {
     client_id                       = "storage"
@@ -119,17 +136,58 @@ clients = [
     root_url                        = "http://console.storage.local.io:32080"
     valid_redirect_uris             = ["*"]
     valid_post_logout_redirect_uris = ["http://console.storage.local.io:32080"]
-    roles                           = ["admin", "editor", "viewer"]
+    roles                           = ["consoleAdmin", "readwrite", "readonly"]
     web_origins                     = ["+"]
+    token_claim_name                = "storage"
+    enable_authorization            = true
+    enable_direct_grant             = true
+    enable_service_account          = true
+    enable_standard_flow            = true
+  },
+  {
+    client_id                       = "kiali"
+    name                            = "Kiali Client"
+    root_url                        = "http://traffic.local.io:32080"
+    valid_redirect_uris             = ["http://traffic.local.io:32080/*"]
+    valid_post_logout_redirect_uris = []
+    roles                           = ["admin", "readwrite", "readonly"]
+    web_origins                     = ["+"]
+    enable_authorization            = true
+    enable_direct_grant             = true
+    enable_service_account          = true
+    enable_standard_flow            = true
+  },
+  {
+    client_id            = "kafka-authz-idp-broker"
+    name                 = "Broker for Kafka Authz Realm"
+    enabled              = true
+    enable_standard_flow = true
+    # Confidential is required for IdP Brokering
+    access_type = "CONFIDENTIAL"
+    # This must match the alias we use in the kafka-authz side
+    valid_redirect_uris   = ["http://sso.local.io:32080/realms/kafka-authz/broker/platform-idp/endpoint"]
+    web_origins           = ["+"]
+    realm_role_claim_name = "groups"
+    mappers = [
+      {
+        name                = "realm-role-mapper"
+        type                = "realm-roles"
+        claim_name          = "groups" # Kafka-Authz will look for this claim
+        add_to_id_token     = true
+        add_to_access_token = true
+      }
+    ]
   },
 ]
 
 groups = ["devops", "engineering", "data"]
 
+realm_roles = ["admin", "readwrite", "readonly", "consoleAdmin"]
+
 group_realm_roles = {
-  "devops"      = ["admin"],
-  "engineering" = ["editor"],
-  "data"        = ["viewer"]
+  "devops"      = ["admin", "consoleAdmin"],
+  "engineering" = ["readwrite"],
+  "data"        = ["readonly"]
 }
 
 users = [
@@ -140,12 +198,13 @@ users = [
     last_name  = "User"
     groups     = ["engineering"]
     roles = {
-      "argocd"  = ["editor"]
-      "secrets" = ["reader"]
-      "grafana" = ["editor"]
-      "auth"    = ["editor"]
-      "argo-workflow" = ["editor"]
-      "storage" = ["editor"]
+      "argocd"        = ["readwrite"]
+      "secrets"       = ["readonly"]
+      "grafana"       = ["readwrite"]
+      "auth"          = ["readwrite"]
+      "argo-workflow" = ["readwrite"]
+      "storage"       = ["readwrite"]
+      "kiali"         = ["readwrite"]
     }
   },
   {
@@ -155,12 +214,14 @@ users = [
     last_name  = "User"
     groups     = ["devops"]
     roles = {
-      "argocd"  = ["admin"]
-      "secrets" = ["admin"]
-      "grafana" = ["admin"]
-      "auth"    = ["admin"]
+      "argocd"        = ["admin"]
+      "secrets"       = ["admin"]
+      "grafana"       = ["admin"]
+      "auth"          = ["admin"]
       "argo-workflow" = ["admin"]
-      "storage" = ["admin"]
+      "storage"       = ["admin"]
+      "storage"       = ["consoleAdmin"]
+      "kiali"         = ["admin"]
     }
   },
   {
@@ -170,22 +231,23 @@ users = [
     last_name  = "User"
     groups     = ["data"]
     roles = {
-      "argocd"  = ["viewer"]
-      "secrets" = ["reader"]
-      "grafana" = ["viewer"]
-      "auth"    = ["viewer"]
-      "argo-workflow" = ["viewer"]
-      "storage" = ["viewer"]
-    },
-    {
-      username   = "sam"
-      email      = "sam@local.io"
-      first_name = "Sam"
-      last_name  = "User"
-      groups     = []
-      roles      = {}
-    },
-  }
+      "argocd"        = ["readonly"]
+      "secrets"       = ["readonly"]
+      "grafana"       = ["readonly"]
+      "auth"          = ["readonly"]
+      "argo-workflow" = ["readonly"]
+      "storage"       = ["readonly"]
+      "kiali"         = ["readonly"]
+    }
+  },
+  {
+    username   = "sam"
+    email      = "sam@local.io"
+    first_name = "Sam"
+    last_name  = "User"
+    groups     = []
+    roles      = {}
+  },
 ]
 ```
 
