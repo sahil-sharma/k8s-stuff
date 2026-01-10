@@ -114,28 +114,28 @@ variable "kafka_permissions" {
   }))
 }
 
-# variable "idp_realm_name" {
-#   description = "The IdP Realm Name"
-#   type        = string
-# }
+variable "idp_realm_name" {
+  description = "The IdP Realm Name"
+  type        = string
+}
 
-# variable "idp_client_id" {
-#   description = "The client id for the broker client created in the platform realm"
-#   type        = string
-# }
+variable "idp_client_id" {
+  description = "The client id for the broker client created in the platform realm"
+  type        = string
+}
 
-# variable "idp_client_secret" {
-#   description = "The client secret for the broker client created in the platform realm"
-#   type        = string
-#   sensitive   = true
-# }
+variable "idp_client_secret" {
+  description = "The client secret for the broker client created in the platform realm"
+  type        = string
+  sensitive   = true
+}
 
-# variable "idp_mappings" {
-#   description = "Mapping of roles from the Platform realm to the Kafka-Authz realm"
-#   type = list(object({
-#     name          = string
-#     idp_role_name = string
-#     target_role   = string
-#   }))
-#   default = []
-# }
+variable "idp_mappings" {
+  description = "Mapping of roles from the Platform realm to the Kafka-Authz realm"
+  type = list(object({
+    name          = string
+    idp_role_name = string
+    target_role   = string
+  }))
+  default = []
+}

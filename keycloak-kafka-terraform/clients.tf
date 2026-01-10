@@ -27,6 +27,10 @@ resource "keycloak_openid_client" "clients" {
       allow_remote_resource_management = true
     }
   }
+
+  authentication_flow_binding_overrides {
+    browser_id = each.key == "kafka-ui" ? keycloak_authentication_flow.redirect_flow.id : null
+  }
 }
 
 # 3. Service Account Role Mappings (e.g., team-a-client gets "Dev Team A")
