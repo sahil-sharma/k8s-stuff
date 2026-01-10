@@ -97,6 +97,3 @@ resource "keycloak_generic_protocol_mapper" "client_roles_mapper" {
     "aggregate.attrs"      = "false"
   }
 }
-
-
-
