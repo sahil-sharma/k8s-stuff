@@ -31,7 +31,20 @@ yamlApplicationConfig:
           socket.connection.setup.timeout.ms: 30000
           sasl.jaas.config: >
             org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required
-              oauth.token.endpoint.uri="
+              clientId="${KAFKA_CLIENT_ID}"
+              clientSecret="${KAFKA_CLIENT_SECRET}"
+              scope="openid";
+      - name: cluster-1
+        bootstrapServers: cluster-1-kafka-bootstrap.kafka-operator.svc:9092
+        properties:
+          security.protocol: SASL_PLAINTEXT
+          sasl.mechanism: OAUTHBEARER
+          sasl.oauthbearer.token.endpoint.url: http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token
+          sasl.login.callback.handler.class: org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler
+          socket.connection.setup.timeout.max.ms: 30000
+          socket.connection.setup.timeout.ms: 30000
+          sasl.jaas.config: >
+            org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required
               clientId="${KAFKA_CLIENT_ID}"
               clientSecret="${KAFKA_CLIENT_SECRET}"
               scope="openid";
@@ -50,11 +63,11 @@ yamlApplicationConfig:
         keycloak:
           clientId: ${KAFKA_UI_CLIENT_ID}
           clientSecret: ${KAFKA_UI_CLIENT_SECRET}
-          scope: openid
+          scope: openid,roles
           client-name: SSO
           provider: keycloak
           redirect-uri: http://kafka-ui.local.io:32080/login/oauth2/code/keycloak
-          issuer-uri: http://sso.local.io:32080/realms/platform
+          issuer-uri: http://sso.local.io:32080/realms/kafka-authz
           user-name-attribute: preferred_username
           custom-params:
             type: oauth
@@ -65,10 +78,14 @@ yamlApplicationConfig:
       - name: "admins"
         clusters:
           - my-cluster
+          - cluster-1
         subjects:
           - provider: oauth
             type: role
             value: ui-readwrite
+          - provider: oauth
+            type: role
+            value: Ops Team
         permissions:
           - resource: applicationconfig
             actions: all
@@ -96,10 +113,17 @@ yamlApplicationConfig:
       - name: "readonly"
         clusters:
           - my-cluster
+          - cluster-1
         subjects:
           - provider: oauth
             type: role
             value: ui-readonly
+          - provider: oauth
+            type: role
+            value: Dev Team A
+          - provider: oauth
+            type: role
+            value: Dev Team B
         permissions:
           - resource: clusterconfig
             actions: [ "view" ]
