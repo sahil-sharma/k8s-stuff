@@ -20,7 +20,7 @@ controller:
   enabled: true
   workflowNamespaces:
     - default
-    - welcome-app
+    # - welcome-app
     # - data-app
   serviceAccount:
     create: true
@@ -36,7 +36,7 @@ server:
   authModes:
     - sso
   ingress:
-    enabled: true
+    enabled: false
     ingressClassName: nginx
     hosts:
       - jobs.local.io

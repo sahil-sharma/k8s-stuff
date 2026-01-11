@@ -1,0 +1,11 @@
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: mtls-disable
+  namespace: argo-workflows
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argo-workflow
+  mtls:
+    mode: DISABLE
