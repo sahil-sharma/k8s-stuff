@@ -1,8 +1,8 @@
 config:
-  clientID: auth
-  clientSecret: ""
+  clientID: $CLIENT_ID
+  clientSecret: $CLIENT_SECRET
   cookieSecure: false
-  cookieSecret: ""
+  cookieSecret: $COOKIE_SECRET
   configFile: |-
     email_domains = ["local.io"]
     provider = "oidc"
@@ -28,6 +28,10 @@ config:
     cookie_domains = [".local.io"]
     pass_authorization_header = true
 
+envFrom:
+  - secretRef:
+      name: oauth-sso-secret
+
 redis:
   enabled: false
 
@@ -40,7 +44,7 @@ redis:
 #       connectionUrl: "redis://cache.local.io:32379"
 
 ingress:
-  enabled: true
+  enabled: false
   path: /
   pathType: Prefix
   className: nginx
