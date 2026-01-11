@@ -38,7 +38,7 @@ server:
     secret.reloader.stakater.com/reload: "argo-cd-sso-secret"
 
   ingress:
-    enabled: true
+    enabled: false
     tls: false
     ingressClassName: nginx
     annotations:
