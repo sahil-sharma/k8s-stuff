@@ -6,6 +6,10 @@ generatorOptions:
 
 resources:
   - namespace.yaml
+  - argo-cd-sso-secret.yaml
+  - gateway.yaml
+  - virtualservice.yaml
+  - peer-authentication.yaml
 
 helmCharts:
   - name: argo-cd
