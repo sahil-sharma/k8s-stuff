@@ -7,6 +7,10 @@ generatorOptions:
 resources:
   - namespace.yaml
   - argo-workflows-teams-rbac.yaml
+  - argo-workflows-sso-secret.yaml
+  - gateway.yaml
+  - virtualservice.yaml
+  - peer-authentication.yaml
 
 helmCharts:
   - name: argo-workflows
