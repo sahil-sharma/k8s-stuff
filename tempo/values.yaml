@@ -1,0 +1,14 @@
+tempo:
+  metricsGenerator:
+    enabled: true
+    remoteWriteUrl: "http://metrics.local.io:32080/api/v1/write"
+
+  storage:
+    trace:
+      backend: local
+      local:
+        path: /var/tempo/traces
+
+  persistence:
+    enabled: true
+    size: 1Gi
