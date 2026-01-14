@@ -65,6 +65,11 @@ grafana.ini:
     enabled: false
   server:
     root_url: http://dashboards.local.io:32080
+  # Tested for Kiali linking but did not work as expected
+  # security:
+  #   allow_embedding: true
+  #   cookie_samesite: none
+  #   cookie_secure: true
   auth.generic_oauth:
     enabled: true
     name: SSO
