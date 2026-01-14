@@ -10,8 +10,8 @@ helm repo add prometheus https://prometheus-community.github.io/helm-charts
 helm repo update
 
 # Install Prometheus
-helm upgrade --install prometheus prometheus/prometheus -n prometheus -f values.yaml --create-namespace
+k kustomize . --enable-helm --load-restrictor=LoadRestrictionsNone | k apply -f -
 
 # Uninstall Prometheus
-helm uninstall prometheus -n prometheus
+k kustomize . --enable-helm --load-restrictor=LoadRestrictionsNone | k delete -f -
 ```
