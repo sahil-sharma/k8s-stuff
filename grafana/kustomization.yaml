@@ -12,6 +12,7 @@ configMapGenerator:
       - strimzi-kafka-metrics.json
       - strimzi-kafka-bridge-metrics.json
       - strimzi-kafka-oauth-metrics.json
+      - strimzi-kafka-exporter-metrics.json
 
 resources:
   - namespace.yaml
