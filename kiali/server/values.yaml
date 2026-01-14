@@ -29,6 +29,8 @@ external_services:
   grafana:
     enabled: true
     external_url: http://dashboards.local.io:32080
+    auth:
+      type: none
 
 server:
   observability:
