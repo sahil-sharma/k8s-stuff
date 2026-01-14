@@ -67,34 +67,49 @@ server:
           export VAULT_ADDR=http://vault.vault:8200
           export KEY_FILE="/vault/init-keys.txt"
           export K8S_HOST="https://10.0.0.251"
-          export K8S_PORT="37327"
-
-          # Kafka Realm ClientId and ClientSecret
-          export KAFKA_OIDC_CLIENT_ID="kafka"
-          export KAFKA_OIDC_CLIENT_SECRET="kafka-secret"
+          export K8S_PORT="46475"
 
           # MinIO Credentials
           export MINIO_URL="http://storage.local.io:32080"
           export MINIO_ROOT_USER="admin"
           export MINIO_ROOT_PASSWORD="admin123"
+
+          # Kafka OIDC Credentials
+          export KAFKA_OIDC_CLIENT_ID="kafka"
+          export KAFKA_OIDC_CLIENT_SECRET="Ut62uJhGTDGevAJ7Gy1aFjOOGYnYhkJu"
+
+          # Kafka Bridge OIDC Credentials
+          export KAFKA_BRIDGE_OIDC_CLIENT_ID="kafka-bridge"
+          export KAFKA_BRIDGE_OIDC_CLIENT_SECRET="VIrlRtBYqEaP5hHJeZKNKUu6KsUZgiLL"
+
+          # Kafka UI OIDC Credentials
+          export KAFKA_UI_OIDC_CLIENT_ID="kafka-ui"
+          export KAFKA_UI_OIDC_CLIENT_SECRET="wGa0Gn8OdKOgX2I5nxURB6LE9UY7D4Fh"
           
           export VAULT_OIDC_CLIENT_ID="secrets"
-          export VAULT_OIDC_CLIENT_SECRET="ivAlJ6vREFe0oMiYt4OmcYBxOzgOzi6I"
+          export VAULT_OIDC_CLIENT_SECRET="O5QNO5mmaIXlqwdi0NVxUqlLAOgqLZTA"
 
           export ARGOCD_OIDC_CLIENT_ID="argocd"
-          export ARGOCD_OIDC_CLIENT_SECRET=""
+          export ARGOCD_OIDC_CLIENT_SECRET="ct9KYqDceriYjWolKDWCTSFJWUWqftHv"
 
           export GRAFANA_OIDC_CLIENT_ID="grafana"
-          export GRAFANA_OIDC_CLIENT_SECRET="2vKykjw2hY5zhwtIb5mDjYLe60CBwkWX"
+          export GRAFANA_OIDC_CLIENT_SECRET="IburG41N5WmSoBNQlQrnnIW7xkoGcZDR"
 
           export AUTH_OIDC_CLIENT_ID="auth"
-          export AUTH_OIDC_CLIENT_SECRET=""
+          export AUTH_OIDC_CLIENT_SECRET="OI5zZsrVl47VRRdraL9ASAQWiAkbRVCG"
+          export AUTH_COOKIE_SECRET="IUz0C4oWNQCKDTcCk3mfxfpOrRryLfEmFG2aJuOwZVE="
 
           export MINIO_OIDC_CLIENT_ID="storage"
-          export MINIO_OIDC_CLIENT_SECRET=""
+          export MINIO_OIDC_CLIENT_SECRET="of8kL0Xvo8f2qNmhJhb5pTSEVOQMEjHu"
 
           export ARGO_WORKFLOW_OIDC_CLIENT_ID="argo-workflow"
-          export ARGO_WORKFLOW_OIDC_CLIENT_SECRET=""
+          export ARGO_WORKFLOW_OIDC_CLIENT_SECRET="Ziqwb4NLIMEFbr1nf1KzH9BXVZgzeQAH"
+
+          export KIALI_OIDC_CLIENT_ID="kiali"
+          export KIALI_OIDC_CLIENT_SECRET="gz9d5pBiCK76OoyHuz8RSSCF4ZuqlasG"
+
+          export KAFKA_AUTHZ_IDP_CLIENT_ID="kafka-authz-idp-broker"
+          export KAFKA_AUTHZ_IDP_CLIENT_SECRET="JOBncLTIbgV0rNrDYUREszoXEPCFDDen"
 
           if vault status | grep -q 'Initialized.*false'; then
             echo "Vault not initialized. Starting to initialize Vault..."
@@ -180,11 +195,23 @@ server:
             # MinIO OIDC secrets
             vault kv put sso/storage CLIENT_ID="$MINIO_OIDC_CLIENT_ID" CLIENT_SECRET="$MINIO_OIDC_CLIENT_SECRET"
 
+            # Kiali OIDC secrets
+            vault kv put sso/kiali CLIENT_ID="$KIALI_OIDC_CLIENT_ID" CLIENT_SECRET="$KIALI_OIDC_CLIENT_SECRET"
+
             # Kafka OIDC secrets
-            # vault kv put sso/kafka-oauth CLIENT_ID="$KAFKA_OIDC_CLIENT_ID" CLIENT_SECRET="$KAFKA_OIDC_CLIENT_SECRET"
+            vault kv put sso/kafka CLIENT_ID="$KAFKA_OIDC_CLIENT_ID" CLIENT_SECRET="$KAFKA_OIDC_CLIENT_SECRET"
 
             # OAuth2 Proxy OIDC secrets
-            vault kv put sso/oauth CLIENT_ID="$AUTH_OIDC_CLIENT_ID" CLIENT_SECRET="$AUTH_OIDC_CLIENT_SECRET"
+            vault kv put sso/oauth CLIENT_ID="$AUTH_OIDC_CLIENT_ID" CLIENT_SECRET="$AUTH_OIDC_CLIENT_SECRET" COOKIE_SECRET="$AUTH_COOKIE_SECRET"
+
+            # Kafka UI OIDC secrets
+            vault kv put sso/kafka-ui CLIENT_ID="$KAFKA_UI_OIDC_CLIENT_ID" CLIENT_SECRET="$KAFKA_UI_OIDC_CLIENT_SECRET"
+
+            # Kafka Bridge OIDC secrets
+            vault kv put sso/kafka-bridge CLIENT_ID="$KAFKA_BRIDGE_OIDC_CLIENT_ID" CLIENT_SECRET="$KAFKA_BRIDGE_OIDC_CLIENT_SECRET"
+
+            # Kafka Authz IDP Broker OIDC secrets
+            vault kv put sso/kafka-authz-idp CLIENT_ID="$KAFKA_AUTHZ_IDP_CLIENT_ID" CLIENT_SECRET="$KAFKA_AUTHZ_IDP_CLIENT_SECRET"
 
             echo "Writing policies (admin, reader, app, eso-read, read-metrics)"
             printf '%s\n' \
@@ -330,11 +357,11 @@ server:
               policies="eso-read" \
               audience="https://kubernetes.default.svc.cluster.local"
 
-            # vault write auth/kubernetes/role/kafka-oauth-secret-role \
-            #   bound_service_account_names="kafka-oauth-sa" \
-            #   bound_service_account_namespaces="prometheus" \
-            #   policies="eso-read" \
-            #   audience="https://kubernetes.default.svc.cluster.local"
+            vault write auth/kubernetes/role/kiali-sso-secret-role \
+              bound_service_account_names="kiali-sso-sa" \
+              bound_service_account_namespaces="kiali-operator" \
+              policies="eso-read" \
+              audience="https://kubernetes.default.svc.cluster.local"
 
             vault write auth/kubernetes/role/minio-sso-secret-role \
               bound_service_account_names="minio-sso-sa" \
@@ -356,7 +383,19 @@ server:
 
             vault write auth/kubernetes/role/oauth-sso-secret-role \
               bound_service_account_names="oauth-sso-sa" \
-              bound_service_account_namespaces="oauth" \
+              bound_service_account_namespaces="oauth2-proxy" \
+              policies="eso-read" \
+              audience="https://kubernetes.default.svc.cluster.local"
+
+            vault write auth/kubernetes/role/kafka-ui-sso-secret-role \
+              bound_service_account_names="kafka-ui-sso-sa" \
+              bound_service_account_namespaces="kafka-ui" \
+              policies="eso-read" \
+              audience="https://kubernetes.default.svc.cluster.local"
+
+            vault write auth/kubernetes/role/kafka-bridge-sso-secret-role \
+              bound_service_account_names="kafka-bridge-sso-sa" \
+              bound_service_account_namespaces="kafka-operator" \
               policies="eso-read" \
               audience="https://kubernetes.default.svc.cluster.local"
 
