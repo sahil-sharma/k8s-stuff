@@ -18,21 +18,6 @@ pushgateway:
   enabled: false
 
 server:
-  # extraSecretMounts:
-  #   - name: kafka-metrics-oauth
-  #     secretName: kafka-metrics-oauth
-  #     mountPath: /etc/prometheus/oauth
-  #     readOnly: true
-
-# This is needed to mount the OAuth token secret for scraping Kafka metrics
-  # extraVolumeMounts:
-  #   - name: oauth-token-volume
-  #     mountPath: /etc/prometheus/secrets
-  #     readOnly: true
-  # extraVolumes:
-  #   - name: oauth-token-volume
-  #     secret:
-  #       secretName: oauth-token
   persistentVolume:
     enabled: false
   service:
