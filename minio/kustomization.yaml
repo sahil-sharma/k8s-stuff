@@ -6,6 +6,13 @@ generatorOptions:
 
 resources:
   - namespace.yaml
+  - minio-root-login-external-secret.yaml
+  - minio-sso-external-secret.yaml
+  - minio-argowf-user-external-secret.yaml
+  - gateway.yaml
+  - virtualservice.yaml
+  - peer-authentication.yaml
+
 
 helmCharts:
   - name: minio

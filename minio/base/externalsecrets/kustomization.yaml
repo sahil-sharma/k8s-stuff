@@ -1,7 +1,0 @@
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-
-resources:
-  - minio-sso-external-secret.yaml
-  - minio-root-login-external-secret.yaml
-  # - minio-argowf-user-external-secret.yaml
