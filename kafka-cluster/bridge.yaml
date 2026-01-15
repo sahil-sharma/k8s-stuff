@@ -57,6 +57,10 @@ spec:
   template:
     bridgeContainer:
       env:
+        - name: OTEL_SERVICE_NAME
+          value: my-cluster-bridge
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://collector.local.io:32080"
         - name: OAUTH_CLIENT_ID
           valueFrom:
             secretKeyRef:
@@ -67,6 +71,8 @@ spec:
             secretKeyRef:
               name: kafka-bridge-sso-secret
               key: KAFKA_BRIDGE_OIDC_CLIENT_SECRET
+  tracing:
+    type: opentelemetry
   metricsConfig:
     type: jmxPrometheusExporter
     valueFrom:
