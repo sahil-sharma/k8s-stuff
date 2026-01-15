@@ -1,0 +1,46 @@
+mode: deployment
+
+# presets:
+#   clusterMetrics:
+#     enabled: true
+#   kubernetesEvents:
+#     enabled: true
+#   hostMetrics:
+#     enabled: true
+
+image:
+  repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-k8s
+  tag: "latest"
+
+config:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+
+  exporters:
+    otlphttp/tempo:
+      endpoint: http://traces.local.io:32080
+      tls:
+        insecure: true
+
+    # otlphttp/loki:
+    #   endpoint: "http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push"
+    #   tls:
+    #     insecure: true
+    #   headers:
+    #     X-Scope-OrgID: "foo"
+
+  service:
+    pipelines:
+      traces:
+        receivers: [otlp]
+        processors: [batch]
+        exporters: [otlphttp/tempo]
+      # logs:
+      #   receivers: [filelog]
+      #   processors: [batch, memory_limiter]
+      #   exporters: [otlphttp/loki]
