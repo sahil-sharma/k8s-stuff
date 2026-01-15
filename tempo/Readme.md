@@ -1,4 +1,4 @@
-## Install Prometheus
+## Install Tempo
 
 > Hostname: http://traces.local.io:32080
 
