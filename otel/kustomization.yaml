@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+resources:
+  - namespace.yaml
+  - gateway.yaml
+  - virtualservice.yaml
+  - peer-authentication.yaml
+
+helmCharts:
+  - name: opentelemetry-collector
+    releaseName: otel-collector
+    namespace: opentelemetry
+    repo: https://open-telemetry.github.io/opentelemetry-helm-charts
+    version: 0.143.0
+    valuesFile: values.yaml
