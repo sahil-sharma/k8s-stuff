@@ -27,6 +27,7 @@ RUN apk add --no-cache \
     bash \
     nano \
     ca-certificates \
+    go \
     && update-ca-certificates
 
 # ---- Java / Kafka env ----
