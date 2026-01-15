@@ -119,7 +119,7 @@ datasources:
         type: tempo
         access: proxy
         uid: tempo_uid
-        url: http://tempo.tempo:3200
+        url: http://traces.local.io:32080
         isDefault: false
         editable: true
         # jsonData:
