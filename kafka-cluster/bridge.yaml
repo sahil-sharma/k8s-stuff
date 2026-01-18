@@ -36,7 +36,7 @@
 #         name: bridge-metrics
 #         key: metrics-config.yaml
 ---
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: KafkaBridge
 metadata:
   name: my-cluster-bridge
@@ -60,7 +60,7 @@ spec:
         - name: OTEL_SERVICE_NAME
           value: my-cluster-bridge
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: "http://collector.local.io:32080"
+          value: "http://otel-collector-opentelemetry-collector.opentelemetry:4317"
         - name: OAUTH_CLIENT_ID
           valueFrom:
             secretKeyRef:

@@ -3,6 +3,7 @@ kind: Kustomization
 
 resources:
   # - namespace.yaml
+  # - peer-authentication.yaml
   - cluster.yaml
   - topic.yaml
   # - user.yaml                                     # Users will be picked up from Keycloak
@@ -13,3 +14,8 @@ resources:
   - bridge-virtualservice.yaml
   - bridge-gateway.yaml
   - bridge-sso-external-secret.yaml
+  - connect-sso-external-secret.yaml
+  - connect.yaml
+  - connect-metrics-configmap.yaml
+  - source-connector.yaml
+  - sink-connector.yaml
