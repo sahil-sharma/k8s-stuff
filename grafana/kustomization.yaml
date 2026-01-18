@@ -7,12 +7,15 @@ generatorOptions:
 namespace: grafana
 
 configMapGenerator:
-  - name: kafka-dashboards-all
+  - name: kafka-dashboards
     files:
       - strimzi-kafka-metrics.json
       - strimzi-kafka-bridge-metrics.json
       - strimzi-kafka-oauth-metrics.json
+  - name: kafka-addons-dashboards
+    files:
       - strimzi-kafka-exporter-metrics.json
+      - strimzi-kafka-connect-metrics.json
 
 resources:
   - namespace.yaml
