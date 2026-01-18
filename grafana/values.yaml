@@ -129,6 +129,10 @@ datasources:
         # secureJsonData:
         #   httpHeaderValue1: "flask-app"
 
+dashboardsConfigMaps:
+  kafka: "kafka-dashboards"
+  kafka-addons: "kafka-addons-dashboards"
+
 dashboardProviders:
   dashboardproviders.yaml:
     apiVersion: 1
@@ -145,9 +149,12 @@ dashboardProviders:
         type: file
         options:
           path: /var/lib/grafana/dashboards/kafka
-
-dashboardsConfigMaps:
-  kafka: "kafka-dashboards-all"
+      - name: 'kafka-addons-provider'
+        orgId: 1
+        folder: 'Kafka-Addons'
+        type: file
+        options:
+          path: /var/lib/grafana/dashboards/kafka-addons
 
 dashboards:
   default:
