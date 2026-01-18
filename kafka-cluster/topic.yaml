@@ -1,5 +1,5 @@
 ---
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: KafkaTopic
 metadata:
   name: x-topic
@@ -10,8 +10,10 @@ spec:
   topicName: x_topic
   partitions: 1
   replicas: 1
+  config:
+    retention.ms: 604800000
 ---
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: KafkaTopic
 metadata:
   name: a-topic
@@ -22,8 +24,10 @@ spec:
   topicName: a_topic
   partitions: 1
   replicas: 1
+  config:
+    retention.ms: 604800000
 ---
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: KafkaTopic
 metadata:
   name: b-topic
@@ -34,6 +38,8 @@ spec:
   topicName: b_topic
   partitions: 1
   replicas: 1
+  config:
+    retention.ms: 604800000
 ---
 # apiVersion: kafka.strimzi.io/v1beta2
 # kind: KafkaTopic

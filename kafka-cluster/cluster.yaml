@@ -126,7 +126,7 @@
 #     topicOperator: {}
 #     userOperator: {}
 ---
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: KafkaNodePool
 metadata:
   name: my-cluster-controller
@@ -141,7 +141,7 @@ spec:
     type: persistent-claim
     size: 1Gi
 ---
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: KafkaNodePool
 metadata:
   name: my-cluster-broker
@@ -156,7 +156,7 @@ spec:
     type: persistent-claim
     size: 1Gi
 ---
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: Kafka
 metadata:
   name: my-cluster
@@ -211,6 +211,7 @@ spec:
       superUsers:
         - service-account-kafka
         - service-account-kafka-bridge
+        - service-account-kafka-connect
     config:
       auto.create.topics.enable: "true"
       # Needed for Oauth authentication and Keycloak authroization
