@@ -95,6 +95,7 @@ realm_roles = {
   "ui-readonly"  = { description = "Kafka UI Read Only" }
   "ui-readwrite" = { description = "Kafka UI Read Write" }
   "bridge-admin" = { description = "Kafka Bridge Administrator" }
+  "connect-admin" = { description = "Kafka Connect Administrator" }
 }
 
 groups = ["ClusterManager Group", "ClusterManager-my-cluster Group", "Ops Team Group"]
@@ -217,6 +218,24 @@ clients = {
         add_to_access_token      = true
       }
     ]
+  },
+  "kafka-connect" = {
+    public_client                = false
+    standard_flow_enabled        = false
+    service_accounts_enabled     = true
+    authorization_enabled        = true
+    direct_access_grants_enabled = false
+    service_account_roles        = ["connect-admin"]
+    mappers = [
+      {
+        name                     = "audience-mapper"
+        type                     = "audience"
+        claim_name               = "aud"
+        included_custom_audience = "kafka"
+        add_to_id_token          = true
+        add_to_access_token      = true
+      }
+    ]
   }
 }
 
@@ -289,7 +308,8 @@ kafka_policies_role = [
   { name = "Kafka UI Admin Policy", role_name = "ui-admin" },
   { name = "Kafka UI ReadOnly Policy", role_name = "ui-readonly" },
   { name = "Kafka UI ReadWrite Policy", role_name = "ui-readwrite" },
-  { name = "Kafka Bridge Admin Policy", role_name = "bridge-admin" }
+  { name = "Kafka Bridge Admin Policy", role_name = "bridge-admin" },
+  { name = "Kafka Connect Admin Policy", role_name = "connect-admin" }
 ]
 
 kafka_policies_group = [
