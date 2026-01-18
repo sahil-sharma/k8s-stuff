@@ -12,5 +12,5 @@ helmCharts:
     releaseName: strimzi-cluster-operator
     namespace: kafka-operator
     repo: oci://quay.io/strimzi-helm
-    version: 0.48.0
+    version: 0.49.0
     includeCRDs: true
