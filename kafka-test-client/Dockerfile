@@ -19,16 +19,38 @@ RUN curl -sL "https://github.com/strimzi/strimzi-kafka-oauth/archive/refs/tags/$
 # ===============================
 FROM alpine:3.20
 
-# ---- Runtime dependencies ----
+ENV GO_VERSION=1.25.6
+
+# # ---- Runtime dependencies ----
+# RUN apt-get update && apt-get install -y --no-install-recommends \
+#     openjdk-17-jdk \
+#     curl \
+#     jq \
+#     nano \
+#     ca-certificates \
+#     build-essential \
+#     golang-go \
+#  && rm -rf /var/lib/apt/lists/*
+
 RUN apk add --no-cache \
+    gcc \
+    musl-dev \
+    # librdkafka for confluent-kafka-go
+    librdkafka-dev \
+    librdkafka \
+    # SSL support (required by librdkafka)
+    openssl-dev \
+    ca-certificates \
     openjdk17-jre-headless \
     curl \
-    jq \
+    git \
     bash \
-    nano \
-    ca-certificates \
-    go \
-    && update-ca-certificates
+    build-base \
+  && update-ca-certificates \
+  && curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" -o /tmp/go.tgz \
+  && rm -rf /usr/local/go \
+  && tar -C /usr/local -xzf /tmp/go.tgz \
+  && rm /tmp/go.tgz
 
 # ---- Java / Kafka env ----
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk
@@ -36,9 +58,17 @@ ENV KAFKA_VERSION=4.0.0
 ENV SCALA_VERSION=2.13
 ENV KAFKA_HOME=/opt/kafka_${SCALA_VERSION}-${KAFKA_VERSION}
 ENV PATH="${JAVA_HOME}/bin:${KAFKA_HOME}/bin:${PATH}"
+ENV KAFKA_PLUGIN_PATH=/opt/kafka/plugins
 ARG KAFKA_OAUTH_VERSION=0.17.0
 ENV OAUTH_SRC=/opt/strimzi-kafka-oauth-${KAFKA_OAUTH_VERSION}
 ENV CLASSPATH=${KAFKA_HOME}/libs/*:$CLASSPATH
+
+# Go Env
+ENV GOROOT=/usr/local/go
+ENV GOPATH=/go
+ENV PATH="${PATH}:${GOROOT}/bin:${GOPATH}/bin"
+ENV CGO_ENABLED=1 GOOS=linux GOARCH=amd64
+ENV PKG_CONFIG_PATH=/usr/lib/pkgconfig
 
 # ---- OAuth / Keycloak env ----
 ENV REALM_NAME=kafka-authz
@@ -91,9 +121,13 @@ COPY --from=builder ${OAUTH_SRC}/oauth-keycloak-authorizer/target/kafka-oauth-ke
 COPY --from=builder ${OAUTH_SRC}/oauth-common/target/lib/*.jar ${KAFKA_HOME}/libs/
 COPY --from=builder ${OAUTH_SRC}/oauth-server/target/lib/*.jar ${KAFKA_HOME}/libs/
 
+RUN mkdir -p ${KAFKA_PLUGIN_PATH} \
+    && cp ${KAFKA_HOME}/libs/*.jar ${KAFKA_PLUGIN_PATH}/
+
 # ---- Utilities ----
 COPY *.sh /opt
 COPY *.properties /opt/
+COPY input-text-file.txt /opt/
 RUN chmod +x /opt/*.sh
 
 WORKDIR /opt
