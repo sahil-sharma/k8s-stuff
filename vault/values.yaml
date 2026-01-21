@@ -49,9 +49,9 @@ server:
     VAULT_ADDR: http://vault.vault:8200
     VAULT_SKIP_VERIFY: true
 
-  volumeMounts:
-  - name: vault-init-volume
-    mountPath: /v-data
+  # volumeMounts:
+  # - name: vault-init-volume
+  #   mountPath: /v-data
 
   extraContainers:
     - name: vault-setup
@@ -61,69 +61,83 @@ server:
         - |
           set -e
           echo ""
-          echo -e "Sleeping to let Vault start up...\n"
-          sleep 10 # Wait for Vault to be ready
-
           export VAULT_ADDR=http://vault.vault:8200
           export KEY_FILE="/vault/init-keys.txt"
-          export K8S_HOST="https://10.0.0.251"
-          export K8S_PORT="46475"
-
-          # MinIO Credentials
-          export MINIO_URL="http://storage.local.io:32080"
-          export MINIO_ROOT_USER="admin"
-          export MINIO_ROOT_PASSWORD="admin123"
-
-          # Kafka OIDC Credentials
-          export KAFKA_OIDC_CLIENT_ID="kafka"
-          export KAFKA_OIDC_CLIENT_SECRET="Ut62uJhGTDGevAJ7Gy1aFjOOGYnYhkJu"
-
-          # Kafka Bridge OIDC Credentials
-          export KAFKA_BRIDGE_OIDC_CLIENT_ID="kafka-bridge"
-          export KAFKA_BRIDGE_OIDC_CLIENT_SECRET="VIrlRtBYqEaP5hHJeZKNKUu6KsUZgiLL"
-
-          # Kafka UI OIDC Credentials
-          export KAFKA_UI_OIDC_CLIENT_ID="kafka-ui"
-          export KAFKA_UI_OIDC_CLIENT_SECRET="wGa0Gn8OdKOgX2I5nxURB6LE9UY7D4Fh"
-          
-          export VAULT_OIDC_CLIENT_ID="secrets"
-          export VAULT_OIDC_CLIENT_SECRET="O5QNO5mmaIXlqwdi0NVxUqlLAOgqLZTA"
-
-          export ARGOCD_OIDC_CLIENT_ID="argocd"
-          export ARGOCD_OIDC_CLIENT_SECRET="ct9KYqDceriYjWolKDWCTSFJWUWqftHv"
-
-          export GRAFANA_OIDC_CLIENT_ID="grafana"
-          export GRAFANA_OIDC_CLIENT_SECRET="IburG41N5WmSoBNQlQrnnIW7xkoGcZDR"
-
-          export AUTH_OIDC_CLIENT_ID="auth"
-          export AUTH_OIDC_CLIENT_SECRET="OI5zZsrVl47VRRdraL9ASAQWiAkbRVCG"
-          export AUTH_COOKIE_SECRET="IUz0C4oWNQCKDTcCk3mfxfpOrRryLfEmFG2aJuOwZVE="
-
-          export MINIO_OIDC_CLIENT_ID="storage"
-          export MINIO_OIDC_CLIENT_SECRET="of8kL0Xvo8f2qNmhJhb5pTSEVOQMEjHu"
+          mkdir -p /vault
 
           export ARGO_WORKFLOW_OIDC_CLIENT_ID="argo-workflow"
-          export ARGO_WORKFLOW_OIDC_CLIENT_SECRET="Ziqwb4NLIMEFbr1nf1KzH9BXVZgzeQAH"
+          export ARGO_WORKFLOW_OIDC_CLIENT_SECRET="8LP7Pxg6bXkQAbpDAyp0wsI0jJeFoI4k"
+
+          export ARGOCD_OIDC_CLIENT_ID="argocd"
+          export ARGOCD_OIDC_CLIENT_SECRET="RQxavwo7oyaYFBIeI3uy1YU9kiRbnAvJ"
+
+          export AUTH_OIDC_CLIENT_ID="auth"
+          export AUTH_OIDC_CLIENT_SECRET="UGx9ePPdGw6Tfngwst6rfqMNegkrDtkI"
+
+          export GRAFANA_OIDC_CLIENT_ID="grafana"
+          export GRAFANA_OIDC_CLIENT_SECRET="7Qdz0g5EltDmXY2fH5ECFSQAepzl8XHj"
 
           export KIALI_OIDC_CLIENT_ID="kiali"
-          export KIALI_OIDC_CLIENT_SECRET="gz9d5pBiCK76OoyHuz8RSSCF4ZuqlasG"
+          export KIALI_OIDC_CLIENT_SECRET="3q4LqTVyUJWdxBNkGCA0izAPKaXph5Qm"
 
-          export KAFKA_AUTHZ_IDP_CLIENT_ID="kafka-authz-idp-broker"
-          export KAFKA_AUTHZ_IDP_CLIENT_SECRET="JOBncLTIbgV0rNrDYUREszoXEPCFDDen"
+          export VAULT_OIDC_CLIENT_ID="secrets"
+          export VAULT_OIDC_CLIENT_SECRET="cKmFKqp5r8sbX3FrDUdwQ4MZ3H5ttSlW"
 
+          export MINIO_OIDC_CLIENT_ID="storage"
+          export MINIO_OIDC_CLIENT_SECRET="new-minio-secret-v2"
+
+          export KAFKA_OIDC_CLIENT_ID="kafka"
+          export KAFKA_OIDC_CLIENT_SECRET="ZQj1csno8sqR7SpUCqw1UB0DTotop7Hr"
+
+          export KAFKA_BRIDGE_OIDC_CLIENT_ID="kafka-bridge"
+          export KAFKA_BRIDGE_OIDC_CLIENT_SECRET="MUUpWEQpvtpxXjVNnbP6SrBIGcj4vvoG"
+
+          export KAFKA_CLI_OIDC_CLIENT_ID="kafka-cli"
+          export KAFKA_CLI_OIDC_CLIENT_SECRET="AA4mCwyZsWufLTcgOebo4AsyamdlxijF"
+
+          export KAFKA_CONNECT_OIDC_CLIENT_ID="kafka-connect"
+          export KAFKA_CONNECT_OIDC_CLIENT_SECRET="TSfhSDGpGMbHLAhQj5mdApCefpNQXrrj"
+
+          export KAFKA_UI_OIDC_CLIENT_ID="kafka-ui"
+          export KAFKA_UI_OIDC_CLIENT_SECRET="RlgpmxOH9wtOcjn1uOVXi7LsKyqXudZu"
+
+          export TEAM_A_OIDC_CLIENT_ID="team-a-client"
+          export TEAM_A_OIDC_CLIENT_SECRET="YUNqTNwDDI0LWYcnY4slyIdkmRV7M1Pf"
+
+          export TEAM_B_OIDC_CLIENT_ID="team-b-client"
+          export TEAM_B_OIDC_CLIENT_SECRET="RH9ipKskWDqKa3Xb6W0PoQzefhb25IeM"
+
+          # Use the internal service name that works in every K8s cluster
+          export K8S_HOST="https://kubernetes.default.svc:443"
+          
+          # Vault needs to trust the K8s API certificate
+          export VAULT_SA_CA_CRT="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+          echo "Waiting for Vault to be reachable..."
+          until vault status -address=$VAULT_ADDR > /dev/null 2>&1 || [ $? -eq 2 ]; do 
+            echo "Vault is still starting..."
+            sleep 10
+          done
+
+          # Check if already Initialized
+          # INIT_STATUS=$(vault status -format=json | grep '"initialized":' | awk '{print $2}' | sed 's/,//')
+
+          # ==========================================================
+          # FIRST-TIME INITIALIZATION (Only runs if status is false)
+          # ==========================================================
           if vault status | grep -q 'Initialized.*false'; then
-            echo "Vault not initialized. Starting to initialize Vault..."
+            echo "Initializing Vault for the first time..."
             vault operator init -key-shares=1 -key-threshold=1 -format=json > $KEY_FILE
             echo "Vault initialization completed and keys saved to $KEY_FILE"
 
             echo "Fetching Unseal keys and root token..."
             UNSEAL_KEY=$(cat "$KEY_FILE" | grep '"unseal_keys_hex"' -A 1 | tail -n 1 | sed 's/[", ]//g')
-            VAULT_TOKEN=$(cat "$KEY_FILE" | grep root_token | cut -d '"' -f4)           
+            VAULT_TOKEN=$(cat "$KEY_FILE" | grep root_token | cut -d '"' -f4)
+            export VAULT_TOKEN     
             
             echo "Unsealing Vault..."
             vault operator unseal "$UNSEAL_KEY"
             
-            echo "Logging-in Vault..."
+            echo "Performing first-time setup (Mounts & Auth)..."
             vault login "$VAULT_TOKEN"
 
             echo "Enabling KV mounts: apps, database, globals, sso"
@@ -133,294 +147,279 @@ server:
             vault secrets enable -path=vault-token -version=2 kv
             vault secrets enable -path=metrics -version=2 kv
             vault secrets enable -path=sso -version=2 kv
-            # vault secrets enable -path=minio aws
-
-            echo "Storing the init JSON in the internal KV store for safekeeping..."
-            vault kv put vault-token/vault/init root_token="$VAULT_TOKEN" keys_file="$(cat "$KEY_FILE")"
-
-            # vault write minio/config/root \
-            #   endpoint="$MINIO_URL" \
-            #   accessKey="$MINIO_ROOT_USER" \
-            #   secretKey="$MINIO_ROOT_PASSWORD" \
-            #   useSSL="false" \
-            #   disable_renewal="true"
-
-            # echo "Creating MinIO policy for Vault backups..."
-            # echo '{
-            #   "Version": "2012-10-17",
-            #   "Statement": [
-            #     {
-            #       "Effect": "Allow",
-            #       "Action": [
-            #         "s3:PutObject",
-            #         "s3:GetObject",
-            #         "s3:ListBucket"
-            #       ],
-            #       "Resource": [
-            #         "arn:aws:s3:::vault-backup",
-            #         "arn:aws:s3:::vault-backup/*"
-            #       ]
-            #     }
-            #   ]
-            # }' > /tmp/vault-backup-policy.json
-
-            # echo "Creating Vault role for MinIO dynamic credentials..."
-            # vault write minio/roles/vault-backup \
-            #   credential_type=iam_user \
-            #   policy_document=@/tmp/vault-backup-policy.json
-
-            echo "Creating example secrets"
-            
-            # Application credentials
-            vault kv put apps/welcome-app APP_USERNAME="usera" APP_PASSWORD="passa"
-            
-            # Application Database credentials
-            vault kv put database/app-db DB_USERNAME="admin" DB_PASSWORD="admin123"
-            
-            # Global API Key
-            vault kv put globals/common API_KEY="globalapikey123"
-
-            # MinIO root login credentials
-            vault kv put apps/minio-root-login MINIO_ROOT_USER="$MINIO_ROOT_USER" MINIO_ROOT_PASSWORD="$MINIO_ROOT_PASSWORD"
-            
-            # Argo Workflows OIDC secrets
-            vault kv put sso/argo-workflow CLIENT_ID="$ARGO_WORKFLOW_OIDC_CLIENT_ID" CLIENT_SECRET="$ARGO_WORKFLOW_OIDC_CLIENT_SECRET"
-            
-            # ArgoCD OIDC secrets
-            vault kv put sso/argo-cd CLIENT_ID="$ARGOCD_OIDC_CLIENT_ID" CLIENT_SECRET="$ARGOCD_OIDC_CLIENT_SECRET"
-            
-            # Grafana OIDC secrets
-            vault kv put sso/grafana CLIENT_ID="$GRAFANA_OIDC_CLIENT_ID" CLIENT_SECRET="$GRAFANA_OIDC_CLIENT_SECRET" DB_PASSWORD="admin123"
-            
-            # MinIO OIDC secrets
-            vault kv put sso/storage CLIENT_ID="$MINIO_OIDC_CLIENT_ID" CLIENT_SECRET="$MINIO_OIDC_CLIENT_SECRET"
-
-            # Kiali OIDC secrets
-            vault kv put sso/kiali CLIENT_ID="$KIALI_OIDC_CLIENT_ID" CLIENT_SECRET="$KIALI_OIDC_CLIENT_SECRET"
-
-            # Kafka OIDC secrets
-            vault kv put sso/kafka CLIENT_ID="$KAFKA_OIDC_CLIENT_ID" CLIENT_SECRET="$KAFKA_OIDC_CLIENT_SECRET"
-
-            # OAuth2 Proxy OIDC secrets
-            vault kv put sso/oauth CLIENT_ID="$AUTH_OIDC_CLIENT_ID" CLIENT_SECRET="$AUTH_OIDC_CLIENT_SECRET" COOKIE_SECRET="$AUTH_COOKIE_SECRET"
-
-            # Kafka UI OIDC secrets
-            vault kv put sso/kafka-ui CLIENT_ID="$KAFKA_UI_OIDC_CLIENT_ID" CLIENT_SECRET="$KAFKA_UI_OIDC_CLIENT_SECRET"
-
-            # Kafka Bridge OIDC secrets
-            vault kv put sso/kafka-bridge CLIENT_ID="$KAFKA_BRIDGE_OIDC_CLIENT_ID" CLIENT_SECRET="$KAFKA_BRIDGE_OIDC_CLIENT_SECRET"
-
-            # Kafka Authz IDP Broker OIDC secrets
-            vault kv put sso/kafka-authz-idp CLIENT_ID="$KAFKA_AUTHZ_IDP_CLIENT_ID" CLIENT_SECRET="$KAFKA_AUTHZ_IDP_CLIENT_SECRET"
-
-            echo "Writing policies (admin, reader, app, eso-read, read-metrics)"
-            printf '%s\n' \
-            'path "*" { capabilities = ["create","read","update","delete","list","sudo"] }' \
-            > /tmp/admin.hcl
-            vault policy write admin /tmp/admin.hcl
-
-            printf '%s\n' \
-            'path "apps/data/*" { capabilities = ["read","list"] }' \
-            'path "apps/metadata/*" { capabilities = ["list"] }' \
-            'path "globals/data/*" { capabilities = ["read","list"] }' \
-            'path "globals/metadata/*" { capabilities = ["list"] }' \
-            > /tmp/reader.hcl
-            vault policy write reader /tmp/reader.hcl
-
-            printf '%s\n' \
-            'path "apps/data/*" { capabilities = ["read","list"] }' \
-            'path "apps/metadata/*" { capabilities = ["list"] }' \
-            'path "database/data/*" { capabilities = ["read","list"] }' \
-            'path "database/metadata/*" { capabilities = ["list"] }' \
-            'path "globals/data/*" { capabilities = ["read","list"] }' \
-            'path "globals/metadata/*" { capabilities = ["list"] }' \
-            'path "sso/data/*" { capabilities = ["read","list"] }' \
-            'path "sso/metadata/*" { capabilities = ["list"] }' \
-            > /tmp/app.hcl
-            vault policy write app /tmp/app.hcl
-
-            printf '%s\n' \
-            'path "data/data/*" { capabilities = ["read","list"] }' \
-            'path "data/metadata/*" { capabilities = ["list"] }' \
-            > /tmp/data-reader.hcl
-            vault policy write data-reader /tmp/data-reader.hcl
-
-            echo "Creating Policy for External-Secrets Operator"
-            cp /tmp/app.hcl /tmp/eso-read.hcl
-            vault policy write eso-read /tmp/eso-read.hcl
-            
-            echo "Creating Policy for Prometheus to scrape metrics"
-            printf '%s\n' \
-            'path "/sys/metrics" { capabilities = ["read"] }' \
-            > /tmp/read-metrics.hcl
-            vault policy write read-metrics /tmp/read-metrics.hcl
-
-            echo "Creating token for Prometheus to scrape metrics"
-            vault token create -field=token -policy read-metrics  > /tmp/metrics-token.txt
-
-            echo "Saving metrics token to Internal KV store /metrics/token path" 
-            vault kv put metrics/token token="$(cat /tmp/metrics-token.txt)"
-
-            printf '%s\n' \
-            'path "auth/token/lookup-self" { capabilities = ["read"] }' \
-            'path "auth/token/renew-self" { capabilities = ["update"] }' \
-            'path "auth/token/revoke-self" { capabilities = ["update"] }' \
-            'path "sys/capabilities-self" { capabilities = ["update"] }' \
-            > /tmp/default.hcl
-            vault policy write default-role /tmp/default.hcl
-
-            echo "Enabling OIDC auth method..."
-            vault auth enable -path=oidc oidc
-
-            vault write auth/oidc/config \
-              oidc_discovery_url="http://sso.local.io:32080/realms/platform" \
-              oidc_client_id="$VAULT_OIDC_CLIENT_ID" \
-              oidc_client_secret="$VAULT_OIDC_CLIENT_SECRET" \
-              default_role="reader"
-
-            vault write auth/oidc/role/admin \
-              bound_audiences="secrets" \
-              user_claim="preferred_username" \
-              groups_claim="groups" \
-              allowed_redirect_uris="http://secrets.local.io:32080/ui/vault/auth/oidc/oidc/callback" \
-              allowed_redirect_uris="http://secrets.local.io:32080/oidc/callback" \
-              allowed_redirect_uris="http://vault.vault:8250/oidc/callback" \
-              policies="admin" \
-              ttl="1h" \
-              bound_claims.groups='["devops"]'
-
-            vault write auth/oidc/role/reader \
-              bound_audiences="secrets" \
-              user_claim="preferred_username" \
-              groups_claim="groups" \
-              allowed_redirect_uris="http://secrets.local.io:32080/ui/vault/auth/oidc/oidc/callback" \
-              allowed_redirect_uris="http://secrets.local.io:32080/oidc/callback" \
-              allowed_redirect_uris="http://vault.vault:8250/oidc/callback" \
-              policies="reader" \
-              ttl="1h" \
-              bound_claims.groups='["engineering"]'
-
-            vault write auth/oidc/role/data-reader \
-              bound_audiences="secrets" \
-              user_claim="preferred_username" \
-              groups_claim="groups" \
-              allowed_redirect_uris="http://secrets.local.io:32080/ui/vault/auth/oidc/oidc/callback" \
-              allowed_redirect_uris="http://secrets.local.io:32080/oidc/callback" \
-              allowed_redirect_uris="http://vault.vault:8250/oidc/callback" \
-              policies="data-reader" \
-              ttl="1h" \
-              bound_claims.groups='["data"]'
-
-            vault write auth/oidc/role/default \
-              bound_audiences="secrets" \
-              user_claim="preferred_username" \
-              groups_claim="groups" \
-              allowed_redirect_uris="http://secrets.local.io:32080/ui/vault/auth/oidc/oidc/callback" \
-              allowed_redirect_uris="http://secrets.local.io:32080/oidc/callback" \
-              allowed_redirect_uris="http://vault.vault:8250/oidc/callback" \
-              policies="default" \
-              ttl="1h" \
-              bound_claims.groups='["*"]'
-
-            # Enable only OIDC in the UI
-            vault auth tune -listing-visibility=unauth oidc
 
             echo "Enabling Kubernetes auth method..."
             vault auth enable kubernetes
 
+            echo "Enabling OIDC auth method..."
+            vault auth enable -path=oidc oidc
+            
+            # Enable only OIDC in the UI
+            vault auth tune -listing-visibility=unauth oidc
+
             vault write auth/kubernetes/config \
-              kubernetes_host="$K8S_HOST":"$K8S_PORT" \
+              kubernetes_host="$K8S_HOST" \
+              kubernetes_ca_cert=@"$VAULT_SA_CA_CRT" \
               issuer="https://kubernetes.default.svc.cluster.local"
 
-            vault write auth/kubernetes/role/welcome-app-role \
-              bound_service_account_names="welcome-app-service-account" \
-              bound_service_account_namespaces="welcome-app" \
-              policies="eso-read" \
-              audience="https://kubernetes.default.svc.cluster.local" \
-              ttl="1h"
-
-            vault write auth/kubernetes/role/read-metrics-role \
-              bound_service_account_names="prometheus-server" \
-              bound_service_account_namespaces="prometheus" \
-              policies="read-metrics" \
-              audience="https://kubernetes.default.svc.cluster.local"
-
-            vault write auth/kubernetes/role/argocd-sso-secret-role \
-              bound_service_account_names="argo-cd-sso-sa" \
-              bound_service_account_namespaces="argo-cd" \
-              policies="eso-read" \
-              audience="https://kubernetes.default.svc.cluster.local"
-
-            vault write auth/kubernetes/role/grafana-sso-secret-role \
-              bound_service_account_names="grafana-sso-sa" \
-              bound_service_account_namespaces="grafana" \
-              policies="eso-read" \
-              audience="https://kubernetes.default.svc.cluster.local"
-
-            vault write auth/kubernetes/role/kiali-sso-secret-role \
-              bound_service_account_names="kiali-sso-sa" \
-              bound_service_account_namespaces="kiali-operator" \
-              policies="eso-read" \
-              audience="https://kubernetes.default.svc.cluster.local"
-
-            vault write auth/kubernetes/role/minio-sso-secret-role \
-              bound_service_account_names="minio-sso-sa" \
-              bound_service_account_namespaces="minio" \
-              policies="eso-read" \
-              audience="https://kubernetes.default.svc.cluster.local"
-
-            vault write auth/kubernetes/role/minio-root-secret-role \
-              bound_service_account_names="minio-root-login-sa" \
-              bound_service_account_namespaces="minio" \
-              policies="eso-read" \
-              audience="https://kubernetes.default.svc.cluster.local"
-
-            vault write auth/kubernetes/role/argo-workflow-sso-secret-role \
-              bound_service_account_names="argo-workflow" \
-              bound_service_account_namespaces="argo-workflows" \
-              policies="eso-read" \
-              audience="https://kubernetes.default.svc.cluster.local"
-
-            vault write auth/kubernetes/role/oauth-sso-secret-role \
-              bound_service_account_names="oauth-sso-sa" \
-              bound_service_account_namespaces="oauth2-proxy" \
-              policies="eso-read" \
-              audience="https://kubernetes.default.svc.cluster.local"
-
-            vault write auth/kubernetes/role/kafka-ui-sso-secret-role \
-              bound_service_account_names="kafka-ui-sso-sa" \
-              bound_service_account_namespaces="kafka-ui" \
-              policies="eso-read" \
-              audience="https://kubernetes.default.svc.cluster.local"
-
-            vault write auth/kubernetes/role/kafka-bridge-sso-secret-role \
-              bound_service_account_names="kafka-bridge-sso-sa" \
-              bound_service_account_namespaces="kafka-operator" \
-              policies="eso-read" \
-              audience="https://kubernetes.default.svc.cluster.local"
-
-            # echo "Enabling AppRole auth method..."
-            # vault auth enable approle
-
-            # vault write auth/approle/role/eso-minio \
-            #   policies="eso-read" \
-            #   token_ttl=24h
-
-            # vault read auth/approle/role/eso-minio/role-id
-            # vault write -f auth/approle/role/eso-minio/secret-id
-
-            echo "Initscript executed successfully, idling..."
-          else
-            echo "Vault is already initialized. Skipping initialization."
+            echo "Storing the init JSON in the internal KV store for safekeeping..."
+            vault kv put vault-token/vault/init root_token="$VAULT_TOKEN" keys_file="$(cat "$KEY_FILE")"
           fi
 
+          # ==========================================================
+          # SECRET & POLICY SYNC (Runs EVERY time)
+          # ==========================================================
+          
+          if [ -z "$VAULT_TOKEN" ] && [ -f "$KEY_FILE" ]; then
+            echo "Restart detected. Reading token from $KEY_FILE..."
+            VAULT_TOKEN=$(cat "$KEY_FILE" | grep root_token | cut -d '"' -f4)
+            export VAULT_TOKEN
+            
+            # Also need to unseal on restart if not using auto-unseal
+            UNSEAL_KEY=$(cat "$KEY_FILE" | grep '"unseal_keys_hex"' -A 1 | tail -n 1 | sed 's/[", ]//g')
+            vault operator unseal "$UNSEAL_KEY"
+
+            vault login "$VAULT_TOKEN" > /dev/null
+
+            echo "DEBUG: Token is [${VAULT_TOKEN}]"
+
+          elif [ -z "$VAULT_TOKEN" ]; then
+            echo "CRITICAL ERROR: No VAULT_TOKEN and no $KEY_FILE found. Persistence failed!"
+            exit 1
+          fi
+          
+          echo "Syncing secrets and policies to match current environment variables..."
+          echo "Creating example secrets"
+            
+          # Application credentials
+          vault kv put apps/welcome-app APP_USERNAME="usera" APP_PASSWORD="passa"
+          
+          # Application Database credentials
+          vault kv put database/app-db DB_USERNAME="admin" DB_PASSWORD="admin123"
+          
+          # Global API Key
+          vault kv put globals/common API_KEY="globalapikey123"
+
+          # MinIO root login credentials
+          vault kv put apps/minio-root-login MINIO_ROOT_USER="$MINIO_ROOT_USER" MINIO_ROOT_PASSWORD="$MINIO_ROOT_PASSWORD"
+          
+          # Argo Workflows OIDC secrets
+          vault kv put sso/argo-workflow CLIENT_ID="$ARGO_WORKFLOW_OIDC_CLIENT_ID" CLIENT_SECRET="$ARGO_WORKFLOW_OIDC_CLIENT_SECRET"
+          
+          # ArgoCD OIDC secrets
+          vault kv put sso/argo-cd CLIENT_ID="$ARGOCD_OIDC_CLIENT_ID" CLIENT_SECRET="$ARGOCD_OIDC_CLIENT_SECRET"
+          
+          # Grafana OIDC secrets
+          vault kv put sso/grafana CLIENT_ID="$GRAFANA_OIDC_CLIENT_ID" CLIENT_SECRET="$GRAFANA_OIDC_CLIENT_SECRET" DB_PASSWORD="admin123"
+          
+          # MinIO OIDC secrets
+          vault kv put sso/storage CLIENT_ID="$MINIO_OIDC_CLIENT_ID" CLIENT_SECRET="$MINIO_OIDC_CLIENT_SECRET"
+
+          # Kiali OIDC secrets
+          vault kv put sso/kiali CLIENT_ID="$KIALI_OIDC_CLIENT_ID" CLIENT_SECRET="$KIALI_OIDC_CLIENT_SECRET"
+
+          # Kafka OIDC secrets
+          vault kv put sso/kafka CLIENT_ID="$KAFKA_OIDC_CLIENT_ID" CLIENT_SECRET="$KAFKA_OIDC_CLIENT_SECRET"
+
+          # OAuth2 Proxy OIDC secrets
+          vault kv put sso/oauth CLIENT_ID="$AUTH_OIDC_CLIENT_ID" CLIENT_SECRET="$AUTH_OIDC_CLIENT_SECRET" COOKIE_SECRET="$AUTH_COOKIE_SECRET"
+
+          # Kafka UI OIDC secrets
+          vault kv put sso/kafka-ui CLIENT_ID="$KAFKA_UI_OIDC_CLIENT_ID" CLIENT_SECRET="$KAFKA_UI_OIDC_CLIENT_SECRET"
+
+          # Kafka Bridge OIDC secrets
+          vault kv put sso/kafka-bridge CLIENT_ID="$KAFKA_BRIDGE_OIDC_CLIENT_ID" CLIENT_SECRET="$KAFKA_BRIDGE_OIDC_CLIENT_SECRET"
+
+          # Kafka Connect OIDC secrets
+          vault kv put sso/kafka-connect CLIENT_ID="$KAFKA_CONNECT_OIDC_CLIENT_ID" CLIENT_SECRET="$KAFKA_CONNECT_OIDC_CLIENT_SECRET"
+
+          # Kafka Authz IDP Broker OIDC secrets
+          vault kv put sso/kafka-authz-idp CLIENT_ID="$KAFKA_AUTHZ_IDP_CLIENT_ID" CLIENT_SECRET="$KAFKA_AUTHZ_IDP_CLIENT_SECRET"
+
+          echo "Writing policies (admin, reader, app, eso-read, read-metrics)"
+          printf '%s\n' \
+          'path "*" { capabilities = ["create","read","update","delete","list","sudo"] }' \
+          > /tmp/admin.hcl
+          vault policy write admin /tmp/admin.hcl
+
+          printf '%s\n' \
+          'path "apps/data/*" { capabilities = ["read","list"] }' \
+          'path "apps/metadata/*" { capabilities = ["list"] }' \
+          'path "globals/data/*" { capabilities = ["read","list"] }' \
+          'path "globals/metadata/*" { capabilities = ["list"] }' \
+          > /tmp/reader.hcl
+          vault policy write reader /tmp/reader.hcl
+
+          printf '%s\n' \
+          'path "apps/data/*" { capabilities = ["read","list"] }' \
+          'path "apps/metadata/*" { capabilities = ["list"] }' \
+          'path "database/data/*" { capabilities = ["read","list"] }' \
+          'path "database/metadata/*" { capabilities = ["list"] }' \
+          'path "globals/data/*" { capabilities = ["read","list"] }' \
+          'path "globals/metadata/*" { capabilities = ["list"] }' \
+          'path "sso/data/*" { capabilities = ["read","list"] }' \
+          'path "sso/metadata/*" { capabilities = ["list"] }' \
+          > /tmp/app.hcl
+          vault policy write app /tmp/app.hcl
+
+          printf '%s\n' \
+          'path "data/data/*" { capabilities = ["read","list"] }' \
+          'path "data/metadata/*" { capabilities = ["list"] }' \
+          > /tmp/data-reader.hcl
+          vault policy write data-reader /tmp/data-reader.hcl
+
+          echo "Creating Policy for External-Secrets Operator"
+          cp /tmp/app.hcl /tmp/eso-read.hcl
+          vault policy write eso-read /tmp/eso-read.hcl
+          
+          echo "Creating Policy for Prometheus to scrape metrics"
+          printf '%s\n' \
+          'path "/sys/metrics" { capabilities = ["read"] }' \
+          > /tmp/read-metrics.hcl
+          vault policy write read-metrics /tmp/read-metrics.hcl
+
+          echo "Creating token for Prometheus to scrape metrics"
+          vault token create -field=token -policy read-metrics  > /tmp/metrics-token.txt
+
+          echo "Saving metrics token to Internal KV store /metrics/token path" 
+          vault kv put metrics/token token="$(cat /tmp/metrics-token.txt)"
+
+          printf '%s\n' \
+          'path "auth/token/lookup-self" { capabilities = ["read"] }' \
+          'path "auth/token/renew-self" { capabilities = ["update"] }' \
+          'path "auth/token/revoke-self" { capabilities = ["update"] }' \
+          'path "sys/capabilities-self" { capabilities = ["update"] }' \
+          > /tmp/default.hcl
+          vault policy write default-role /tmp/default.hcl
+
+          vault write auth/oidc/config \
+            oidc_discovery_url="http://sso.local.io:32080/realms/platform" \
+            oidc_client_id="$VAULT_OIDC_CLIENT_ID" \
+            oidc_client_secret="$VAULT_OIDC_CLIENT_SECRET" \
+            default_role="reader"
+
+          vault write auth/oidc/role/admin \
+            bound_audiences="secrets" \
+            user_claim="preferred_username" \
+            groups_claim="groups" \
+            allowed_redirect_uris="http://secrets.local.io:32080/ui/vault/auth/oidc/oidc/callback" \
+            allowed_redirect_uris="http://secrets.local.io:32080/oidc/callback" \
+            allowed_redirect_uris="http://vault.vault:8250/oidc/callback" \
+            policies="admin" \
+            ttl="1h" \
+            bound_claims.groups='["devops"]'
+
+          vault write auth/oidc/role/reader \
+            bound_audiences="secrets" \
+            user_claim="preferred_username" \
+            groups_claim="groups" \
+            allowed_redirect_uris="http://secrets.local.io:32080/ui/vault/auth/oidc/oidc/callback" \
+            allowed_redirect_uris="http://secrets.local.io:32080/oidc/callback" \
+            allowed_redirect_uris="http://vault.vault:8250/oidc/callback" \
+            policies="reader" \
+            ttl="1h" \
+            bound_claims.groups='["engineering"]'
+
+          vault write auth/oidc/role/data-reader \
+            bound_audiences="secrets" \
+            user_claim="preferred_username" \
+            groups_claim="groups" \
+            allowed_redirect_uris="http://secrets.local.io:32080/ui/vault/auth/oidc/oidc/callback" \
+            allowed_redirect_uris="http://secrets.local.io:32080/oidc/callback" \
+            allowed_redirect_uris="http://vault.vault:8250/oidc/callback" \
+            policies="data-reader" \
+            ttl="1h" \
+            bound_claims.groups='["data"]'
+
+          vault write auth/oidc/role/default \
+            bound_audiences="secrets" \
+            user_claim="preferred_username" \
+            groups_claim="groups" \
+            allowed_redirect_uris="http://secrets.local.io:32080/ui/vault/auth/oidc/oidc/callback" \
+            allowed_redirect_uris="http://secrets.local.io:32080/oidc/callback" \
+            allowed_redirect_uris="http://vault.vault:8250/oidc/callback" \
+            policies="default" \
+            ttl="1h" \
+            bound_claims.groups='["*"]'
+
+          vault write auth/kubernetes/role/welcome-app-role \
+            bound_service_account_names="welcome-app-service-account" \
+            bound_service_account_namespaces="welcome-app" \
+            policies="eso-read" \
+            audience="https://kubernetes.default.svc.cluster.local" \
+            ttl="1h"
+
+          vault write auth/kubernetes/role/read-metrics-role \
+            bound_service_account_names="prometheus-server" \
+            bound_service_account_namespaces="prometheus" \
+            policies="read-metrics" \
+            audience="https://kubernetes.default.svc.cluster.local"
+
+          vault write auth/kubernetes/role/argocd-sso-secret-role \
+            bound_service_account_names="argo-cd-sso-sa" \
+            bound_service_account_namespaces="argo-cd" \
+            policies="eso-read" \
+            audience="https://kubernetes.default.svc.cluster.local"
+
+          vault write auth/kubernetes/role/grafana-sso-secret-role \
+            bound_service_account_names="grafana-sso-sa" \
+            bound_service_account_namespaces="grafana" \
+            policies="eso-read" \
+            audience="https://kubernetes.default.svc.cluster.local"
+
+          vault write auth/kubernetes/role/kiali-sso-secret-role \
+            bound_service_account_names="kiali-sso-sa" \
+            bound_service_account_namespaces="kiali-operator" \
+            policies="eso-read" \
+            audience="https://kubernetes.default.svc.cluster.local"
+
+          vault write auth/kubernetes/role/minio-sso-secret-role \
+            bound_service_account_names="minio-sso-sa" \
+            bound_service_account_namespaces="minio" \
+            policies="eso-read" \
+            audience="https://kubernetes.default.svc.cluster.local"
+
+          vault write auth/kubernetes/role/minio-root-secret-role \
+            bound_service_account_names="minio-root-login-sa" \
+            bound_service_account_namespaces="minio" \
+            policies="eso-read" \
+            audience="https://kubernetes.default.svc.cluster.local"
+
+          vault write auth/kubernetes/role/argo-workflow-sso-secret-role \
+            bound_service_account_names="argo-workflow" \
+            bound_service_account_namespaces="argo-workflows" \
+            policies="eso-read" \
+            audience="https://kubernetes.default.svc.cluster.local"
+
+          vault write auth/kubernetes/role/oauth-sso-secret-role \
+            bound_service_account_names="oauth-sso-sa" \
+            bound_service_account_namespaces="oauth2-proxy" \
+            policies="eso-read" \
+            audience="https://kubernetes.default.svc.cluster.local"
+
+          vault write auth/kubernetes/role/kafka-ui-sso-secret-role \
+            bound_service_account_names="kafka-ui-sso-sa" \
+            bound_service_account_namespaces="kafka-ui" \
+            policies="eso-read" \
+            audience="https://kubernetes.default.svc.cluster.local"
+
+          vault write auth/kubernetes/role/kafka-bridge-sso-secret-role \
+            bound_service_account_names="kafka-bridge-sso-sa" \
+            bound_service_account_namespaces="kafka-cluster" \
+            policies="eso-read" \
+            audience="https://kubernetes.default.svc.cluster.local"
+
+          vault write auth/kubernetes/role/kafka-connect-sso-secret-role \
+            bound_service_account_names="kafka-connect-sso-sa" \
+            bound_service_account_namespaces="kafka-cluster" \
+            policies="eso-read" \
+            audience="https://kubernetes.default.svc.cluster.local"
+
+          echo "Vault setup and sync completed."
           # Keep container running
           tail -f /dev/null
 
       volumeMounts:
-        - name: vault-init-volume
+        - name: data
           mountPath: /vault
 
-  volumes:
-    - name: vault-init-volume
-      emptyDir: {}
