@@ -34,20 +34,6 @@ yamlApplicationConfig:
               clientId="${KAFKA_CLIENT_ID}"
               clientSecret="${KAFKA_CLIENT_SECRET}"
               scope="openid";
-      # - name: cluster-1
-      #   bootstrapServers: cluster-1-kafka-bootstrap.kafka-operator.svc:9092
-      #   properties:
-      #     security.protocol: SASL_PLAINTEXT
-      #     sasl.mechanism: OAUTHBEARER
-      #     sasl.oauthbearer.token.endpoint.url: http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token
-      #     sasl.login.callback.handler.class: org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler
-      #     socket.connection.setup.timeout.max.ms: 30000
-      #     socket.connection.setup.timeout.ms: 30000
-      #     sasl.jaas.config: >
-      #       org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required
-      #         clientId="${KAFKA_CLIENT_ID}"
-      #         clientSecret="${KAFKA_CLIENT_SECRET}"
-      #         scope="openid";
   logging:
     level:
       org.springframework.security: INFO
@@ -79,9 +65,6 @@ yamlApplicationConfig:
         clusters:
           - my-cluster
         subjects:
-          - provider: oauth
-            type: role
-            value: ui-readwrite
           - provider: oauth
             type: role
             value: Ops Team
