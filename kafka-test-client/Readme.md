@@ -36,7 +36,7 @@ Please use `test.sh` script located in `/opt` directory. Do change below in the 
 kubectl -n default run -i --rm \
     --restart=Never \
     --tty kafka-client-test-pod \
-    --image=bonyscott/kafka-test-client:v1-slim -- bash
+    --image=sahilwork/test-client:v1 -- bash
 
 # Exec into Test Client Pod
 k -n default exec -it kafka-client-test-pod -- bash
@@ -47,7 +47,7 @@ Team-B: /opt/b-team-client.properties
 
 # Run script kafka-auth-test.sh to test Authz in Kafka
 # Do not forget to set needed Env inside script
-bash /opt/kafka-authz-test.sh
+bash /opt/kafka-auth-test.sh
 
 # Run script bridge-test.sh to test kafka-bridge to produce/consume messages over HTTP in Kafka
 # Do not forget to set needed Env inside script
