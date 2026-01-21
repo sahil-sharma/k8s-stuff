@@ -90,7 +90,7 @@ extraScrapeConfigs: |
       - role: pod
         namespaces:
           names:
-            - kafka-operator
+            - kafka-cluster
     scrape_interval: 10s
     scrape_timeout: 10s
     scheme: http
@@ -98,7 +98,7 @@ extraScrapeConfigs: |
       # 1. Official Selector: Only keep pods labeled as Kafka, Connect, or MirrorMaker2
       - action: keep
         source_labels: [__meta_kubernetes_pod_label_strimzi_io_kind]
-        regex: (Kafka|KafkaConnect|KafkaMirrorMaker2)
+        regex: (Kafka|KafkaConnect|KafkaMirrorMaker2|KafkaExporter)
 
       # 2. Only keep the prometheus metrics port (Strimzi default is 9404)
       - action: keep
@@ -131,12 +131,12 @@ extraScrapeConfigs: |
   - job_name: 'kafka-bridge'
     metrics_path: /metrics
     static_configs:
-    - targets: ['my-cluster-bridge-bridge-service.kafka-operator.svc.cluster.local:8080']
+    - targets: ['my-cluster-bridge-bridge-service.kafka-cluster.svc.cluster.local:8080']
       labels:
         strimzi_io_cluster: "my-cluster"
         strimzi_io_kind: "KafkaBridge"
         # These two are required for your specific variables:
-        namespace: "kafka-operator" 
+        namespace: "kafka-cluster" 
         container: "my-cluster-bridge"
 
   - job_name: 'istio'
