@@ -2,7 +2,7 @@ apiVersion: networking.istio.io/v1
 kind: VirtualService
 metadata:
   name: bridge-virtualservice
-  namespace: kafka-operator
+  namespace: kafka-cluster
 spec:
   hosts:
     - kafka.local.io

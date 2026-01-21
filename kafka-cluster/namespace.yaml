@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: cluster-1
+  name: kafka-cluster
   labels:
-    app: kafka
-    environment: development
+    strimzi.io/kind: Kafka
+    istio-injection: enabled
