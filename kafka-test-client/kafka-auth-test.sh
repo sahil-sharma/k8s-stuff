@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Kafka URLs
 SSO_URL="http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token"
-BOOTSTRAP_SERVER_ADDR="my-cluster-kafka-bootstrap.kafka-operator.svc:9092"
+BOOTSTRAP_SERVER_ADDR="my-cluster-kafka-bootstrap.kafka-cluster.svc:9092"
 BRIDGE_URL="http://kafka.local.io:32080"
 # Not using this but maybe needed as by default idempotence is true
 DISABLE_IDEMPOTENCE="--producer-property enable.idempotence=false"
@@ -56,9 +56,9 @@ show_menu() {
     echo "  2) A write to B topic (Fail)      14) B list topics"
     echo "  3) B write to A topic (Fail)      15) A list groups"
     echo "  4) B write to B topic             16) B list groups"
-    echo "  5) A write to X topic             q) Quit"
-    echo "  6) B write to X topic"
-    echo "  7) A read from A topic"
+    echo "  5) A write to X topic             17) Send 1000 messages to A Topic w/ delay"
+    echo "  6) B write to X topic             18) Send 1000 messages to B Topic w/ delay"
+    echo "  7) A read from A topic            q) Quit"
     echo "  8) A read from B topic (Fail)"
     echo "  9) A read from X topic"
     echo "  10) B read from A topic (Fail)"
@@ -124,14 +124,14 @@ while true; do
     case $opt in
         t1) inspect_service_account "team-a-client" "$A_SECRET" ;;
         t2) inspect_service_account "team-b-client" "$B_SECRET" ;;
-        t3) inspect_user_uma $ALICE_PASSWORD $ALICE_PASSWORD "kafka-cli" ;;
-        t4) inspect_user_uma $BOB_USERNAME $BOB_PASSWORD "kafka-cli" ;;
-        1) get_message; echo "$USER_MSG" | $PRODUCER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $A_TOPIC --producer.config $TEAM_A_PROPERTIES_FILE
-        2) get_message; echo "$USER_MSG" | $PRODUCER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $B_TOPIC --producer.config $TEAM_A_PROPERTIES_FILE
-        3) get_message; echo "$USER_MSG" | $PRODUCER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $A_TOPIC --producer.config $TEAM_B_PROPERTIES_FILE
-        4) get_message; echo "$USER_MSG" | $PRODUCER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $B_TOPIC --producer.config $TEAM_B_PROPERTIES_FILE
-        5) get_message; echo "$USER_MSG" | $PRODUCER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $X_TOPIC --producer.config $TEAM_A_PROPERTIES_FILE
-        6) get_message; echo "$USER_MSG" | $PRODUCER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $X_TOPIC --producer.config $TEAM_B_PROPERTIES_FILE
+        t3) inspect_user_uma "$ALICE_PASSWORD" "$ALICE_PASSWORD" "kafka-cli" ;;
+        t4) inspect_user_uma "$BOB_USERNAME" "$BOB_PASSWORD" "kafka-cli" ;;
+        1) get_message; echo "$USER_MSG" | $PRODUCER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $A_TOPIC --producer.config $TEAM_A_PROPERTIES_FILE ;;
+        2) get_message; echo "$USER_MSG" | $PRODUCER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $B_TOPIC --producer.config $TEAM_A_PROPERTIES_FILE ;;
+        3) get_message; echo "$USER_MSG" | $PRODUCER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $A_TOPIC --producer.config $TEAM_B_PROPERTIES_FILE ;;
+        4) get_message; echo "$USER_MSG" | $PRODUCER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $B_TOPIC --producer.config $TEAM_B_PROPERTIES_FILE ;;
+        5) get_message; echo "$USER_MSG" | $PRODUCER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $X_TOPIC --producer.config $TEAM_A_PROPERTIES_FILE ;;
+        6) get_message; echo "$USER_MSG" | $PRODUCER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $X_TOPIC --producer.config $TEAM_B_PROPERTIES_FILE ;;
         7) $CONSUMER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $A_TOPIC --from-beginning --consumer.config $TEAM_A_PROPERTIES_FILE --group $A_CONSUMER_GROUP ;;
         8) $CONSUMER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $B_TOPIC --from-beginning --consumer.config $TEAM_A_PROPERTIES_FILE --group $A_CONSUMER_GROUP ;;
         9) $CONSUMER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $X_TOPIC --from-beginning --consumer.config $TEAM_A_PROPERTIES_FILE --group $X_CONSUMER_GROUP_TEAM_A ;;
@@ -142,7 +142,9 @@ while true; do
         14) $LIST_TOPICS --bootstrap-server $BOOTSTRAP_SERVER_ADDR --command-config $TEAM_B_PROPERTIES_FILE --list ;;
         15) $LIST_CONSUMER_GROUPS --bootstrap-server $BOOTSTRAP_SERVER_ADDR --command-config $TEAM_A_PROPERTIES_FILE --list ;;
         16) $LIST_CONSUMER_GROUPS --bootstrap-server $BOOTSTRAP_SERVER_ADDR --command-config $TEAM_B_PROPERTIES_FILE --list ;;
-        q) exit 0 ;;
+        17) for i in $(seq 1 1000); do echo "Message $i from Team A"; sleep 1; done | $PRODUCER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $A_TOPIC --producer.config $TEAM_A_PROPERTIES_FILE ;;
+        18) for i in $(seq 1 1000); do echo "Message $i from Team B"; sleep 1; done | $PRODUCER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $B_TOPIC --producer.config $TEAM_B_PROPERTIES_FILE ;;
+        q|Q) exit 0 ;;
         *) echo "Invalid option" ;;
     esac
     echo -e "\nPress Enter to continue..."
