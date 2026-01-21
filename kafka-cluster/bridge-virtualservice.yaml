@@ -14,7 +14,7 @@ spec:
             prefix: /
       route:
         - destination:
-            host: my-cluster-bridge-bridge-service.kafka-operator.svc.cluster.local
+            host: my-cluster-bridge-bridge-service.kafka-cluster.svc.cluster.local
             port:
               number: 8080
 ---
