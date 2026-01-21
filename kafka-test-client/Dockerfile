@@ -46,6 +46,8 @@ RUN apk add --no-cache \
     git \
     bash \
     build-base \
+    nano \
+    jq \
   && update-ca-certificates \
   && curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" -o /tmp/go.tgz \
   && rm -rf /usr/local/go \
@@ -77,7 +79,7 @@ ENV SSO_TOKEN_URL=${SSO_URL}/realms/${REALM_NAME}/protocol/openid-connect/token
 ENV KAFKA_OPTS="-Dorg.apache.kafka.sasl.oauthbearer.allowed.urls=${SSO_TOKEN_URL}"
 
 # ENVs needed for testing OAuth in Kafka
-ENV BOOTSTRAP_SERVER_ADDR="my-cluster-kafka-bootstrap.kafka-operator.svc:9092"
+ENV BOOTSTRAP_SERVER_ADDR="my-cluster-kafka-bootstrap.kafka-cluster.svc:9092"
 ENV KAFKA_BRIDGE_URL="http://kafka.local.io:32080"
 ENV TEAM_A_CLIENT_ID="team-a-client"
 ENV TEAM_B_CLIENT_ID="team-b-client"
