@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: kafka-metrics
-  namespace: kafka-operator
+  namespace: kafka-cluster
   labels:
     app: strimzi
 data:

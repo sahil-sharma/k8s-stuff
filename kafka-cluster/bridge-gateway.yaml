@@ -2,7 +2,7 @@ apiVersion: networking.istio.io/v1
 kind: Gateway
 metadata:
   name: bridge-gateway
-  namespace: kafka-operator
+  namespace: kafka-cluster
 spec:
   selector:
     app: istio-gateway
@@ -13,4 +13,3 @@ spec:
         protocol: HTTP
       hosts:
         - kafka.local.io
----

@@ -2,7 +2,7 @@ apiVersion: kafka.strimzi.io/v1
 kind: KafkaConnect
 metadata:
   name: my-connect-cluster
-  namespace: kafka-operator
+  namespace: kafka-cluster
   annotations:
 #  # use-connector-resources configures this KafkaConnect
 #  # to use KafkaConnector resources to avoid
@@ -11,7 +11,7 @@ metadata:
 spec:
   version: 4.0.0
   replicas: 1
-  bootstrapServers: my-cluster-kafka-bootstrap.kafka-operator.svc:9092
+  bootstrapServers: my-cluster-kafka-bootstrap.kafka-cluster.svc:9092
   groupId: my-connect-group
   configStorageTopic: my-connect-configs
   statusStorageTopic: my-connect-status
@@ -58,5 +58,5 @@ spec:
     - name: connector-1
       artifacts:
         - type: image
-          reference: bonyscott/kafka-test-client:v1-slim
+          reference: sahilwork/test-client:v1
           pullPolicy: Always
