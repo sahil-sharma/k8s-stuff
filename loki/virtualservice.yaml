@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: virtualservice
+  namespace: loki
+spec:
+  hosts:
+    - logs.local.io
+  gateways:
+    - gateway
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: loki-gateway.loki.svc.cluster.local
+            port:
+              number: 80
