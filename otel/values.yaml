@@ -23,7 +23,7 @@ config:
 
   exporters:
     otlphttp/tempo:
-      endpoint: http://traces.local.io:32080
+      endpoint: http://tempo.tempo:4318
       tls:
         insecure: true
 
