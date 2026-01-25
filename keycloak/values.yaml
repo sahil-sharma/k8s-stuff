@@ -1,10 +1,10 @@
-replicaCount: 1
+replicas: 2
 
 # podDisruptionBudget:
 #   minAvailable: 1
 
 autoscaling:
-  enabled: true
+  enabled: false
   minReplicas: 1
   maxReplicas: 2
 
@@ -17,17 +17,11 @@ autoscaling:
           averageUtilization: 70
   behavior:
     scaleDown:
-      stabilizationWindowSeconds: 60
+      stabilizationWindowSeconds: 300
       policies:
         - type: Pods
           value: 1
-          periodSeconds: 60
-    scaleUp:
-      stabilizationWindowSeconds: 0
-      policies:
-        - type: Pods
-          value: 1
-          periodSeconds: 15
+          periodSeconds: 300
 
 resources: 
   requests:
@@ -129,7 +123,13 @@ extraEnv: |
   - name: KC_BOOTSTRAP_ADMIN_PASSWORD
     value: admin123
   - name: KC_CACHE
-    value: local
+    value: ispn
+  - name: KC_HOSTNAME_STRICT_HTTPS
+    value: "false"
+  - name: KC_HTTP_ENABLED
+    value: "true"
+  # - name: KC_CACHE_STACK
+  #   value: "kubernetes"
   - name: KC_HTTP_ENABLED
     value: "true"
   - name: KC_PROXY_HEADERS
@@ -139,8 +139,7 @@ extraEnv: |
   - name: JAVA_OPTS_APPEND
     value: >-
       -XX:MaxRAMPercentage=50.0
-      -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless
-      -Djgroups.dns.query=keycloak-headless
+      -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless.{{ .Release.Namespace }}.svc.cluster.local
   - name: KC_HEALTH_ENABLED
     value: "true"
 
