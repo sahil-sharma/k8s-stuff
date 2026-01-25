@@ -6,6 +6,7 @@ resources:
   - gateway.yaml
   - virtualservice.yaml
   - peerauthentication.yaml
+  - destination-rule.yaml
 
 helmCharts:
   - name: keycloakx
