@@ -3,39 +3,67 @@ replicaCount: 1
 # podDisruptionBudget:
 #   minAvailable: 1
 
-# autoscaling:
-#   enabled: true
-#   minReplicas: 2
-#   maxReplicas: 4
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 2
 
-#   metrics:
-#     - type: Resource
-#       resource:
-#         name: cpu
-#         target:
-#           type: Utilization
-#           averageUtilization: 80
-#     - type: Resource
-#       resource:
-#         name: memory
-#         target:
-#           type: Utilization
-#           averageUtilization: 75
-#   behavior:
-#     scaleDown:
-#       stabilizationWindowSeconds: 300
-#       policies:
-#         - type: Pods
-#           value: 1
-#           periodSeconds: 300
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 60
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 15
 
-# resources: 
-#   requests:
-#     cpu: "1"
-#     memory: "2048Mi"
-#   limits:
-#     cpu: "1"
-#     memory: "2560Mi"
+resources: 
+  requests:
+    cpu: 500m
+    memory: 1024Mi
+  limits:
+    cpu: 1000m
+    memory: 1536Mi
+
+livenessProbe: |
+  httpGet:
+    path: {{ tpl .Values.http.relativePath $ | trimSuffix "/" }}/health/live
+    port: {{ .Values.http.internalPort }}
+    scheme: {{ .Values.http.internalScheme }}
+  periodSeconds: 30
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe: |
+  httpGet:
+    path: {{ tpl .Values.http.relativePath $ | trimSuffix "/" }}/health/ready
+    port: {{ .Values.http.internalPort }}
+    scheme: {{ .Values.http.internalScheme }}
+  periodSeconds: 10
+  timeoutSeconds: 2
+  failureThreshold: 6
+
+startupProbe: |
+  httpGet:
+    path: {{ tpl .Values.http.relativePath $ | trimSuffix "/" }}/health
+    port: {{ .Values.http.internalPort }}
+    scheme: {{ .Values.http.internalScheme }}
+  initialDelaySeconds: 30
+  periodSeconds: 5
+  timeoutSeconds: 1
+  failureThreshold: 60
 
 http:
   relativePath: "/"
