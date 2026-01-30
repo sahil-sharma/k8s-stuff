@@ -104,7 +104,7 @@ datasources:
         type: loki
         access: proxy
         uid: loki_uid
-        url: http://loki.loki:3100
+        url: http://logs.local.io:32080
         isDefault: false
         jsonData:
           # derivedFields:
@@ -155,20 +155,27 @@ dashboardProviders:
         type: file
         options:
           path: /var/lib/grafana/dashboards/kafka-addons
-      - name: istio
+      - name: 'keycloak'
         orgId: 1
-        folder: 'Istio'
+        folder: 'Keycloak'
         type: file
         options:
-          path: /var/lib/grafana/dashboards/istio
-      - name: argo
-        orgId: 1
-        folder: 'Argo'
-        type: file
-        options:
-          path: /var/lib/grafana/dashboards/argo
+          path: /var/lib/grafana/dashboards/keycloak
 dashboards:
-  istio:
+  keycloak:
+    keycloak-quarkus-metrics:
+      gnetId: 14390
+      revision: 7
+      datasource: Prometheus
+    keycloak-spi-metrics:
+      gnetId: 19659
+      revision: 1
+      datasource: Prometheus
+  default:
+    # nginx-ingress:
+    #   gnetId: 9614
+    #   revision: 1
+    #   datasource: Prometheus
     istio-mesh-dashboard:
       gnetId: 7639
       revision: 283
@@ -189,16 +196,6 @@ dashboards:
       gnetId: 7645
       revision: 283
       datasource: Prometheus
-  keycloak:
-    keycloak-quarkus-metrics:
-      gnetId: 14390
-      revision: 7
-      datasource: Prometheus
-    keycloak-spi-metrics:
-      gnetId: 19659
-      revision: 1
-      datasource: Prometheus
-  argo:
     argo-cd:
       gnetId: 14584
       revision: 1
@@ -207,12 +204,6 @@ dashboards:
       gnetId: 21393
       revision: 1
       datasource: Prometheus
-
-  default:
-    # nginx-ingress:
-    #   gnetId: 9614
-    #   revision: 1
-    #   datasource: Prometheus
     vault:
       gnetId: 12904
       revision: 2
