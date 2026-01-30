@@ -5,16 +5,16 @@ generatorOptions:
   disableNameSuffixHash: true
 
 resources:
-  - namespace.yaml
+  # - namespace.yaml
   - gateway.yaml
   - virtualservice.yaml
   - peer-authentication.yaml
 
 helmCharts:
-  - name: prometheus
-    releaseName: prometheus
-    namespace: prometheus
+  - name: kube-prometheus-stack
+    releaseName: monitoring
+    namespace: monitoring
     repo: https://prometheus-community.github.io/helm-charts
-    version: 27.51.0
+    version: 81.2.2
     valuesFile: values.yaml
-    # includeCRDs: true
+    includeCRDs: false
