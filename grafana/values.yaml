@@ -155,51 +155,20 @@ dashboardProviders:
         type: file
         options:
           path: /var/lib/grafana/dashboards/kafka-addons
-
+      - name: istio
+        orgId: 1
+        folder: 'Istio'
+        type: file
+        options:
+          path: /var/lib/grafana/dashboards/istio
+      - name: argo
+        orgId: 1
+        folder: 'Argo'
+        type: file
+        options:
+          path: /var/lib/grafana/dashboards/argo
 dashboards:
-  default:
-    keycloak-quarkus-metrics:
-      gnetId: 14390
-      revision: 7
-      datasource: Prometheus
-    keycloak-spi-metrics:
-      gnetId: 19659
-      revision: 1
-      datasource: Prometheus
-    nginx-ingress:
-      gnetId: 9614
-      revision: 1
-      datasource: Prometheus
-    argo-cd:
-      gnetId: 14584
-      revision: 1
-      datasource: Prometheus
-    vault:
-      gnetId: 12904
-      revision: 2
-      datasource: Prometheus
-    prometheus:
-      gnetId: 3662
-      revision: 1
-      datasource: Prometheus
-    loki:
-      gnetId: 17781
-      revision: 1
-      datasource: Prometheus
-    argo-workflows:
-      gnetId: 21393
-      revision: 1
-      datasource: Prometheus
-    minio:
-      gnetId: 13502
-      revision: 26
-      datasource:
-        - name: DS_PROMETHEUS
-          value: "Prometheus"
-    kubernetes-cluster-metrics:
-      gnetId: 15826
-      revision: 7
-      datasource: Prometheus
+  istio:
     istio-mesh-dashboard:
       gnetId: 7639
       revision: 283
@@ -220,7 +189,52 @@ dashboards:
       gnetId: 7645
       revision: 283
       datasource: Prometheus
+  keycloak:
+    keycloak-quarkus-metrics:
+      gnetId: 14390
+      revision: 7
+      datasource: Prometheus
+    keycloak-spi-metrics:
+      gnetId: 19659
+      revision: 1
+      datasource: Prometheus
+  argo:
+    argo-cd:
+      gnetId: 14584
+      revision: 1
+      datasource: Prometheus
+    argo-workflows:
+      gnetId: 21393
+      revision: 1
+      datasource: Prometheus
 
+  default:
+    # nginx-ingress:
+    #   gnetId: 9614
+    #   revision: 1
+    #   datasource: Prometheus
+    vault:
+      gnetId: 12904
+      revision: 2
+      datasource: Prometheus
+    prometheus:
+      gnetId: 3662
+      revision: 1
+      datasource: Prometheus
+    loki:
+      gnetId: 17781
+      revision: 1
+      datasource: Prometheus
+    minio:
+      gnetId: 13502
+      revision: 26
+      datasource:
+        - name: DS_PROMETHEUS
+          value: "Prometheus"
+    kubernetes-cluster-metrics:
+      gnetId: 15826
+      revision: 7
+      datasource: Prometheus
 #     flask-app:
 #       gnetId: 11074  # Example dashboard ID for a Python app
 #       revision: 1

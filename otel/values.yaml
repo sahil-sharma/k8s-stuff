@@ -1,12 +1,44 @@
-mode: deployment
+mode: daemonset
 
-# presets:
+presets:
+  logsCollection:
+    enabled: true # This often sets up the filelog receiver and RBAC for you
+  kubernetesAttributes:
+    enabled: true
 #   clusterMetrics:
 #     enabled: true
 #   kubernetesEvents:
 #     enabled: true
 #   hostMetrics:
 #     enabled: true
+
+service:
+  enabled: true
+
+serviceMonitor:
+  enabled: true
+  metricsEndpoints:
+    - port: metrics
+  extraLabels:
+    release: monitoring
+  selectorOverride: 
+    app.kubernetes.io/name: opentelemetry-collector
+    app.kubernetes.io/instance: otel-collector
+    component: agent-collector
+
+ports:
+  metrics:
+    enabled: true
+
+clusterRole:
+  create: true
+  rules:
+    - apiGroups: [""]
+      resources: ["pods", "namespaces", "nodes"]
+      verbs: ["get", "watch", "list"]
+    - apiGroups: ["apps"]
+      resources: ["replicasets"]
+      verbs: ["get", "watch", "list"]
 
 image:
   repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-k8s
@@ -21,26 +53,60 @@ config:
         http:
           endpoint: 0.0.0.0:4318
 
+    filelog:
+      include: [ /var/log/pods/*/*/*.log ]
+      exclude: [ /var/log/pods/loki_*/*/*.log ] # Exclude Loki pod logs to avoid log loops
+      start_at: end
+      include_file_path: true
+      include_file_name: false
+      operators:
+        - type: container
+          id: container-parser
+
+  processors:
+    batch: {}
+    memory_limiter:
+      check_interval: 1s
+      limit_percentage: 70
+      spike_limit_percentage: 30
+    
+    k8sattributes:
+      extract:
+        metadata:
+          - k8s.pod.name
+          - k8s.pod.uid
+          - k8s.namespace.name
+          - k8s.node.name
+          - k8s.container.name
+      pod_association:
+        - sources:
+            - from: resource_attribute
+              name: k8s.pod.name    
+  
   exporters:
     otlphttp/tempo:
-      endpoint: http://tempo.tempo:4318
+      endpoint: http://traces.local.io:32080
       tls:
         insecure: true
 
-    # otlphttp/loki:
-    #   endpoint: "http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push"
-    #   tls:
-    #     insecure: true
-    #   headers:
-    #     X-Scope-OrgID: "foo"
+    otlphttp/loki:
+      endpoint: http://logs.local.io:32080
+      tls:
+        insecure: true
+      # headers:
+      #   X-Scope-OrgID: "foo"
 
   service:
+    telemetry:
+      metrics:
+        level: detailed
+        address: 0.0.0.0:8888
     pipelines:
       traces:
         receivers: [otlp]
         processors: [batch]
         exporters: [otlphttp/tempo]
-      # logs:
-      #   receivers: [filelog]
-      #   processors: [batch, memory_limiter]
-      #   exporters: [otlphttp/loki]
+      logs:
+        receivers: [filelog]
+        processors: [k8sattributes, memory_limiter, batch] 
+        exporters: [otlphttp/loki]

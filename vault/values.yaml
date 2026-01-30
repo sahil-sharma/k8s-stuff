@@ -25,6 +25,7 @@ server:
           path    = "/vault/data"
           node_id = "${HOSTNAME}" 
         }
+        service_registration "kubernetes" {}
         disable_mlock = true
 
         telemetry {
@@ -64,48 +65,6 @@ server:
           export VAULT_ADDR=http://vault.vault:8200
           export KEY_FILE="/vault/init-keys.txt"
           mkdir -p /vault
-
-          export ARGO_WORKFLOW_OIDC_CLIENT_ID="argo-workflow"
-          export ARGO_WORKFLOW_OIDC_CLIENT_SECRET="8LP7Pxg6bXkQAbpDAyp0wsI0jJeFoI4k"
-
-          export ARGOCD_OIDC_CLIENT_ID="argocd"
-          export ARGOCD_OIDC_CLIENT_SECRET="RQxavwo7oyaYFBIeI3uy1YU9kiRbnAvJ"
-
-          export AUTH_OIDC_CLIENT_ID="auth"
-          export AUTH_OIDC_CLIENT_SECRET="UGx9ePPdGw6Tfngwst6rfqMNegkrDtkI"
-
-          export GRAFANA_OIDC_CLIENT_ID="grafana"
-          export GRAFANA_OIDC_CLIENT_SECRET="7Qdz0g5EltDmXY2fH5ECFSQAepzl8XHj"
-
-          export KIALI_OIDC_CLIENT_ID="kiali"
-          export KIALI_OIDC_CLIENT_SECRET="3q4LqTVyUJWdxBNkGCA0izAPKaXph5Qm"
-
-          export VAULT_OIDC_CLIENT_ID="secrets"
-          export VAULT_OIDC_CLIENT_SECRET="cKmFKqp5r8sbX3FrDUdwQ4MZ3H5ttSlW"
-
-          export MINIO_OIDC_CLIENT_ID="storage"
-          export MINIO_OIDC_CLIENT_SECRET="new-minio-secret-v2"
-
-          export KAFKA_OIDC_CLIENT_ID="kafka"
-          export KAFKA_OIDC_CLIENT_SECRET="ZQj1csno8sqR7SpUCqw1UB0DTotop7Hr"
-
-          export KAFKA_BRIDGE_OIDC_CLIENT_ID="kafka-bridge"
-          export KAFKA_BRIDGE_OIDC_CLIENT_SECRET="MUUpWEQpvtpxXjVNnbP6SrBIGcj4vvoG"
-
-          export KAFKA_CLI_OIDC_CLIENT_ID="kafka-cli"
-          export KAFKA_CLI_OIDC_CLIENT_SECRET="AA4mCwyZsWufLTcgOebo4AsyamdlxijF"
-
-          export KAFKA_CONNECT_OIDC_CLIENT_ID="kafka-connect"
-          export KAFKA_CONNECT_OIDC_CLIENT_SECRET="TSfhSDGpGMbHLAhQj5mdApCefpNQXrrj"
-
-          export KAFKA_UI_OIDC_CLIENT_ID="kafka-ui"
-          export KAFKA_UI_OIDC_CLIENT_SECRET="RlgpmxOH9wtOcjn1uOVXi7LsKyqXudZu"
-
-          export TEAM_A_OIDC_CLIENT_ID="team-a-client"
-          export TEAM_A_OIDC_CLIENT_SECRET="YUNqTNwDDI0LWYcnY4slyIdkmRV7M1Pf"
-
-          export TEAM_B_OIDC_CLIENT_ID="team-b-client"
-          export TEAM_B_OIDC_CLIENT_SECRET="RH9ipKskWDqKa3Xb6W0PoQzefhb25IeM"
 
           # Use the internal service name that works in every K8s cluster
           export K8S_HOST="https://kubernetes.default.svc:443"
@@ -271,18 +230,6 @@ server:
           echo "Creating Policy for External-Secrets Operator"
           cp /tmp/app.hcl /tmp/eso-read.hcl
           vault policy write eso-read /tmp/eso-read.hcl
-          
-          echo "Creating Policy for Prometheus to scrape metrics"
-          printf '%s\n' \
-          'path "/sys/metrics" { capabilities = ["read"] }' \
-          > /tmp/read-metrics.hcl
-          vault policy write read-metrics /tmp/read-metrics.hcl
-
-          echo "Creating token for Prometheus to scrape metrics"
-          vault token create -field=token -policy read-metrics  > /tmp/metrics-token.txt
-
-          echo "Saving metrics token to Internal KV store /metrics/token path" 
-          vault kv put metrics/token token="$(cat /tmp/metrics-token.txt)"
 
           printf '%s\n' \
           'path "auth/token/lookup-self" { capabilities = ["read"] }' \
@@ -348,12 +295,6 @@ server:
             policies="eso-read" \
             audience="https://kubernetes.default.svc.cluster.local" \
             ttl="1h"
-
-          vault write auth/kubernetes/role/read-metrics-role \
-            bound_service_account_names="prometheus-server" \
-            bound_service_account_namespaces="prometheus" \
-            policies="read-metrics" \
-            audience="https://kubernetes.default.svc.cluster.local"
 
           vault write auth/kubernetes/role/argocd-sso-secret-role \
             bound_service_account_names="argo-cd-sso-sa" \
@@ -423,3 +364,27 @@ server:
         - name: data
           mountPath: /vault
 
+serverTelemetry:
+  serviceMonitor:
+    enabled: true
+    selectors:
+      release: monitoring
+  prometheusRules:
+    enabled: true
+    selectors:
+      release: monitoring
+    rules:
+      - alert: vault-HighResponseTime
+        annotations:
+          message: The response time of Vault is over 500ms on average over the last 5 minutes.
+        expr: vault_core_handle_request{quantile="0.5", namespace="vault"} > 500
+        for: 5m
+        labels:
+          severity: warning
+      - alert: vault-HighResponseTime
+        annotations:
+          message: The response time of Vault is over 1s on average over the last 5 minutes.
+        expr: vault_core_handle_request{quantile="0.5", namespace="vault"} > 1000
+        for: 5m
+        labels:
+          severity: critical
