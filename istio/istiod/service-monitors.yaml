@@ -1,0 +1,87 @@
+# Monitor Istio Control Plane (istiod)
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: istio-controlplane-monitor
+  namespace: istio-system
+  labels:
+    release: monitoring-kube-prometheus
+spec:
+  jobLabel: istio
+  selector:
+    matchLabels:
+      istio: pilot
+  namespaceSelector:
+    matchNames:
+      - istio-system
+  endpoints:
+  - port: http-monitoring
+    interval: 15s
+---
+# Monitor Istio Sidecars (Envoy Proxies)
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: istio-proxies-monitor
+  namespace: istio-system
+spec:
+  jobLabel: envoy-stats
+  selector:
+    matchExpressions:
+      - {key: istio-prometheus-ignore, operator: DoesNotExist}
+  namespaceSelector:
+    any: true
+  endpoints:
+  - path: /stats/prometheus
+    targetPort: 15090
+    interval: 15s
+---
+# # Monitor Istio Ingress Gateway
+# apiVersion: monitoring.coreos.com/v1
+# kind: ServiceMonitor
+# metadata:
+#   name: istio-gateway-monitor
+#   namespace: istio-system
+#   labels:
+#     release: monitoring-kube-prometheus
+# spec:
+#   selector:
+#     matchLabels:
+#       istio: gateway 
+#   namespaceSelector:
+#     matchNames:
+#       - istio-system
+#   endpoints:
+#   - targetPort: 15020
+#     path: /stats/prometheus
+#     interval: 15s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: istio-gateway-monitor
+  namespace: istio-system
+  labels:
+    release: monitoring-kube-prometheus
+spec:
+  selector:
+    matchLabels:
+      istio: gateway 
+  namespaceSelector:
+    matchNames:
+      - istio-system
+  podMetricsEndpoints:
+  - targetPort: 15020
+    path: /stats/prometheus
+    interval: 15s
+    relabelings:
+    - action: keep
+      sourceLabels: [__meta_kubernetes_pod_container_name]
+      regex: "istio-proxy"
+    - action: labelmap
+      regex: __meta_kubernetes_pod_label_(.+)
+    - sourceLabels: [__meta_kubernetes_namespace]
+      targetLabel: namespace
+    - sourceLabels: [__meta_kubernetes_pod_name]
+      targetLabel: pod
