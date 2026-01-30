@@ -1,0 +1,284 @@
+alertmanager:
+  enabled: true
+  persistence:
+    enabled: false
+    size: 1Gi
+  config:
+    global:
+      resolve_timeout: 5m
+      slack_api_url: 'change-me'
+
+    route:
+      group_by: ['alertname', 'severity']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 1h
+      receiver: 'slack-notifications'
+
+    receivers:
+      - name: 'slack-notifications'
+        slack_configs:
+          - channel: '#platform-alerts'
+            send_resolved: true
+            title: "{{ .GroupLabels.alertname }}"
+            text: >-
+              *Alert:* {{ .CommonAnnotations.summary }}
+              *Description:* {{ .CommonAnnotations.description }}
+              *Severity:* {{ .CommonLabels.severity }}
+
+  service:
+    type: ClusterIP
+  persistentVolume:
+    enabled: false
+
+nodeExporter:
+  enabled: true
+  service:
+    type: ClusterIP
+
+pushgateway:
+  enabled: false
+
+server:
+  persistentVolume:
+    enabled: false
+  service:
+    type: ClusterIP
+  resources:
+    requests:
+      memory: 200Mi
+      cpu: 100m
+    limits:
+      memory: 500Mi
+      cpu: 200m
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /
+    hosts:
+      - metrics.local.io
+    pathType: Prefix
+    paths:
+      - /
+
+serverFiles:
+  alerting_rules.yml:
+    groups:
+    - name: keycloak-resource-alerts
+      rules:
+        - alert: KeycloakHighCPU
+          expr: |
+            (
+              rate(container_cpu_usage_seconds_total{namespace="keycloak", container="keycloak"}[5m])
+              / 
+              on(pod, container) group_left() 
+              kube_pod_container_resource_limits{resource="cpu", namespace="keycloak"}
+            ) * 100 > 50
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High CPU on {{ $labels.pod }}"
+            description: "Pod {{ $labels.pod }} is using {{ $value | printf \"%.2f\" }}% of its CPU limit."
+
+    # - name: blackbox-exporter-alerts
+    #   rules:
+    #     - alert: KeycloakDown
+    #       expr: probe_success{job="blackbox-keycloak"} == 0
+    #       for: 1m
+    #       labels:
+    #         severity: critical
+    #       annotations:
+    #         summary: "Keycloak is down"
+    #         description: "Keycloak HTTP probe failed for more than 1 minute."
+
+    #     - alert: PostgresDown
+    #       expr: probe_success{job="blackbox-postgres"} == 0
+    #       for: 1m
+    #       labels:
+    #         severity: critical
+    #       annotations:
+    #         summary: "PostgreSQL is down"
+    #         description: "PostgreSQL TCP probe failed for more than 1 minute."
+
+extraScrapeConfigs: |
+  - job_name: 'vault'
+    metrics_path: /v1/sys/metrics
+    params:
+      format: [prometheus]
+    scheme: http
+    static_configs:
+      - targets: ['secrets.local.io:32080']
+    authorization:
+      credentials_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+
+  - job_name: 'keycloak-quarkus-metrics'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['keycloakx-http.keycloak:9000']
+
+  - job_name: 'keycloak-spi-metrics'
+    metrics_path: /realms/master/metrics
+    static_configs:
+      - targets: ['keycloakx-http.keycloak:80']
+
+  - job_name: 'kafka'
+    metrics_path: /metrics
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names:
+            - kafka-cluster
+    scrape_interval: 10s
+    scrape_timeout: 10s
+    scheme: http
+    relabel_configs:
+      # 1. Official Selector: Only keep pods labeled as Kafka, Connect, or MirrorMaker2
+      - action: keep
+        source_labels: [__meta_kubernetes_pod_label_strimzi_io_kind]
+        regex: (Kafka|KafkaConnect|KafkaMirrorMaker2|KafkaExporter)
+
+      # 2. Only keep the prometheus metrics port (Strimzi default is 9404)
+      - action: keep
+        source_labels: [__meta_kubernetes_pod_container_port_number]
+        regex: "9404"
+
+      # 3. Map Strimzi labels (Official Doc style)
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(strimzi_io_.+)
+
+      # 4. Standard Kubernetes Metadata (Namespace, Pod, Node)
+      - action: replace
+        source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
+      - action: replace
+        source_labels: [__meta_kubernetes_pod_name]
+        target_label: kubernetes_pod_name
+      - action: replace
+        source_labels: [__meta_kubernetes_pod_node_name]
+        target_label: node_name
+      - action: replace
+        source_labels: [__meta_kubernetes_pod_host_ip]
+        target_label: node_ip
+      
+      # 5. Helper: Ensure 'cluster' label exists for standard dashboards
+      - action: replace
+        source_labels: [__meta_kubernetes_pod_label_strimzi_io_cluster]
+        target_label: cluster
+
+  - job_name: 'kafka-bridge'
+    metrics_path: /metrics
+    static_configs:
+    - targets: ['my-cluster-bridge-bridge-service.kafka-cluster.svc.cluster.local:8080']
+      labels:
+        strimzi_io_cluster: "my-cluster"
+        strimzi_io_kind: "KafkaBridge"
+        # These two are required for your specific variables:
+        namespace: "kafka-cluster" 
+        container: "my-cluster-bridge"
+
+  - job_name: 'istio'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['istiod.istio-system:15014']
+
+  - job_name: 'kiali'
+    metrics_path: /
+    static_configs:
+      - targets: ['kiali.kiali-operator.svc.cluster.local:9090']
+
+  # - job_name: 'loki'
+  #   metrics_path: /metrics
+  #   static_configs:
+  #     - targets: ['loki.loki:3100']
+
+  # - job_name: 'argo-workflows'
+  #   metrics_path: /metrics
+  #   static_configs:
+  #     - targets: ['argo-workflows-workflow-controller.argo-workflows:8080']
+
+  # - job_name: minio-cluster
+  #   metrics_path: /minio/v2/metrics/cluster
+  #   scheme: http
+  #   static_configs:
+  #     - targets: ['storage.local.io:32080']
+
+  # - job_name: 'blackbox-keycloak'
+  #   metrics_path: /probe
+  #   params:
+  #     module: [http_2xx]
+  #   static_configs:
+  #     - targets:
+  #         - https://sso.local.io:32443/realms/master
+  #   relabel_configs:
+  #     - source_labels: [__address__]
+  #       target_label: __param_target
+  #     - source_labels: [__param_target]
+  #       target_label: instance
+  #     - target_label: __address__
+  #       replacement: blackbox.local.io:32080
+  
+  # - job_name: 'blackbox-postgres'
+  #   metrics_path: /probe
+  #   params:
+  #     module: [tcp_connect]
+  #   static_configs:
+  #     - targets:
+  #         - pg.local.io:32432
+  #   relabel_configs:
+  #     - source_labels: [__address__]
+  #       target_label: __param_target
+  #     - source_labels: [__param_target]
+  #       target_label: instance
+  #     - target_label: __address__
+  #       replacement: blackbox.local.io:32080
+  #     - targets: ['keycloak-metrics.keycloak:9000']
+
+  # - job_name: 'app'
+  #   metrics_path: /metrics
+  #   scheme: http
+  #   static_configs:
+  #     - targets: ['flask-app-service.app:5000']
+
+  # - job_name: 'argo-cd application controller'
+  #   metrics_path: /metrics
+  #   scheme: http
+  #   static_configs:
+  #     - targets: ['argocd-application-controller-metrics.argocd:8082']
+
+  # - job_name: 'argo-cd applicationset controller'
+  #   metrics_path: /metrics
+  #   scheme: http
+  #   static_configs:
+  #     - targets: ['argocd-applicationset-controller-metrics.argocd:8080']
+
+  # - job_name: 'argo-cd notifications controller'
+  #   metrics_path: /metrics
+  #   scheme: http
+  #   static_configs:
+  #     - targets: ['argocd-notifications-controller-metrics.argocd:9001']
+
+  # - job_name: 'argo-cd redis'
+  #   metrics_path: /metrics
+  #   scheme: http
+  #   static_configs:
+  #     - targets: ['argocd-redis-metrics.argocd:9121']
+
+  # - job_name: 'argo-cd repo server'
+  #   metrics_path: /metrics
+  #   scheme: http
+  #   static_configs:
+  #     - targets: ['argocd-repo-server-metrics.argocd:8084']
+
+  # - job_name: 'argo-cd server'
+  #   metrics_path: /metrics
+  #   scheme: http
+  #   static_configs:
+  #     - targets: ['argocd-server-metrics.argocd:8083']
+
+# Scrape configs can be added to target your Flask app
+# additionalScrapeConfigs:
+#   - job_name: 'python3-debian'
+#     static_configs:
+#        - targets: ['python3-debian.default.svc.cluster.local:8000']
