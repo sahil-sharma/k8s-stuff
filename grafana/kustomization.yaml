@@ -31,4 +31,3 @@ helmCharts:
     repo: https://grafana.github.io/helm-charts
     version: 10.1.4
     valuesFile: values.yaml
-   
