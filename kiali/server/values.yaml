@@ -28,6 +28,7 @@ external_services:
 
   grafana:
     enabled: true
+    internal_url: http://grafana.grafana:3000
     external_url: http://dashboards.local.io:32080
     auth:
       type: none
