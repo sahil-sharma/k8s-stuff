@@ -1,5 +1,3 @@
-# nameOverride: "prometheus"
-
 grafana:
   enabled: false
 
@@ -44,7 +42,7 @@ prometheus:
     serviceMonitorSelectorNilUsesHelmValues: false
     ruleSelectorNilUsesHelmValues: false
     podMonitorSelectorNilUsesHelmValues: false
-    retention: 10d
+    retention: 1d
     storageSpec:
      volumeClaimTemplate:
        spec:
