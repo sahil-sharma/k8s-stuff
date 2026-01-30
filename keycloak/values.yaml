@@ -149,12 +149,6 @@ extraEnv: |
   - name: KC_TRACING_ENDPOINT
     value: "http://otel-collector-opentelemetry-collector.opentelemetry.svc.cluster.local:4318"  
 
-# # Optional: expose /metrics and /health over Ingress
-# podAnnotations:
-#   prometheus.io/scrape: "true"
-#   prometheus.io/path: "/metrics"
-#   prometheus.io/port: "9000"
-
 extraInitContainers: |
   - name: download-metrics-spi
     image: alpine:latest 
