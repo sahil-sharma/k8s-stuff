@@ -1,6 +1,6 @@
 global:
   enabled: true
-  tlsDisable: false
+  tlsDisable: true
 
 injector:
   enabled: false
@@ -49,10 +49,6 @@ server:
   extraEnvironmentVars:
     VAULT_ADDR: http://vault.vault:8200
     VAULT_SKIP_VERIFY: true
-
-  # volumeMounts:
-  # - name: vault-init-volume
-  #   mountPath: /v-data
 
   extraContainers:
     - name: vault-setup
@@ -357,6 +353,7 @@ server:
             audience="https://kubernetes.default.svc.cluster.local"
 
           echo "Vault setup and sync completed."
+          echo "Idling...."
           # Keep container running
           tail -f /dev/null
 
