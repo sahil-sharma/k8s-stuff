@@ -6,7 +6,7 @@ metadata:
   name: istio-controlplane-monitor
   namespace: istio-system
   labels:
-    release: monitoring-kube-prometheus
+    release: monitoring
 spec:
   jobLabel: istio
   selector:
@@ -25,6 +25,8 @@ kind: ServiceMonitor
 metadata:
   name: istio-proxies-monitor
   namespace: istio-system
+  labels:
+    release: monitoring
 spec:
   jobLabel: envoy-stats
   selector:
@@ -36,6 +38,16 @@ spec:
   - path: /stats/prometheus
     targetPort: 15090
     interval: 15s
+    relabelings:
+    # 1. Map the namespace correctly
+    - sourceLabels: [__meta_kubernetes_namespace]
+      targetLabel: namespace
+    # 2. Map the pod name
+    - sourceLabels: [__meta_kubernetes_pod_name]
+      targetLabel: pod
+    # 3. Standard Istio dashboard label mapping
+    - action: labelmap
+      regex: __meta_kubernetes_pod_label_(.+)
 ---
 # # Monitor Istio Ingress Gateway
 # apiVersion: monitoring.coreos.com/v1
@@ -63,7 +75,7 @@ metadata:
   name: istio-gateway-monitor
   namespace: istio-system
   labels:
-    release: monitoring-kube-prometheus
+    release: monitoring
 spec:
   selector:
     matchLabels:
