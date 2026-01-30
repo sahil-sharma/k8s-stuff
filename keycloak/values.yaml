@@ -1,12 +1,10 @@
-replicas: 2
-
 # podDisruptionBudget:
 #   minAvailable: 1
 
 autoscaling:
-  enabled: false
+  enabled: true
   minReplicas: 1
-  maxReplicas: 2
+  maxReplicas: 3
 
   metrics:
     - type: Resource
@@ -69,7 +67,7 @@ health:
   enabled: true
 
 dbchecker:
-  enabled: false
+  enabled: true
 
 service:
   type: ClusterIP
@@ -82,8 +80,8 @@ command:
   - "/opt/keycloak/bin/kc.sh"
   - "--verbose"
   - "start"
-  - "--spi-events-listener-jboss-logging-success-level=info"
-  - "--spi-events-listener-jboss-logging-error-level=warn"
+#  - "--spi-events-listener-jboss-logging-success-level=info"
+#  - "--spi-events-listener-jboss-logging-error-level=info"
 
 database:
   vendor: postgres
@@ -140,10 +138,10 @@ extraEnv: |
     value: >-
       -XX:MaxRAMPercentage=50.0
       -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless.{{ .Release.Namespace }}.svc.cluster.local
-  - name: KC_HEALTH_ENABLED
-    value: "true"
-  - name: KC_METRICS_ENABLED
-    value: "true"
+  # - name: KC_HEALTH_ENABLED
+  #   value: "true"
+  # - name: KC_METRICS_ENABLED
+  #   value: "true"
   - name: KC_TRACING_ENABLED
     value: "true"
   - name: KC_TRACING_PROTOCOL
@@ -178,3 +176,51 @@ extraVolumeMounts: |
 extraVolumes: |
   - name: metrics-spi
     emptyDir: {}
+
+# Primary Monitor for Quarkus Metrics (Port 9000)
+serviceMonitor:
+  enabled: true
+  # port: http-internal
+  # scheme: http
+  # path: "/metrics"
+  labels:
+    release: monitoring
+
+# Secondary Monitor for SPI Metrics (Port 80)
+extraServiceMonitor:
+  enabled: true
+  port: http
+  scheme: http
+  path: "/realms/master/metrics"
+  labels:
+    release: monitoring
+
+prometheusRule:
+  enabled: true
+  labels:
+    release: monitoring
+  rules:
+    - alert: KeycloakHighCPU
+      expr: |
+        (rate(container_cpu_usage_seconds_total{container="keycloak"}[5m]) / 
+        on(pod, container) group_left() 
+        kube_pod_container_resource_limits{resource="cpu"}) * 100 > 50
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High CPU on {{ $labels.pod }}"
+        description: "Pod usage is {{ $value }}%"
+    - alert: KeycloakIstioHigh5xxRate
+      annotations:
+        summary: "High 5xx error rate on Keycloak Ingress"
+        description: "Keycloak 5xx errors are at {{ $value | printf \"%.2f\" }}% over the last 5 minutes."
+      expr: |
+        (
+          sum(rate(istio_requests_total{reporter="destination", destination_service_name="monitoring-kube-prometheus-prometheus", response_code=~"5.."}[1m]))
+          /
+          sum(rate(istio_requests_total{reporter="destination", destination_service_name="monitoring-kube-prometheus-prometheus"}[1m]))
+        ) * 100 > 1
+      for: 5m
+      labels:
+        severity: critical
