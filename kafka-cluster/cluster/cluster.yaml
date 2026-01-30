@@ -85,6 +85,8 @@ spec:
         - service-account-kafka-bridge
         - service-account-kafka-connect
     config:
+      initial.broker.registration.timeout.ms: 300000 # 5min
+      broker.heartbeat.interval.ms: 2000
       auto.create.topics.enable: "true"
       # Needed for Oauth authentication and Keycloak authroization
       principal.builder.class: io.strimzi.kafka.oauth.server.OAuthKafkaPrincipalBuilder
@@ -99,26 +101,26 @@ spec:
       transaction.state.log.min.isr: 2
       default.replication.factor: 3
       min.insync.replicas: 2
-    jvmOptions:
-      # optimise for small memory footprint
-      -Xms: 512m
-      -Xmx: 512m
+      jvmOptions: "-Xms512M -Xmx1024M"
     template:
       kafkaContainer:
         env:
-          - name: OAUTH_ENABLE_METRICS
-            value: "true"
+          # - name: OAUTH_ENABLE_METRICS
+          #  value: "true"
           - name: STRIMZI_OAUTH_METRIC_REPORTERS
             value: org.apache.kafka.common.metrics.JmxReporter
     logging:
       type: inline
       loggers:
-        log4j.logger.io.strimzi: "TRACE"
-        log4j.logger.kafka: "DEBUG"
-        log4j.logger.org.apache.kafka: "DEBUG"
+        log4j.logger.io.strimzi: "INFO"
+        log4j.logger.kafka: "INFO"
+        log4j.logger.org.apache.kafka: "INFO"
     livenessProbe:
-      initialDelaySeconds: 3600
-      timeoutSeconds: 3600
+      initialDelaySeconds: 60
+      timeoutSeconds: 5
+    readinessProbe:
+      initialDelaySeconds: 60
+      timeoutSeconds: 5
     metricsConfig:
       type: jmxPrometheusExporter
       valueFrom:
