@@ -161,6 +161,18 @@ dashboardProviders:
         type: file
         options:
           path: /var/lib/grafana/dashboards/keycloak
+      - name: 'istio'
+        orgId: 1
+        folder: 'Istio'
+        type: file
+        options:
+          path: /var/lib/grafana/dashboards/istio
+      - name: 'argo'
+        orgId: 1
+        folder: 'Argo'
+        type: file
+        options:
+          path: /var/lib/grafana/dashboards/argo
 dashboards:
   keycloak:
     keycloak-quarkus-metrics:
@@ -171,11 +183,7 @@ dashboards:
       gnetId: 19659
       revision: 1
       datasource: Prometheus
-  default:
-    # nginx-ingress:
-    #   gnetId: 9614
-    #   revision: 1
-    #   datasource: Prometheus
+  istio:
     istio-mesh-dashboard:
       gnetId: 7639
       revision: 283
@@ -196,6 +204,7 @@ dashboards:
       gnetId: 7645
       revision: 283
       datasource: Prometheus
+  argo:
     argo-cd:
       gnetId: 14584
       revision: 1
@@ -204,6 +213,11 @@ dashboards:
       gnetId: 21393
       revision: 1
       datasource: Prometheus
+  default:
+    # nginx-ingress:
+    #   gnetId: 9614
+    #   revision: 1
+    #   datasource: Prometheus
     vault:
       gnetId: 12904
       revision: 2
