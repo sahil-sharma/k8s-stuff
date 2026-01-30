@@ -218,6 +218,14 @@ dashboards:
     #   gnetId: 9614
     #   revision: 1
     #   datasource: Prometheus
+    otel:
+      gnetId: 15983
+      revision: 29
+      datasource: Prometheus
+    tempo-otel:
+      gnetId: 23242
+      revision: 1
+      datasource: Prometheus
     vault:
       gnetId: 12904
       revision: 2
