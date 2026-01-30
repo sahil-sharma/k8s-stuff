@@ -12,3 +12,10 @@ tempo:
   persistence:
     enabled: true
     size: 1Gi
+
+serviceMonitor:
+  enabled: true
+  interval: 15s
+  scrapeTimeout: 10s
+  additionalLabels:
+    release: monitoring
