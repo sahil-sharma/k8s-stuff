@@ -80,6 +80,42 @@ bridge_consume_flow() {
         -H "Authorization: Bearer $TOKEN" > /dev/null
 }
 
+bridge_produce_delayed() {
+    local topic=$1
+    local count=500
+
+    echo "Starting delayed production (1s interval) to $topic..."
+
+    # We fetch the token once outside the loop for efficiency,
+    # but we will refresh it if the loop runs longer than token expiry.
+    TOKEN=$(get_bridge_token)
+
+    for i in $(seq 1 $count); do
+        local msg="Message Number-$i"
+
+        # Every 50 messages, refresh the token just in case it expires
+        if (( i % 50 == 0 )); then
+            TOKEN=$(get_bridge_token)
+        fi
+
+        # Send message and capture the HTTP status code
+        RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$BRIDGE_URL/topics/$topic" \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "content-type: application/vnd.kafka.json.v2+json" \
+            -d "{\"records\":[{\"value\":\"$msg\"}]}")
+
+        if [ "$RESPONSE" == "200" ]; then
+            echo "[$(date +%T)] Message $i/500: SENT (HTTP $RESPONSE)"
+        else
+            echo "[$(date +%T)] Message $i/500: FAILED (HTTP $RESPONSE)"
+        fi
+
+        sleep 1
+    done
+    
+    echo "Delayed production complete."
+}
+
 show_menu() {
     clear
     echo "================================================================"
@@ -87,6 +123,9 @@ show_menu() {
     echo "================================================================"
     echo " PRODUCE MESSAGES:"
     echo "  pa) Produce to $A_TOPIC      pb) Produce to $B_TOPIC      px) Produce to $X_TOPIC"
+    echo "  pda) DELAYED Produce to $A_TOPIC (500 msgs, 1s delay)"
+    echo "  pdb) DELAYED Produce to $B_TOPIC (500 msgs, 1s delay)"
+    echo "  pdx) DELAYED Produce to $X_TOPIC (500 msgs, 1s delay)"
     echo "----------------------------------------------------------------"
     echo " CONSUME MESSAGES (Create -> Sub -> Read -> Delete):"
     echo "  ca) Consume from $A_TOPIC    cb) Consume from $B_TOPIC    cx) Consume from $X_TOPIC"
@@ -102,6 +141,9 @@ while true; do
         pa) bridge_produce "$A_TOPIC" ;;
         pb) bridge_produce "$B_TOPIC" ;;
         px) bridge_produce "$X_TOPIC" ;;
+        pda) bridge_produce_delayed "$A_TOPIC" ;;
+        pdb) bridge_produce_delayed "$B_TOPIC" ;;
+        pdx) bridge_produce_delayed "$X_TOPIC" ;;
         ca) bridge_consume_flow "$A_TOPIC" ;;
         cb) bridge_consume_flow "$B_TOPIC" ;;
         cx) bridge_consume_flow "$X_TOPIC" ;;
