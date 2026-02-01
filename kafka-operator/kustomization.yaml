@@ -3,6 +3,7 @@ kind: Kustomization
 
 resources:
   - namespace.yaml
+  - peer-authentication.yaml
 
 generatorOptions:
   disableNameSuffixHash: true
@@ -12,7 +13,9 @@ helmCharts:
     releaseName: strimzi-cluster-operator
     namespace: kafka-operator
     repo: oci://quay.io/strimzi-helm
-    version: 0.49.0
+    version: 0.50.0
     includeCRDs: true
     valuesInline:
       watchAnyNamespace: true
+      annotations:
+        traffic.sidecar.istio.io/excludeOutboundPorts: "9090,9091,9092"

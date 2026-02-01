@@ -8,6 +8,7 @@ resources:
   - metrics-configmap.yaml
   - metrics-service.yaml
   - peer-authentication.yaml
+  - virtualservice.yaml
   - cluster-operator-pod-monitor.yaml
   - entity-operator-pod-monitor.yaml
   - kafka-resources-pod-monitor.yaml
