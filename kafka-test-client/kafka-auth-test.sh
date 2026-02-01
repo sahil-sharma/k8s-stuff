@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Kafka URLs
 SSO_URL="http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token"
-BOOTSTRAP_SERVER_ADDR="my-cluster-kafka-bootstrap.kafka-cluster.svc:9092"
+BOOTSTRAP_SERVER_ADDR="my-cluster-kafka-bootstrap.kafka-cluster.svc:9094"
 BRIDGE_URL="http://kafka.local.io:32080"
 # Not using this but maybe needed as by default idempotence is true
 DISABLE_IDEMPOTENCE="--producer-property enable.idempotence=false"
