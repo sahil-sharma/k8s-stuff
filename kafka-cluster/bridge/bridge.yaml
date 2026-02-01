@@ -5,7 +5,7 @@ metadata:
   namespace: kafka-cluster
 spec:
   replicas: 1
-  bootstrapServers: my-cluster-kafka-bootstrap.kafka-cluster.svc:9092
+  bootstrapServers: my-cluster-kafka-bootstrap.kafka-cluster.svc:9094
   http:
     port: 8080
   authentication:
@@ -17,6 +17,11 @@ spec:
       sasl.login.callback.handler.class: io.strimzi.kafka.oauth.client.JaasClientOauthLoginCallbackHandler
       sasl.jaas.config: 'org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required oauth.token.endpoint.uri="http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token" oauth.client.id="${strimzienv:OAUTH_CLIENT_ID}" oauth.client.secret="${strimzienv:OAUTH_CLIENT_SECRET}";'
   template:
+    pod:
+      metadata:
+        annotations:
+          # Tell the Bridge sidecar NOT to intercept traffic going to Kafka
+          traffic.sidecar.istio.io/excludeOutboundPorts: "9090,9091,9092,9094"
     bridgeContainer:
       env:
         - name: OTEL_SERVICE_NAME
@@ -26,7 +31,7 @@ spec:
         - name: OTEL_TRACES_SAMPLER
           value: "always_on"
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: "http://otel-collector-opentelemetry-collector.opentelemetry:4317"
+          value: "http://otel-collector-opentelemetry-collector.opentelemetry:4318"
         - name: OAUTH_CLIENT_ID
           valueFrom:
             secretKeyRef:

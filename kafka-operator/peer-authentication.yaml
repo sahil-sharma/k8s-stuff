@@ -1,11 +1,11 @@
 apiVersion: security.istio.io/v1beta1
 kind: PeerAuthentication
 metadata:
-  name: kafka-internal-mtls-disable
-  namespace: kafka-cluster
+  name: disable-istio-for-kafka-operator
+  namespace: kafka-operator
 spec:
   selector:
     matchLabels:
-      strimzi.io/cluster: my-cluster
+      strimzi.io/kind: cluster-operator
   mtls:
     mode: DISABLE

@@ -1,6 +1,9 @@
 env:
   - name: LOGGING_LEVEL_ROOT
-    value: DEBUG
+    value: INFO
+
+podAnnotations:
+  "traffic.sidecar.istio.io/excludeOutboundPorts": "9092,9094"
 
 envs:
   secretMappings:
@@ -21,7 +24,7 @@ yamlApplicationConfig:
   kafka:
     clusters:
       - name: my-cluster
-        bootstrapServers: my-cluster-kafka-bootstrap.kafka-cluster.svc:9092
+        bootstrapServers: my-cluster-kafka-bootstrap.kafka-cluster.svc:9094
         properties:
           security.protocol: SASL_PLAINTEXT
           sasl.mechanism: OAUTHBEARER
@@ -29,6 +32,7 @@ yamlApplicationConfig:
           sasl.login.callback.handler.class: org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler
           socket.connection.setup.timeout.max.ms: 30000
           socket.connection.setup.timeout.ms: 30000
+          # sasl.login.callback.handler.class: io.strimzi.kafka.oauth.client.JaasClientOauthLoginCallbackHandler
           sasl.jaas.config: >
             org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required
               clientId="${KAFKA_CLIENT_ID}"
@@ -37,8 +41,8 @@ yamlApplicationConfig:
   logging:
     level:
       org.springframework.security: INFO
-      io.kafbat.ui.service.rbac: DEBUG
-      io.kafbat.ui.service.rbac.extractor: DEBUG
+      io.kafbat.ui.service.rbac: INFO
+      io.kafbat.ui.service.rbac.extractor: INFO
 
   dynamic.config.enabled: true
 
