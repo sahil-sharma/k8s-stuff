@@ -79,7 +79,7 @@ ENV SSO_TOKEN_URL=${SSO_URL}/realms/${REALM_NAME}/protocol/openid-connect/token
 ENV KAFKA_OPTS="-Dorg.apache.kafka.sasl.oauthbearer.allowed.urls=${SSO_TOKEN_URL}"
 
 # ENVs needed for testing OAuth in Kafka
-ENV BOOTSTRAP_SERVER_ADDR="my-cluster-kafka-bootstrap.kafka-cluster.svc:9092"
+ENV BOOTSTRAP_SERVER_ADDR="my-cluster-kafka-bootstrap.kafka-cluster.svc:9094"
 ENV KAFKA_BRIDGE_URL="http://kafka.local.io:32080"
 ENV TEAM_A_CLIENT_ID="team-a-client"
 ENV TEAM_B_CLIENT_ID="team-b-client"
