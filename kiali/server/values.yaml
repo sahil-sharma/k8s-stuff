@@ -30,17 +30,13 @@ external_services:
 
   grafana:
     enabled: true
-    auth:
-        insecure_skip_verify: false
-        password: "pwd"
-        token: ""
-        type: "basic"
-        use_kiali_token: false
-        username: "user"
-    internal_url: http://grafana.grafana:3000/
-    external_url: http://dashboards.local.io:32080
     # auth:
-    #   type: none
+    #   use_kiali_token: false
+    #   type: bearer
+    #   token: secret:kiali-grafana-auth:token
+    #   insecure_skip_verify: false
+    internal_url: http://grafana.grafana.svc.cluster.local
+    external_url: http://dashboards.local.io:32080
 
 server:
   observability:
