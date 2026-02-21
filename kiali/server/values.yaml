@@ -1,16 +1,18 @@
 auth:
   strategy: openid
   openid:
+    allowed_domains:
+      - local.io
     authentication_timeout: 600
     insecure_skip_verify_tls: true
     disable_rbac: true
     client_id: kiali
-    # secret_name: kiali
     issuer_uri: http://sso.local.io:32080/realms/platform
     scopes:
       - openid
       - profile
       - email
+      - groups
     username_claim: email
 
 deployment:
@@ -28,10 +30,17 @@ external_services:
 
   grafana:
     enabled: true
-    internal_url: http://grafana.grafana:3000
-    external_url: http://dashboards.local.io:32080
     auth:
-      type: none
+        insecure_skip_verify: false
+        password: "pwd"
+        token: ""
+        type: "basic"
+        use_kiali_token: false
+        username: "user"
+    internal_url: http://grafana.grafana:3000/
+    external_url: http://dashboards.local.io:32080
+    # auth:
+    #   type: none
 
 server:
   observability:
