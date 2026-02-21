@@ -7,6 +7,6 @@ resources:
 helmCharts:
   - name: base
     repo: https://istio-release.storage.googleapis.com/charts
-    version: 1.28.2
+    version: 1.29.0
     releaseName: istio-base
     namespace: istio-system

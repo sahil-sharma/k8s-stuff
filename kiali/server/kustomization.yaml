@@ -9,7 +9,7 @@ resources:
 helmCharts:
   - name: kiali-server
     repo: https://kiali.org/helm-charts
-    version: 2.20.0
+    version: 2.22.0
     releaseName: kiali-server
     namespace: kiali-operator
     valuesFile: values.yaml

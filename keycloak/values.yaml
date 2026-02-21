@@ -1,6 +1,12 @@
 # podDisruptionBudget:
 #   minAvailable: 1
 
+# Use a custom image with the SCIM SPI included else comment out the image section and use the default Keycloak image. # If using the default image, you will need to manually add the SCIM SPI to the Keycloak instance.
+# image:
+#   repository: sahilwork/kc-scim-spi
+#   tag: "v4"
+#   pullPolicy: Never
+
 autoscaling:
   enabled: true
   minReplicas: 1
@@ -80,8 +86,6 @@ command:
   - "/opt/keycloak/bin/kc.sh"
   - "--verbose"
   - "start"
-#  - "--spi-events-listener-jboss-logging-success-level=info"
-#  - "--spi-events-listener-jboss-logging-error-level=info"
 
 database:
   vendor: postgres
@@ -95,17 +99,6 @@ database:
 
 ingress:
   enabled: false
-  ingressClassName: nginx
-  annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/proxy-buffer-size: 128k
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-  rules:
-    - host: sso.local.io
-      paths:
-        - path: /
-          pathType: Prefix
 
 extraEnv: |
   - name: KC_HOSTNAME
@@ -120,63 +113,54 @@ extraEnv: |
     value: admin
   - name: KC_BOOTSTRAP_ADMIN_PASSWORD
     value: admin123
-  - name: KC_CACHE
-    value: ispn
   - name: KC_HOSTNAME_STRICT_HTTPS
     value: "false"
-  - name: KC_HTTP_ENABLED
-    value: "true"
-  # - name: KC_CACHE_STACK
-  #   value: "kubernetes"
   - name: KC_HTTP_ENABLED
     value: "true"
   - name: KC_PROXY_HEADERS
     value: "xforwarded"
   - name: KC_HOSTNAME_DEBUG
     value: "true"
-  - name: JAVA_OPTS_APPEND
-    value: >-
-      -XX:MaxRAMPercentage=50.0
-      -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless.{{ .Release.Namespace }}.svc.cluster.local
-  # - name: KC_HEALTH_ENABLED
+  # - name: SCIM_AUTHENTICATION_MODE
+  #   value: "EXTERNAL"
+  # - name: SCIM_EXTERNAL_ISSUER
+  #   value: "https://sts.windows.net/<tenant-ID>/"
+  # - name: SCIM_EXTERNAL_AUDIENCE
+  #   value: "8adf8e6e-67b2-4cf2-a259-e3dc5476c621"     # This is consistent from Microsoft
+  # - name: SCIM_EXTERNAL_JWKS_URI
+  #   value: "https://login.microsoftonline.com/<tenant-ID>/discovery/v2.0/keys"
+  # - name: KC_TRACING_ENABLED
   #   value: "true"
-  # - name: KC_METRICS_ENABLED
-  #   value: "true"
-  - name: KC_TRACING_ENABLED
-    value: "true"
-  - name: KC_TRACING_PROTOCOL
-    value: "http/protobuf"
-  - name: KC_TRACING_ENDPOINT
-    value: "http://otel-collector-opentelemetry-collector.opentelemetry.svc.cluster.local:4318"  
+  # - name: KC_TRACING_PROTOCOL
+  #   value: "http/protobuf"
+  # - name: KC_TRACING_ENDPOINT
+  #   value: "http://otel-collector-opentelemetry-collector.opentelemetry.svc.cluster.local:4318"
 
 extraInitContainers: |
-  - name: download-metrics-spi
+  - name: kc-spi
     image: alpine:latest 
     command:
       - sh
       - -c
       - >
-        apk add --no-cache curl &&
+        apk add --no-cache curl unzip &&
         curl -L -o /extensions/keycloak-metrics-spi.jar
         https://github.com/aerogear/keycloak-metrics-spi/releases/download/7.0.0/keycloak-metrics-spi-7.0.0.jar
     volumeMounts:
-      - name: metrics-spi
+      - name: kc-spi
         mountPath: /extensions
 
 extraVolumeMounts: |
-  - name: metrics-spi
+  - name: kc-spi
     mountPath: /opt/keycloak/providers
 
 extraVolumes: |
-  - name: metrics-spi
+  - name: kc-spi
     emptyDir: {}
 
 # Primary Monitor for Quarkus Metrics (Port 9000)
 serviceMonitor:
   enabled: true
-  # port: http-internal
-  # scheme: http
-  # path: "/metrics"
   labels:
     release: monitoring
 

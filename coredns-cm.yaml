@@ -16,9 +16,7 @@ data:
         hosts {
           172.18.0.2 welcome.local.io sso.local.io secrets.local.io cd.local.io metrics.local.io logs.local.io dashboards.local.io auth.local.io rollouts.local.io idp.local.io traces.local.io jobs.local.io storage.local.io console.storage.local.io app.local.io appdb.local.io kafka-ui.local.io traffic.local.io kafka.local.io traces.local.io collector.local.io
           172.18.0.3 welcome.local.io sso.local.io secrets.local.io cd.local.io metrics.local.io logs.local.io dashboards.local.io auth.local.io rollouts.local.io idp.local.io traces.local.io jobs.local.io storage.local.io console.storage.local.io app.local.io appdb.local.io kafka-ui.local.io traffic.local.io kafka.local.io traces.local.io collector.local.io
-          172.18.0.4 welcome.local.io sso.local.io secrets.local.io cd.local.io metrics.local.io logs.local.io dashboards.local.io auth.local.io rollouts.local.io idp.local.io traces.local.io jobs.local.io storage.local.io console.storage.local.io app.local.io appdb.local.io kafka-ui.local.io traffic.local.io kafka.local.io traces.local.io collector.local.io
-          172.18.0.5 welcome.local.io sso.local.io secrets.local.io cd.local.io metrics.local.io logs.local.io dashboards.local.io auth.local.io rollouts.local.io idp.local.io traces.local.io jobs.local.io storage.local.io console.storage.local.io app.local.io appdb.local.io kafka-ui.local.io traffic.local.io kafka.local.io traces.local.io collector.local.io
-          
+          172.18.0.4 welcome.local.io sso.local.io secrets.local.io cd.local.io metrics.local.io logs.local.io dashboards.local.io auth.local.io rollouts.local.io idp.local.io traces.local.io jobs.local.io storage.local.io console.storage.local.io app.local.io appdb.local.io kafka-ui.local.io traffic.local.io kafka.local.io traces.local.io collector.local.io          
           fallthrough
         }
         forward . /etc/resolv.conf {

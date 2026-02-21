@@ -69,8 +69,14 @@ bridge_consume_flow() {
             echo -e "\n--- [ DATA FOUND ] ---"
             # Decode the base64 values
             echo "$RECORDS" | jq -r '.[].value | @base64d'
-            echo "-----------------------"
-            break
+
+            echo "3.5 Committing offsets..."
+            # We send an empty body to the /offsets endpoint to commit the 
+            # last offsets returned by the previous poll (records call).
+            curl -s -X POST "$BRIDGE_URL/consumers/$group/instances/$instance/offsets" \
+                -H "Authorization: Bearer $TOKEN" \
+                -H "content-type: application/vnd.kafka.v2+json" \
+                -d "{}" | jq .
         fi
         sleep 1
     done

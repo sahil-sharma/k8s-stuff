@@ -90,7 +90,7 @@ config:
         insecure: true
 
     otlphttp/loki:
-      endpoint: http://logs.local.io:32080
+      endpoint: http://logs.local.io:32080/otlp
       tls:
         insecure: true
       # headers:
