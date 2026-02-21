@@ -4,20 +4,13 @@ set -euo pipefail
 # Kafka URLs
 SSO_URL="http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token"
 BOOTSTRAP_SERVER_ADDR="my-cluster-kafka-bootstrap.kafka-cluster.svc:9094"
-BRIDGE_URL="http://kafka.local.io:32080"
+
 # Not using this but maybe needed as by default idempotence is true
 DISABLE_IDEMPOTENCE="--producer-property enable.idempotence=false"
 
-# User Info
-ALICE_USERNAME="alice"
-BOB_USERNAME="bob"
-ALICE_PASSWORD=""
-BOB_PASSWORD=""
-
 # Team Info
-A_SECRET=""
-B_SECRET=""
-KAFKA_CLI_SECRET=""
+TEAM_A_SECRET=""
+TEAM_B_SECRET=""
 
 # Property Files
 TEAM_A_PROPERTIES_FILE="/opt/a-team-client.properties"
@@ -48,8 +41,8 @@ show_menu() {
     echo "               KAFKA OIDC AUTHORIZATION TESTER"
     echo "================================================================"
     echo " TOKEN INSPECTION (UMA / JWT):"
-    echo "  t1) Inspect Team-A Permissions (Aud: kafka)   t3) Inspect Alice Permissions (Aud: kafka-cli)"
-    echo "  t2) Inspect Team-B Permissions (Aud: kafka)   t4) Inspect Bob Permissions (Aud: kafka-cli)"
+    echo "  t1) Inspect Team-A Permissions (Aud: kafka)"
+    echo "  t2) Inspect Team-B Permissions (Aud: kafka)"
     echo "----------------------------------------------------------------"
     echo " KAFKA OPERATIONS:"
     echo "  1) A write to A topic             13) A list topics"
@@ -86,46 +79,12 @@ inspect_service_account() {
         -d "audience=kafka" | jq -R 'split(".") | .[1] | @base64d | fromjson' | jq .
 }
 
-inspect_user_uma() {
-    local user=$1
-    local pass=$2
-    local audience=$3
-
-    if [ -z "$pass" ]; then
-        read -s -p "Enter password for $user: " pass
-        echo ""
-    fi
-
-    echo "--- User UMA Exchange for $user (Audience: $audience) ---"
-    echo -e "\n1. Getting Access Token..."
-    
-    USER_TOKEN=$(curl -s -X POST "$SSO_URL" \
-        -d "grant_type=password" \
-        -d "client_id=kafka-cli" \
-        -d "client_secret=$KAFKA_CLI_SECRET" \
-        -d "username=$user" \
-        -d "password=$pass" | jq -r .access_token)
-
-    if [ "$USER_TOKEN" == "null" ] || [ -z "$USER_TOKEN" ]; then
-        echo "Error: Authentication failed."
-        return
-    fi
-
-    echo "2. Exchanging for UMA Permissions Ticket..."
-    curl -s -X POST "$SSO_URL" \
-        -H "Authorization: Bearer $USER_TOKEN" \
-        -d "grant_type=urn:ietf:params:oauth:grant-type:uma-ticket" \
-        -d "audience=$audience" | jq -R 'split(".") | .[1] | @base64d | fromjson' | jq .
-}
-
 while true; do
     show_menu
     read -p "Option: " opt
     case $opt in
-        t1) inspect_service_account "team-a-client" "$A_SECRET" ;;
-        t2) inspect_service_account "team-b-client" "$B_SECRET" ;;
-        t3) inspect_user_uma "$ALICE_PASSWORD" "$ALICE_PASSWORD" "kafka-cli" ;;
-        t4) inspect_user_uma "$BOB_USERNAME" "$BOB_PASSWORD" "kafka-cli" ;;
+        t1) inspect_service_account "team-a-client" "$TEAM_A_SECRET" ;;
+        t2) inspect_service_account "team-b-client" "$TEAM_B_SECRET" ;;
         1) get_message; echo "$USER_MSG" | $PRODUCER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $A_TOPIC --producer.config $TEAM_A_PROPERTIES_FILE ;;
         2) get_message; echo "$USER_MSG" | $PRODUCER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $B_TOPIC --producer.config $TEAM_A_PROPERTIES_FILE ;;
         3) get_message; echo "$USER_MSG" | $PRODUCER_SCRIPT --bootstrap-server $BOOTSTRAP_SERVER_ADDR --topic $A_TOPIC --producer.config $TEAM_B_PROPERTIES_FILE ;;
