@@ -52,7 +52,7 @@ server:
 
   extraContainers:
     - name: vault-setup
-      image: "hashicorp/vault:1.20.1"
+      image: "hashicorp/vault:1.20.4"
       command: ["/bin/sh", "-c"]
       args:
         - |
@@ -64,7 +64,11 @@ server:
 
           # Use the internal service name that works in every K8s cluster
           export K8S_HOST="https://kubernetes.default.svc:443"
-          
+
+          export MINIO_ROOT_USER="admin"
+          export MINIO_ROOT_PASSWORD="admin123"
+
+
           # Vault needs to trust the K8s API certificate
           export VAULT_SA_CA_CRT="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
           echo "Waiting for Vault to be reachable..."
