@@ -3,15 +3,11 @@ grafana:
 
 alertmanager:
   enabled: true
-  alertmanagerSpec:
-    replicas: 1
-    secrets: 
-      - slack-webhook-secret
   config:
     global:
       resolve_timeout: 5m
     route:
-      group_by: ['namespace', 'pod']
+      group_by: ['alertname', 'namespace', 'topic'] 
       group_wait: 30s
       group_interval: 5m
       repeat_interval: 12h
@@ -26,13 +22,15 @@ alertmanager:
       slack_configs:
       - channel: '#platform-alerts'
         api_url_file: '/etc/alertmanager/secrets/slack-webhook-secret/slack-webhook-url'
-        title: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+        title: '[{{ .Status | upper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonAnnotations.summary }}'
         text: >-
           {{ range .Alerts -}}
+          *Alert:* {{ .Labels.alertname }}
           *Description:* {{ .Annotations.description }}
-          *Severity:* {{ .Labels.severity }}
+          *Details:* {{ if .Labels.topic }}*Topic:* {{ .Labels.topic }}{{ end }} {{ if .Labels.partition }}*Partition:* {{ .Labels.partition }}{{ end }}
+          ---
           {{- end }}
-        color: '{{ if eq .Status "firing" }}danger{{ else }}good{{ end }}'
+        color: '{{ if eq .Status "firing" }}{{ if eq .Labels.severity "critical" }}#FF0000{{ else }}warning{{ end }}{{ else }}good{{ end }}'
 
 prometheus:
   enabled: true
