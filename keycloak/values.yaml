@@ -7,27 +7,29 @@
 #   tag: "v4"
 #   pullPolicy: Never
 
-autoscaling:
-  enabled: true
-  minReplicas: 1
-  maxReplicas: 3
+# autoscaling:
+#   enabled: true
+#   minReplicas: 1
+#   maxReplicas: 3
 
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: 70
-  behavior:
-    scaleDown:
-      stabilizationWindowSeconds: 300
-      policies:
-        - type: Pods
-          value: 1
-          periodSeconds: 300
+#   metrics:
+#     - type: Resource
+#       resource:
+#         name: cpu
+#         target:
+#           type: Utilization
+#           averageUtilization: 70
+#   behavior:
+#     scaleDown:
+#       stabilizationWindowSeconds: 300
+#       policies:
+#         - type: Pods
+#           value: 1
+#           periodSeconds: 300
 
-resources: 
+replicas: 1
+
+resources:
   requests:
     cpu: 500m
     memory: 1024Mi
@@ -138,7 +140,7 @@ extraEnv: |
 
 extraInitContainers: |
   - name: kc-spi
-    image: alpine:latest 
+    image: alpine:latest
     command:
       - sh
       - -c
@@ -180,8 +182,8 @@ prometheusRule:
   rules:
     - alert: KeycloakHighCPU
       expr: |
-        (rate(container_cpu_usage_seconds_total{container="keycloak"}[5m]) / 
-        on(pod, container) group_left() 
+        (rate(container_cpu_usage_seconds_total{container="keycloak"}[5m]) /
+        on(pod, container) group_left()
         kube_pod_container_resource_limits{resource="cpu"}) * 100 > 50
       for: 1m
       labels:
@@ -192,7 +194,7 @@ prometheusRule:
     - alert: KeycloakIstioHigh5xxRate
       annotations:
         summary: "High 5xx error rate on Keycloak Ingress"
-        description: "Keycloak 5xx errors are at {{ $value | printf \"%.2f\" }}% over the last 5 minutes."
+        description: 'Keycloak 5xx errors are at {{ $value | printf "%.2f" }}% over the last 5 minutes.'
       expr: |
         (
           sum(rate(istio_requests_total{reporter="destination", destination_service_name="monitoring-kube-prometheus-prometheus", response_code=~"5.."}[1m]))
