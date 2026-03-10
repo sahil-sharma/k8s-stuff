@@ -111,7 +111,7 @@ yamlApplicationConfig:
             value: Dev Team B
         permissions:
           - resource: clusterconfig
-            actions: [ "view" ]
+            actions: ["view"]
           - resource: topic
             value: ".*"
             actions:
@@ -119,12 +119,12 @@ yamlApplicationConfig:
               - MESSAGES_READ
           - resource: consumer
             value: ".*"
-            actions: [ view ]
+            actions: [view]
           - resource: schema
             value: ".*"
-            actions: [ view ]
+            actions: [view]
           - resource: connect
             value: ".*"
-            actions: [ view ]
+            actions: [view]
           - resource: acl
-            actions: [ view ]
+            actions: [view]
