@@ -21,7 +21,7 @@ serviceMonitor:
     - port: metrics
   extraLabels:
     release: monitoring
-  selectorOverride: 
+  selectorOverride:
     app.kubernetes.io/name: opentelemetry-collector
     app.kubernetes.io/instance: otel-collector
     component: agent-collector
@@ -54,8 +54,8 @@ config:
           endpoint: 0.0.0.0:4318
 
     filelog:
-      include: [ /var/log/pods/*/*/*.log ]
-      exclude: [ /var/log/pods/loki_*/*/*.log ] # Exclude Loki pod logs to avoid log loops
+      include: [/var/log/pods/*/*/*.log]
+      exclude: [/var/log/pods/loki_*/*/*.log] # Exclude Loki pod logs to avoid log loops
       start_at: end
       include_file_path: true
       include_file_name: false
@@ -69,7 +69,7 @@ config:
       check_interval: 1s
       limit_percentage: 70
       spike_limit_percentage: 30
-    
+
     k8sattributes:
       extract:
         metadata:
@@ -81,11 +81,11 @@ config:
       pod_association:
         - sources:
             - from: resource_attribute
-              name: k8s.pod.name    
-  
+              name: k8s.pod.name
+
   exporters:
-    otlphttp/tempo:
-      endpoint: http://traces.local.io:32080
+    otlp/tempo:
+      endpoint: tempo.tempo.svc.cluster.local:4317
       tls:
         insecure: true
 
@@ -105,8 +105,8 @@ config:
       traces:
         receivers: [otlp]
         processors: [batch]
-        exporters: [otlphttp/tempo]
+        exporters: [otlp/tempo]
       logs:
         receivers: [filelog]
-        processors: [k8sattributes, memory_limiter, batch] 
+        processors: [k8sattributes, memory_limiter, batch]
         exporters: [otlphttp/loki]
