@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cruise-control-ui
+  namespace: kafka-cluster
+  labels:
+    app: cruise-control-ui
+spec:
+  selector:
+    app: cruise-control-ui
+  ports:
+    - protocol: TCP
+      port: 9090
+      targetPort: 9090

@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-cruise-control-ui-ingress
+  namespace: kafka-cluster
+spec:
+  podSelector:
+    matchLabels:
+      strimzi.io/name: my-cluster-cruise-control
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: cruise-control-ui
+      ports:
+        - protocol: TCP
+          port: 9090

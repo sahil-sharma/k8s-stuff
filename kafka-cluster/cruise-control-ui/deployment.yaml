@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cruise-control-ui
+  namespace: kafka-cluster
+  labels:
+    app: cruise-control-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cruise-control-ui
+  template:
+    metadata:
+      labels:
+        app: cruise-control-ui
+      annotations:
+        # Tell Istio not to intercept outbound traffic to Cruise Control on port 9090
+        traffic.sidecar.istio.io/excludeOutboundPorts: "9090"
+    spec:
+      containers:
+        - name: cruise-control-ui
+          image: sahilwork/kafka-cruise-control:v1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - name: cruise-control-ui
+              mountPath: /etc/nginx/conf.d
+      volumes:
+        - name: cruise-control-ui
+          configMap:
+            name: cruise-control-ui
