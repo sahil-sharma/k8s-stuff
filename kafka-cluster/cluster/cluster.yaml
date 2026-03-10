@@ -64,7 +64,7 @@ spec:
       timeoutSeconds: 5
   kafka:
     version: 4.1.1
-    metadataVersion: "4.0"
+    metadataVersion: "4.1"
     jvmOptions:
       "-Xms": "1024m"
       "-Xmx": "1024m"
@@ -159,6 +159,18 @@ spec:
       pod:
         metadata:
           annotations:
-            traffic.sidecar.istio.io/excludeOutboundPorts: "9091,9092,9093"
+            traffic.sidecar.istio.io/excludeOutboundPorts: "9091,9092,9093,9094"
     topicOperator: {}
     userOperator: {}
+  cruiseControl:
+    template:
+      pod:
+        metadata:
+          annotations:
+            traffic.sidecar.istio.io/excludeOutboundPorts: "9091,9092,9093,9094"
+    config:
+      webserver.ssl.enable: "false"
+      webserver.security.enable: "false"
+      webserver.http.cors.origin: "http://cruise-control.local.io"
+      bootstrap.servers: my-cluster-kafka-bootstrap.kafka-cluster.svc:9094
+      security.protocol: SASL_PLAINTEXT

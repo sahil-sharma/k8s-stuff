@@ -41,3 +41,17 @@ spec:
   config:
     retention.ms: 604800000
 ---
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaTopic
+metadata:
+  name: b-topic-dlq
+  namespace: kafka-cluster
+  labels:
+    strimzi.io/cluster: my-cluster
+spec:
+  topicName: b_topic.dlq
+  partitions: 3
+  replicas: 1
+  config:
+    retention.ms: 604800000
+---
