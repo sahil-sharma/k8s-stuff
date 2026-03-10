@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-producer
+  namespace: default
+  labels:
+    app: kafka-producer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-producer
+  template:
+    metadata:
+      labels:
+        app: kafka-producer
+    spec:
+      containers:
+        - name: producer
+          image: sahilwork/test-client:go-v3
+          imagePullPolicy: Never
+          command: ["./producer"]
+
+          env:
+            # Kafka
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "my-cluster-kafka-bootstrap.kafka-cluster.svc.cluster.local:9094"
+            - name: KAFKA_TOPIC
+              value: "b_topic"
+
+            # Keycloak
+            - name: KEYCLOAK_SSO_URL
+              value: "http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token"
+            - name: KEYCLOAK_CLIENT_ID
+              value: "team-b-client"
+            - name: KEYCLOAK_AUDIENCE
+              value: "kafka"
+            - name: KEYCLOAK_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: kafka-app-secrets
+                  key: KEYCLOAK_CLIENT_SECRET
+            # Logging
+            - name: LOG_LEVEL
+              value: "info"
+            - name: HEALTH_ADDR
+              value: ":8081"
+          ports:
+            - name: health
+              containerPort: 8081
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8081
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8081
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
+          # Kubernetes will restart the container if it crashes
+          restartPolicy: Always
