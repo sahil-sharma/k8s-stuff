@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-consumer
+  namespace: default
+  labels:
+    app: kafka-consumer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-consumer
+  template:
+    metadata:
+      labels:
+        app: kafka-consumer
+      annotations:
+        # Bypass Istio mTLS for Kafka SASL_PLAINTEXT traffic
+        traffic.sidecar.istio.io/excludeOutboundPorts: "9092,9094"
+    spec:
+      # Give the pod enough time to finish processing + commit offsets on shutdown
+      terminationGracePeriodSeconds: 30
+
+      containers:
+        - name: consumer
+          image: sahilwork/test-client:go-v3
+          imagePullPolicy: Never
+          command: ["./consumer"]
+
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "my-cluster-kafka-bootstrap.kafka-cluster.svc.cluster.local:9094"
+            - name: KAFKA_TOPIC
+              value: "b_topic"
+            - name: KAFKA_CONSUMER_GROUP
+              value: "b_consumer_group_1"
+            - name: KAFKA_DLQ_TOPIC
+              value: "b_topic.dlq"
+            - name: KEYCLOAK_SSO_URL
+              value: "http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token"
+            - name: KEYCLOAK_CLIENT_ID
+              value: "team-b-client"
+            - name: KEYCLOAK_AUDIENCE
+              value: "kafka"
+            - name: KEYCLOAK_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: kafka-app-secrets
+                  key: KEYCLOAK_CLIENT_SECRET
+            # Slow down processing so lag builds up → KEDA scales
+            - name: PROCESSING_DELAY_MS
+              value: "2000"
+            # Per-message processing timeout
+            - name: PROCESSING_TIMEOUT
+              value: "5s"
+            # Intentionally fail 30% of messages → test DLQ (remove in production)
+            - name: FORCE_FAIL_RATIO
+              value: "0.3"
+            - name: LOG_LEVEL
+              value: "info"
+            - name: HEALTH_ADDR
+              value: ":8081"
+          ports:
+            - name: health
+              containerPort: 8081
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8081
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8081
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
