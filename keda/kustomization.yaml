@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: keda
+
+resources:
+  - namespace.yaml
+  - rolebinding.yaml
+
+helmCharts:
+  - name: keda
+    includeCRDs: true
+    releaseName: keda
+    version: 2.19.0
+    repo: https://kedacore.github.io/charts
