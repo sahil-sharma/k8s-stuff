@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cruise-control-ui
+  namespace: kafka-cluster
+  labels:
+    app: cruise-control-ui
+data:
+  default.conf: |
+    server {
+      listen 9090;
+      server_name localhost;
+
+      location / {
+        root  /usr/share/nginx/html;
+        index index.html index.htm;
+      }
+
+      location /kafkacruisecontrol/ {
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_buffering off;
+        proxy_pass http://my-cluster-cruise-control:9090/kafkacruisecontrol/;
+      }
+
+      # Some CC UI versions call API paths without the /kafkacruisecontrol/ prefix
+      location ~* ^/(load|state|kafka_cluster_state|rebalance|stop|user_tasks|admin) {
+        proxy_pass http://my-cluster-cruise-control:9090/kafkacruisecontrol/$1$is_args$args;
+        proxy_set_header Host $host;
+        proxy_buffering off;
+      }
+
+      error_page 500 502 503 504 /50x.html;
+      location = /50x.html {
+        root /usr/share/nginx/html;
+      }
+    }
