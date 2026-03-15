@@ -5,12 +5,12 @@ metadata:
   namespace: default
 spec:
   scaleTargetRef:
-    name: kafka-consumer           # must match your Deployment name exactly
+    name: kafka-consumer # must match your Deployment name exactly
 
-  pollingInterval: 15              # check lag every 15 seconds
-  cooldownPeriod: 30               # wait 30s after lag drops before scaling down
-  minReplicaCount: 1               # always keep at least 1 consumer running
-  maxReplicaCount: 3               # max 1 per partition (you have 3 partitions)
+  pollingInterval: 15 # check lag every 15 seconds
+  cooldownPeriod: 30 # wait 30s after lag drops before scaling down
+  minReplicaCount: 1 # always keep at least 1 consumer running
+  maxReplicaCount: 3 # max 1 per partition (you have 3 partitions)
 
   triggers:
     - type: prometheus
@@ -22,8 +22,8 @@ spec:
         query: |
           sum(kafka_consumergroup_lag{
             job="kafka-cluster/kafka-resources-metrics",
-            consumergroup="a_consumer_group_1",
-            topic="a_topic"
+            consumergroup="b_consumer_group_1",
+            topic="b_topic"
           })
 
         # 1 replica per 100 messages of total lag

@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: keda-kafka-secrets
+  namespace: default
+type: Opaque
+stringData:
+  clientId: "kafka-bridge"
+  clientSecret: "J0GN3WiwJi8jQe2myL0YY54kZBFNr4K1"
+  tokenUrl: "http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token"
+  scopes: openid,profile,email
+---
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: keda-trigger-auth-kafka
+  namespace: default
+spec:
+  secretTargetRef:
+    - parameter: username
+      name: keda-kafka-secrets
+      key: clientId
+    - parameter: password
+      name: keda-kafka-secrets
+      key: clientSecret
+    - parameter: oauthTokenEndpointUri
+      name: keda-kafka-secrets
+      key: tokenUrl
+    - parameter: scopes
+      name: keda-kafka-secrets
+      key: scopes
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: kafka-consumer-scaler
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: kafka-consumer
+  minReplicaCount: 1
+  maxReplicaCount: 3
+  pollingInterval: 30
+  triggers:
+    - type: kafka
+      metadata:
+        bootstrapServers: my-cluster-kafka-bootstrap.kafka-cluster.svc:9094
+        consumerGroup: b_consumer_group_1
+        topic: b_topic
+        lagThreshold: "500"
+        activationLagThreshold: "0"
+        offsetResetPolicy: latest
+        sasl: oauthbearer
+        tls: disable
+      authenticationRef:
+        name: keda-trigger-auth-kafka

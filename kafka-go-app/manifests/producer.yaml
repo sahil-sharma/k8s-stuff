@@ -18,16 +18,14 @@ spec:
       containers:
         - name: producer
           image: sahilwork/test-client:go-v3
-          imagePullPolicy: Never
+          imagePullPolicy: Always
           command: ["./producer"]
-
           env:
             # Kafka
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: "my-cluster-kafka-bootstrap.kafka-cluster.svc.cluster.local:9094"
             - name: KAFKA_TOPIC
               value: "b_topic"
-
             # Keycloak
             - name: KEYCLOAK_SSO_URL
               value: "http://sso.local.io:32080/realms/kafka-authz/protocol/openid-connect/token"
@@ -39,7 +37,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: kafka-app-secrets
-                  key: KEYCLOAK_CLIENT_SECRET
+                  key: TEAM_B_CLIENT_SECRET
             # Logging
             - name: LOG_LEVEL
               value: "info"
