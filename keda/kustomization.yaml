@@ -5,7 +5,6 @@ namespace: keda
 
 resources:
   - namespace.yaml
-  - rolebinding.yaml
 
 helmCharts:
   - name: keda
@@ -13,3 +12,10 @@ helmCharts:
     releaseName: keda
     version: 2.19.0
     repo: https://kedacore.github.io/charts
+    valuesInline:
+      # This tells the Metrics Adapter exactly where to find the Operator
+      operator:
+        namespace: keda
+      # This ensures the Metrics Server itself knows its context
+      metricsServer:
+        namespace: keda
