@@ -8,6 +8,6 @@ roleRef:
   kind: Role
   name: extension-apiserver-authentication-reader
 subjects:
-- kind: ServiceAccount
-  name: keda-metrics-server
-  namespace: keda
+  - kind: ServiceAccount
+    name: keda-metrics-server
+    namespace: keda
