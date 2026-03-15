@@ -24,9 +24,8 @@ spec:
       containers:
         - name: consumer
           image: sahilwork/test-client:go-v3
-          imagePullPolicy: Never
+          imagePullPolicy: Always
           command: ["./consumer"]
-
           env:
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: "my-cluster-kafka-bootstrap.kafka-cluster.svc.cluster.local:9094"
@@ -46,7 +45,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: kafka-app-secrets
-                  key: KEYCLOAK_CLIENT_SECRET
+                  key: TEAM_B_CLIENT_SECRET
             # Slow down processing so lag builds up → KEDA scales
             - name: PROCESSING_DELAY_MS
               value: "2000"
