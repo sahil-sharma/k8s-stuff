@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: grafana-pg-alerts
+  namespace: grafana-pg
+  labels:
+    release: monitoring
+spec:
+  groups:
+    - name: grafana-pg
+      rules:
+        - alert: GrafanaPGHighConnections
+          expr: |
+            sum(cnpg_backends_total{namespace="grafana-pg"}) > 1
+          for: 0m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High number of PostgreSQL connections"
+            description: "Grafana DB has {{ $value }} connections, threshold is 1."
