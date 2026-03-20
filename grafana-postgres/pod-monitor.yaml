@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: grafana-db
+  namespace: grafana-pg
+  labels:
+    release: monitoring
+spec:
+  selector:
+    matchLabels:
+      cnpg.io/cluster: grafana-db
+  podMetricsEndpoints:
+    - port: metrics
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - grafana-pg
