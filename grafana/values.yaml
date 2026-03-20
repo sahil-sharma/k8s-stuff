@@ -1,5 +1,5 @@
-# adminUser: admin
-# adminPassword: admin123
+adminUser: admin
+adminPassword: admin123
 
 testFramework:
   enabled: false
@@ -58,11 +58,11 @@ grafana.ini:
   log:
     level: info
   auth:
-    disable_login_form: true
+    disable_login_form: false
   auth.anonymous:
     enabled: false
   auth.basic:
-    enabled: false
+    enabled: true
   server:
     root_url: http://dashboards.local.io:32080
   # Tested for Kiali linking but did not work as expected
@@ -71,7 +71,7 @@ grafana.ini:
   #   cookie_samesite: none
   #   cookie_secure: true
   auth.generic_oauth:
-    enabled: true
+    enabled: false
     name: SSO
     client_id: ${OIDC_CLIENT_ID}
     client_secret: ${OIDC_CLIENT_SECRET}
@@ -132,47 +132,54 @@ datasources:
 dashboardsConfigMaps:
   kafka: "kafka-dashboards"
   kafka-addons: "kafka-addons-dashboards"
+  postgres: "postgres-dashboards"
 
 dashboardProviders:
   dashboardproviders.yaml:
     apiVersion: 1
     providers:
-      - name: 'default'
+      - name: "default"
         orgId: 1
-        folder: ''
+        folder: ""
         type: file
         options:
           path: /var/lib/grafana/dashboards/default
-      - name: 'kafka-provider'
+      - name: "kafka-provider"
         orgId: 1
-        folder: 'Kafka'
+        folder: "Kafka"
         type: file
         options:
           path: /var/lib/grafana/dashboards/kafka
-      - name: 'kafka-addons-provider'
+      - name: "kafka-addons-provider"
         orgId: 1
-        folder: 'Kafka-Addons'
+        folder: "Kafka-Addons"
         type: file
         options:
           path: /var/lib/grafana/dashboards/kafka-addons
-      - name: 'keycloak'
+      - name: "keycloak"
         orgId: 1
-        folder: 'Keycloak'
+        folder: "Keycloak"
         type: file
         options:
           path: /var/lib/grafana/dashboards/keycloak
-      - name: 'istio'
+      - name: "istio"
         orgId: 1
-        folder: 'Istio'
+        folder: "Istio"
         type: file
         options:
           path: /var/lib/grafana/dashboards/istio
-      - name: 'argo'
+      - name: "argo"
         orgId: 1
-        folder: 'Argo'
+        folder: "Argo"
         type: file
         options:
           path: /var/lib/grafana/dashboards/argo
+      - name: "postgres"
+        orgId: 1
+        folder: "Postgres"
+        type: file
+        options:
+          path: /var/lib/grafana/dashboards/postgres
 dashboards:
   keycloak:
     keycloak-quarkus-metrics:
