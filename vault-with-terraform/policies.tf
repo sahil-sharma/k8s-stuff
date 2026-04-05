@@ -12,9 +12,9 @@ EOT
 resource "vault_policy" "reader" {
   name   = "reader"
   policy = <<EOT
-path "apps/data/*" { capabilities = ["read","list"] }
+path "apps/*" { capabilities = ["read","list"] }
 path "apps/metadata/*" { capabilities = ["list"] }
-path "globals/data/*" { capabilities = ["read","list"] }
+path "globals/*" { capabilities = ["read","list"] }
 path "globals/metadata/*" { capabilities = ["list"] }
 EOT
 }
@@ -23,13 +23,13 @@ EOT
 resource "vault_policy" "app" {
   name   = "app"
   policy = <<EOT
-path "apps/data/*" { capabilities = ["read","list"] }
+path "apps/*" { capabilities = ["read","list"] }
 path "apps/metadata/*" { capabilities = ["list"] }
-path "database/data/*" { capabilities = ["read","list"] }
+path "database/*" { capabilities = ["read","list"] }
 path "database/metadata/*" { capabilities = ["list"] }
-path "globals/data/*" { capabilities = ["read","list"] }
+path "globals/*" { capabilities = ["read","list"] }
 path "globals/metadata/*" { capabilities = ["list"] }
-path "sso/data/*" { capabilities = ["read","list"] }
+path "sso/*" { capabilities = ["read","list"] }
 path "sso/metadata/*" { capabilities = ["list"] }
 EOT
 }
@@ -38,7 +38,7 @@ EOT
 resource "vault_policy" "data_reader" {
   name   = "data-reader"
   policy = <<EOT
-path "data/data/*" { capabilities = ["read","list"] }
+path "data/*" { capabilities = ["read","list"] }
 path "data/metadata/*" { capabilities = ["list"] }
 EOT
 }
