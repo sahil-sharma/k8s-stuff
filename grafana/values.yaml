@@ -1,5 +1,5 @@
-adminUser: admin
-adminPassword: admin123
+# adminUser: admin
+# adminPassword: admin123
 
 testFramework:
   enabled: false
@@ -10,12 +10,6 @@ service:
 
 ingress:
   enabled: false
-  hosts:
-    - dashboards.local.io
-  annotations:
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
 
 resources:
   requests:
@@ -58,11 +52,11 @@ grafana.ini:
   log:
     level: info
   auth:
-    disable_login_form: false
+    disable_login_form: true
   auth.anonymous:
     enabled: false
   auth.basic:
-    enabled: true
+    enabled: false
   server:
     root_url: http://dashboards.local.io:32080
   # Tested for Kiali linking but did not work as expected
@@ -71,7 +65,7 @@ grafana.ini:
   #   cookie_samesite: none
   #   cookie_secure: true
   auth.generic_oauth:
-    enabled: false
+    enabled: true
     name: SSO
     client_id: ${OIDC_CLIENT_ID}
     client_secret: ${OIDC_CLIENT_SECRET}
@@ -132,7 +126,6 @@ datasources:
 dashboardsConfigMaps:
   kafka: "kafka-dashboards"
   kafka-addons: "kafka-addons-dashboards"
-  postgres: "postgres-dashboards"
 
 dashboardProviders:
   dashboardproviders.yaml:
@@ -174,12 +167,6 @@ dashboardProviders:
         type: file
         options:
           path: /var/lib/grafana/dashboards/argo
-      - name: "postgres"
-        orgId: 1
-        folder: "Postgres"
-        type: file
-        options:
-          path: /var/lib/grafana/dashboards/postgres
 dashboards:
   keycloak:
     keycloak-quarkus-metrics:
@@ -221,10 +208,10 @@ dashboards:
       revision: 1
       datasource: Prometheus
   default:
-    # nginx-ingress:
-    #   gnetId: 9614
-    #   revision: 1
-    #   datasource: Prometheus
+    pgsql:
+      gnetId: 20417
+      revision: 4
+      datasource: Prometheus
     otel:
       gnetId: 15983
       revision: 29

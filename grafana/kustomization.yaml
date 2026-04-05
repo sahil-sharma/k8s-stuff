@@ -16,9 +16,6 @@ configMapGenerator:
     files:
       - strimzi-kafka-exporter-metrics.json
       - strimzi-kafka-connect-metrics.json
-  - name: postgres-dashboards
-    files:
-      - postgres-metrics.json
 
 resources:
   - namespace.yaml
