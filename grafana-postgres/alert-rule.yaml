@@ -9,6 +9,7 @@ spec:
   groups:
     - name: grafana-pg
       rules:
+        # --- High Connection Alert ---
         - alert: GrafanaPGHighConnections
           expr: |
             sum(cnpg_backends_total{namespace="grafana-pg"}) > 1
@@ -18,3 +19,14 @@ spec:
           annotations:
             summary: "High number of PostgreSQL connections"
             description: "Grafana DB has {{ $value }} connections, threshold is 1."
+        # --- Replication Lag Alert ---
+        - alert: PostgreSQLReplicationLag
+          expr: |
+            cnpg_pg_replication_lag{namespace="grafana-pg"} > 20
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "PostgreSQL Replication Lag on {{ $labels.pod }}"
+            description: "Replica {{ $labels.pod }} is {{ $value | humanizeDuration }} behind the primary. Check for high disk I/O or network saturation."
+---
