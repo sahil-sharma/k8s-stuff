@@ -9,6 +9,7 @@ resources:
   - gateway.yaml
   - virtualservice.yaml
   - peer-authentication.yaml
+  - role-and-rolebinding.yaml
 
 helmCharts:
   - name: vault
