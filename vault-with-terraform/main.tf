@@ -12,7 +12,7 @@ resource "vault_auth_backend" "kubernetes" {
   type = "kubernetes"
 }
 
-# Fetch the CA Cert from K8s (Crucial since you are running TF outside Kind)
+# Fetch the CA Cert from K8s
 data "kubernetes_config_map_v1" "kube_root_ca" {
   metadata {
     name      = "kube-root-ca.crt"
@@ -74,5 +74,5 @@ resource "vault_jwt_auth_backend_role" "oidc_roles" {
     groups = each.value.group
   }
 
-  token_ttl = 3600 # 1h as per your script
+  token_ttl = 3600
 }

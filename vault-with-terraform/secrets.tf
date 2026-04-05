@@ -1,16 +1,14 @@
-# Populating OIDC Secrets in KV paths
 resource "vault_generic_secret" "oidc_kv_data" {
-  # Use the non-sensitive list for the loop keys
   for_each = toset(var.oidc_client_names)
 
-  path = "sso/data/${each.value}"
+  # KV-v2 path
+  path = "sso/${each.value}"
 
+  # This logic iterates over the map for the specific client,
+  # uppercases the keys, and ignores null values.
   data_json = jsonencode({
-    data = {
-      # Use the non-sensitive key to look up sensitive values
-      CLIENT_ID     = var.oidc_clients[each.value].client_id
-      CLIENT_SECRET = var.oidc_clients[each.value].client_secret
-    }
+    for key, value in var.oidc_clients[each.value] : upper(key) => value
+    if value != null
   })
 
   depends_on = [vault_mount.kv]
