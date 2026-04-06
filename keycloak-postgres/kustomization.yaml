@@ -4,15 +4,7 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - db-secret.yaml
-  - gateway.yaml
-  - virtualservice.yaml
-  - peerauthentication.yaml
   - values.yaml
-
-helmCharts:
-  - name: cloudnative-pg
-    repo: https://cloudnative-pg.github.io/charts
-    version: 0.27.1
-    releaseName: cnpg
-    namespace: cnpg-system
-    includeCRDs: true
+  # - gateway.yaml
+  # - virtualservice.yaml
+  # - peerauthentication.yaml
