@@ -68,13 +68,6 @@ spec:
     jvmOptions:
       "-Xms": "1024m"
       "-Xmx": "1024m"
-    # resources:
-    #   requests:
-    #     cpu: "1"
-    #     memory: 2Gi
-    #   limits:
-    #     cpu: "2"
-    #     memory: 2Gi
     listeners:
       - name: plain
         port: 9092
