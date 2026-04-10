@@ -5,8 +5,9 @@ metadata:
   namespace: kafka-cluster
 spec:
   selector:
-    strimzi.io/name: cluster-1-kafka
-    strimzi.io/component-type: kafka
+    strimzi.io/name: my-cluster
+    strimzi.io/kind: Kafka
+    strimzi.io/component-type: my-cluster-kafka
   ports:
     - name: metrics
       port: 9404
