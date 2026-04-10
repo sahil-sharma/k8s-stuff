@@ -21,7 +21,7 @@ spec:
       containers:
         - name: cruise-control-ui
           image: sahilwork/kafka-cruise-control:v1
-          imagePullPolicy: Never
+          imagePullPolicy: Always
           ports:
             - containerPort: 9090
           volumeMounts:
