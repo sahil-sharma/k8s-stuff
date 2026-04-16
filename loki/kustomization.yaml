@@ -4,13 +4,12 @@ kind: Kustomization
 generatorOptions:
   disableNameSuffixHash: false
 
-namespace: loki
-
 resources:
   - namespace.yaml
   - gateway.yaml
   - virtualservice.yaml
   - service-monitor.yaml
+  - pg-alert-rule.yaml
 
 helmCharts:
   - name: loki
