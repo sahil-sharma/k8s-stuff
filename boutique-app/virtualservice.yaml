@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: boutique-vs
+  namespace: boutique
+spec:
+  hosts:
+    - store.local.io
+  gateways:
+    - boutique-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: frontend.boutique.svc.cluster.local
+            port:
+              number: 80
