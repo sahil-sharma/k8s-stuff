@@ -1,0 +1,27 @@
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaUser
+metadata:
+  name: kafka-ui
+  namespace: kafka-cluster
+  labels:
+    strimzi.io/cluster: my-cluster
+spec:
+  authentication:
+    type: scram-sha-512
+  authorization:
+    type: simple
+    acls:
+      # UI needs to read all topics and groups for display
+      - resource:
+          type: topic
+          name: "*"
+          patternType: literal
+        operations: [Read, Write, Describe, DescribeConfigs]
+      - resource:
+          type: group
+          name: "*"
+          patternType: literal
+        operations: [Read, Describe]
+      - resource:
+          type: cluster
+        operations: [Describe, DescribeConfigs]

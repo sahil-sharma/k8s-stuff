@@ -1,0 +1,43 @@
+env:
+  - name: LOGGING_LEVEL_ROOT
+    value: INFO
+
+podAnnotations:
+  "traffic.sidecar.istio.io/excludeOutboundPorts": "9092,9094"
+
+envs:
+  secretMappings:
+    KAFKA_PASSWORD:
+      name: kafka-ui-kafka-creds
+      keyName: password
+
+yamlApplicationConfig:
+  kafka:
+    clusters:
+      - name: my-cluster
+        bootstrapServers: my-cluster-kafka-bootstrap.kafka-cluster.svc:9094
+        properties:
+          security.protocol: SASL_PLAINTEXT
+          sasl.mechanism: SCRAM-SHA-512
+          sasl.jaas.config: >
+            org.apache.kafka.common.security.scram.ScramLoginModule required
+            username="kafka-ui"
+            password="${KAFKA_PASSWORD}";
+          socket.connection.setup.timeout.max.ms: 30000
+          socket.connection.setup.timeout.ms: 30000
+
+  auth:
+    type: LOGIN_FORM
+
+  spring:
+    security:
+      user:
+        name: admin
+        password: admin123
+
+  dynamic.config.enabled: true
+
+  logging:
+    level:
+      org.springframework.security: INFO
+      io.kafbat.ui.service.rbac: INFO

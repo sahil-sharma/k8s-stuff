@@ -1,0 +1,34 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: kafka-consumer-scaler
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: kafka-consumer           # must match your Deployment name exactly
+
+  pollingInterval: 15              # check lag every 15 seconds
+  cooldownPeriod: 30               # wait 30s after lag drops before scaling down
+  minReplicaCount: 1               # always keep at least 1 consumer running
+  maxReplicaCount: 3               # max 1 per partition (you have 3 partitions)
+
+  triggers:
+    - type: prometheus
+      metadata:
+        serverAddress: http://metrics.local.io:32080
+        metricName: kafka_consumer_lag_total
+
+        # Sum lag across ALL partitions for this consumer group + topic
+        query: |
+          sum(kafka_consumergroup_lag{
+            job="kafka-cluster/kafka-resources-metrics",
+            consumergroup="a_consumer_group_1",
+            topic="a_topic"
+          })
+
+        # 1 replica per 100 messages of total lag
+        # e.g. lag=1907 → ceil(1907/100) = 20 → capped at maxReplicaCount=3
+        threshold: "100"
+
+        # Do not scale down to 0 if Prometheus is unreachable
+        ignoreNullValues: "false"
