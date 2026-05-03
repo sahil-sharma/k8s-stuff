@@ -13,5 +13,16 @@ nodes:
         protocol: TCP
   - role: worker
     image: kindest/node:v1.34.0
+    labels:
+      workload: app
+      tier: application
   - role: worker
     image: kindest/node:v1.34.0
+    labels:
+      workload: app
+      tier: application
+  - role: worker
+    image: kindest/node:v1.34.0
+    labels:
+      workload: chaos
+      tier: tooling
