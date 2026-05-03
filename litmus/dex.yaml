@@ -1,0 +1,190 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dex
+  namespace: litmus
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: dex
+rules:
+  - apiGroups: ["dex.coreos.com"]
+    resources: ["*"]
+    verbs: ["*"]
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources: ["customresourcedefinitions"]
+    verbs: ["create", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: dex
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: dex
+subjects:
+  - kind: ServiceAccount
+    name: dex
+    namespace: litmus
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dex-config
+  namespace: litmus
+data:
+  config.yaml: |
+    issuer: http://dex.local.io:32080/dex
+
+    storage:
+      type: kubernetes
+      config:
+        inCluster: true
+
+    web:
+      http: 0.0.0.0:5556
+      allowedOrigins:
+        - "http://chaos.local.io:32080"
+
+    oauth2:
+      skipApprovalScreen: true
+
+    # === UPSTREAM IDP: Keycloak (realm: platform) ===
+    connectors:
+      - type: oidc
+        id: keycloak
+        name: Keycloak
+        config:
+          issuer: http://sso.local.io:32080/realms/platform
+          clientID: dex-litmus
+          clientSecret: WMCGSJ8zAQbV6ItWaBF0DMStzzDzRHl1
+          redirectURI: http://dex.local.io:32080/dex/callback
+          scopes:
+            - openid
+            - profile
+            - email
+            - groups
+          userIDKey: email
+          userNameKey: email
+          getUserInfo: false
+          insecureEnableGroups: true
+          insecureSkipEmailVerified: true
+
+    # === DOWNSTREAM CLIENT: Litmus auth-server ===
+    staticClients:
+      - id: LitmusPortalAuthBackend
+        name: LitmusChaos ChaosCenter
+        secret: ZXhhbXBsZS1hcHAtc2VjcmV0
+        redirectURIs:
+          - http://chaos.local.io:32080/auth/dex/callback
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dex
+  namespace: litmus
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 5556
+      targetPort: 5556
+  selector:
+    app: dex
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dex
+  namespace: litmus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dex
+  template:
+    metadata:
+      labels:
+        app: dex
+    spec:
+      serviceAccountName: dex
+      containers:
+        - name: litmus-dex
+          image: litmuschaos/litmusportal-dex-server:3.27.0
+          command: ["/usr/local/bin/dex", "serve", "/etc/dex/cfg/config.yaml"]
+          ports:
+            - containerPort: 5556
+          volumeMounts:
+            - name: config
+              mountPath: /etc/dex/cfg
+              readOnly: true
+          livenessProbe:
+            httpGet:
+              path: /dex/healthz
+              port: 5556
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /dex/healthz
+              port: 5556
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1001
+            capabilities:
+              drop: ["ALL"]
+      volumes:
+        - name: config
+          configMap:
+            name: dex-config
+---
+# Istio routing for dex.local.io
+apiVersion: networking.istio.io/v1
+kind: Gateway
+metadata:
+  name: dex-gateway
+  namespace: litmus
+spec:
+  selector:
+    app: istio-gateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - dex.local.io
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: dex-vs
+  namespace: litmus
+spec:
+  hosts:
+    - dex.local.io
+  gateways:
+    - dex-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: dex.litmus.svc.cluster.local
+            port:
+              number: 5556

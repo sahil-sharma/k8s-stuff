@@ -1,0 +1,57 @@
+# Local admin login still works as fallback even with Dex enabled — useful for
+# bootstrap (creating projects before SSO users exist).
+adminConfig:
+  ADMIN_USERNAME: "admin"
+  ADMIN_PASSWORD: "litmus"
+
+portal:
+  frontend:
+    service:
+      type: ClusterIP
+      port: 9091
+      targetPort: 8185
+    virtualService:
+      enabled: false
+
+  server:
+    graphqlServer:
+      genericEnv:
+        # Public URL of ChaosCenter — must match Istio VS host
+        CHAOS_CENTER_UI_ENDPOINT: "http://chaos.local.io:32080"
+
+    authServer:
+      env:
+        DEX_ENABLED: "true"
+
+        # Dex's public issuer URL. Must match exactly what Dex serves in 'iss'
+        # claim (set in dex-configmap.yaml -> issuer). Trailing slash, scheme,
+        # hostname all checked verbatim by the OIDC validator.
+        OIDC_ISSUER: "http://dex.local.io:32080/dex"
+
+        # Where Dex sends the user back to Litmus after auth.
+        DEX_OAUTH_CALLBACK_URL: "http://chaos.local.io:32080/auth/dex/callback"
+
+        # Litmus<->Dex client credentials (NOT the Keycloak<->Dex secret).
+        # Litmus is a static OIDC client of Dex; these MUST match
+        # dex-configmap.yaml -> staticClients[0].
+        DEX_OAUTH_CLIENT_ID: "LitmusPortalAuthBackend"
+        DEX_OAUTH_CLIENT_SECRET: "ZXhhbXBsZS1hcHAtc2VjcmV0"
+
+        OIDC_GROUP_FIELD: "groups"
+        # Users in this group get the "Admin" role in Litmus globally
+        OIDC_ADMIN_GROUP: "devops"
+
+# MongoDB — slim it for kind demo, but in production you should use a proper external database
+mongodb:
+  enabled: true
+  architecture: replicaset
+  replicaCount: 1
+  arbiter:
+    enabled: false
+  auth:
+    enabled: true
+    rootUser: "root"
+    rootPassword: "admin123"
+  persistence:
+    enabled: true
+    size: 1Gi
