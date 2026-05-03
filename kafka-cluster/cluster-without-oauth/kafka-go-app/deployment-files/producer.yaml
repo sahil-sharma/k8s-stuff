@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-producer
+  namespace: default
+  labels:
+    app: kafka-producer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-producer
+  template:
+    metadata:
+      labels:
+        app: kafka-producer
+      annotations:
+        traffic.sidecar.istio.io/excludeOutboundPorts: "9092,9094"
+    spec:
+      containers:
+        - name: producer
+          image: kafka-app:v1
+          imagePullPolicy: Never
+          command: [ "./producer" ]
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "my-cluster-kafka-bootstrap.kafka-cluster.svc.cluster.local:9094"
+            - name: KAFKA_TOPIC
+              value: "a_topic"
+            - name: KAFKA_USERNAME
+              value: "a-user"
+            - name: KAFKA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: a-user-kafka-creds
+                  key: password
+            - name: LOG_LEVEL
+              value: "info"
+            - name: HEALTH_ADDR
+              value: ":8081"
+          ports:
+            - name: health
+              containerPort: 8081
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8081
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8081
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi

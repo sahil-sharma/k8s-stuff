@@ -1,0 +1,31 @@
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaUser
+metadata:
+  name: a-user
+  namespace: kafka-cluster
+  labels:
+    strimzi.io/cluster: my-cluster
+spec:
+  authentication:
+    type: scram-sha-512
+  authorization:
+    type: simple
+    acls:
+      # Producer + Consumer both need Read, Write, Describe on the topic
+      - resource:
+          type: topic
+          name: a_topic
+          patternType: literal
+        operations: [ Read, Write, Describe ]
+        # Consumer group can Read on the topic
+      - resource:
+          type: group
+          name: a_consumer_group_1
+          patternType: literal
+        operations: [ Read ]
+      # DLQ — consumer writes failed messages here
+      - resource:
+          type: topic
+          name: a_topic.dlq
+          patternType: literal
+        operations: [ Write, Describe ]
