@@ -1,0 +1,39 @@
+# Horizontal Pod Autoscaler for the boutique frontend.
+# Used by the pod-cpu-hog experiment to demonstrate HPA reaction during chaos.
+#
+# Without this HPA, the cpu-hog experiment is much less interesting — you'd
+# just see one pod stressed. WITH the HPA, you watch new replicas come up
+# in real time as load is induced, then scale back down once chaos ends.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: frontend-hpa
+  namespace: boutique
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: frontend
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0   # React fast for demo visibility
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 30
+    scaleDown:
+      stabilizationWindowSeconds: 60
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 60
+---
