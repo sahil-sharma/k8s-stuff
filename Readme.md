@@ -60,24 +60,25 @@ First, we initialize the local Kubernetes environment and configure core DNS and
 
 Deploy monitoring CRDs, service mesh and external secret management layers.
 
-1.  **Prometheus CRDs**
+1. **Prometheus CRDs**
 ```bash
-    kubectl create ns monitoring --dry-run=client -o yaml | kubectl apply -f - && kubectl label namespace monitoring istio-injection=enabled --overwrite && for i in alertmanagerconfigs alertmanagers podmonitors probes prometheusagents prometheuses prometheusrules scrapeconfigs servicemonitors thanosrulers; do kubectl apply --server-side -f https://raw.githubusercontent.com/prometheus-community/helm-charts/refs/tags/kube-prometheus-stack-81.2.2/charts/kube-prometheus-stack/charts/crds/crds/crd-${i}.yaml -n monitoring; done
+kubectl create ns monitoring --dry-run=client -o yaml
+kubectl apply -f - && kubectl label namespace monitoring istio-injection=enabled --overwrite && for i in alertmanagerconfigs alertmanagers podmonitors probes prometheusagents prometheuses prometheusrules scrapeconfigs servicemonitors thanosrulers; do kubectl apply --server-side -f https://raw.githubusercontent.com/prometheus-community/helm-charts/refs/tags/kube-prometheus-stack-81.2.2/charts/kube-prometheus-stack/charts/crds/crds/crd-${i}.yaml -n monitoring; done
 ```
 
-2.  **Istio Service Mesh**
+2. **Istio Service Mesh**
 ```bash
-    # Install Base, Control Plane (istiod), and Gateway
-    k kustomize istio/base --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
-    k kustomize istio/istiod --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
-    k kustomize istio/gateway --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
-    ```
+# Install Base, Control Plane (istiod), and Gateway
+kubectl kustomize istio/base --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+kubectl kustomize istio/istiod --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+kubectl kustomize istio/gateway --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+```
 
-3.  **External Secrets Operator**
+3. **External Secrets Operator**
 ```bash
-    helm upgrade --install external-secrets external-secrets/external-secrets \
-      --set image.crds.systemAuthDelegator=true \
-      --set installCRDs=true --namespace external-secrets --create-namespace
+helm upgrade --install external-secrets external-secrets/external-secrets \
+  --set image.crds.systemAuthDelegator=true \
+  --set installCRDs=true --namespace external-secrets --create-namespace
 ```
 
 ---
@@ -217,7 +218,7 @@ kubectl kustomize litmus/ --enable-helm --load-restrictor=LoadRestrictionsNone |
 
 23. **Install Vault with Terraform for PKI set-up**
 
-> [!NOTE]: Make sure you have `terraform.tfvars` file updated with correct values before applying the Terraform configuration.
+> Note: Make sure you have `terraform.tfvars` file updated with correct values before applying the Terraform configuration.
 
 ```bash
 cd vault-pki-with-terraform
