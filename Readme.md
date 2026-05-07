@@ -86,7 +86,7 @@ Deploy monitoring CRDs, service mesh and external secret management layers.
 
 1. **Install Prometheus**
 
-# Please ensure you have Slack Webhook secret secret created in monitoring namespace before applying the Prometheus manifests, otherwise the Prometheus Operator will keep trying to create the Alertmanager instance and fail due to missing secret, which will cause the whole installation to fail.
+> Note: Please ensure you have Slack Webhook secret secret created in monitoring namespace before applying the Prometheus manifests, otherwise the Prometheus Operator will keep trying to create the Alertmanager instance and fail due to missing secret, which will cause the whole installation to fail.
 
 ```bash
 	kubectl kustomize prometheus/ --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
@@ -109,7 +109,7 @@ kubectl kustomize keycloak/ --enable-helm --load-restrictor=LoadRestrictionsNone
 
 5.  **Conigure Keycloak with Terraform**
 
-Note:  Make sure you have `terraform.tfvars` file updated with correct values before applying the Terraform configuration.
+> Note: Make sure you have `terraform.tfvars` file updated with correct values before applying the Terraform configuration.
 
 ```bash
 cd keycloak-terraform
@@ -125,7 +125,7 @@ kubectl kustomize vault/ --enable-helm --load-restrictor=LoadRestrictionsNone | 
 
 7. **Configure Vault with Terraform**
 
-Note:  Make sure you have `terraform.tfvars` file updated with correct values before applying the Terraform configuration.
+> Note: Make sure you have `terraform.tfvars` file updated with correct values before applying the Terraform configuration.
 
 ```bash
 cd vault-terraform
@@ -151,7 +151,7 @@ kubectl kustomize kafka-operator/ --enable-helm --load-restrictor=LoadRestrictio
 
 11. **Configure Keycloak with Terraform for Oauth in Kafka and Kafka-UI
 
-Note: Make sure you have `terraform.tfvars` file updated with correct values before applying the Terraform configuration.
+> Note: Make sure you have `terraform.tfvars` file updated with correct values before applying the Terraform configuration.
 
 ```bash
 cd keycloak-kafka-terraform
@@ -217,7 +217,7 @@ kubectl kustomize litmus/ --enable-helm --load-restrictor=LoadRestrictionsNone |
 
 23. **Install Vault with Terraform for PKI set-up**
 
-Note: Make sure you have `terraform.tfvars` file updated with correct values before applying the Terraform configuration.
+> [!NOTE]: Make sure you have `terraform.tfvars` file updated with correct values before applying the Terraform configuration.
 
 ```bash
 cd vault-pki-with-terraform
