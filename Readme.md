@@ -1,361 +1,237 @@
-# Kubernetes Deployment with Helm
+# Cloud-Native Platform Deployment Guide
 
-This guide walks you through deploying **PostgreSQL**,**Nginx Ingress**, **pgAdmin**, **Keycloak**, **Prometheus**, **Promtail**, **Loki**, **Tempo**, **OTEL-Collector**, **Grafana**, **Flask CRUD Application**, **Reloader**, and **ArgoCD**  in a Kubernetes cluster using Helm with custom `values.yaml` configuration files.
+This repository contains the manifests and Terraform configurations to bootstrap a complete cloud-native ecosystem on a **Kind** cluster. The stack includes CNPG, Istio, Keycloak, Argo, Kafka, Vault, Chaos Testing Framework and a full Observability suite with few applications like online boutique app, welcome app, echo-server and echo-client.
 
 ---
 
-## Prerequisites
+## Platform Service URLs
 
-- A running Kubernetes cluster (`kind` or `VM using kubeadm`)
-- `kubectl` configured to access your cluster
-- [Helm 3.x](https://helm.sh/docs/intro/install/)
+| Service | URL |
+| :--- | :--- |
+| **Identity & Access (SSO)** | [http://sso.local.io](http://sso.local.io) |
+| **Vault Secrets** | [http://secrets.local.io](http://secrets.local.io) |
+| **OAuth2 Proxy** | [http://auth.local.io](http://auth.local.io) |
+| **Grafana Dashboards** | [http://dashboards.local.io](http://dashboards.local.io) |
+| **Prometheus Metrics** | [http://metrics.local.io](http://metrics.local.io) |
+| **Loki Logs** | [http://logs.local.io](http://logs.local.io) |
+| **Tempo Traces** | [http://traces.local.io](http://traces.local.io) |
+| **Kiali (Mesh Traffic)** | [http://traffic.local.io](http://traffic.local.io) |
+| **ArgoCD** | [http://cd.local.io](http://cd.local.io) |
+| **Argo Workflows** | [http://jobs.local.io](http://jobs.local.io) |
+| **Argo Rollouts** | [http://rollouts.local.io](http://rollouts.local.io) |
+| **Kafka UI** | [http://kafka-ui.local.io](http://kafka-ui.local.io) |
+| **Kafka Cluster (Bridge)** | [http://kafka-bridge.local.io](http://kafka-bridge.local.io) |
+| **Kafka Connect** | [http://kafka-connect.local.io](http://kafka-connect.local.io) |
+| **Kafka Cruise Control** | [http://cruise-control.local.io](http://cruise-control.local.io) |
+| **Litmus Chaos** | [http://chaos.local.io](http://chaos.local.io) |
+| **OTEL Collector** | [http://collector.local.io](http://collector.local.io) |
+| **MinIO Storage** | [http://storage.local.io](http://storage.local.io) |
+| **MinIO Console** | [http://console.storage.local.io](http://console.storage.local.io) |
+| **Backstage (IDP)** | [http://idp.local.io](http://idp.local.io) |
+| **Boutique App** | [http://store.local.io](http://store.local.io) |
+| **Echo Server** | [http://echo-server.local.io](http://echo-server.local.io) |
 
-- Custom `values.yaml` files:
-  - `postgres-values.yaml`
-  - `pgadmin-values.yaml`
-  - `prometheus-values.yaml`
-  - `loki-values.yaml`
-  - `promtail-values.yaml`
-  - `blackbox-values.yaml`
-  - `tempo-values.yaml`
-  - `otel-values.yaml`
-  - `grafana-values.yaml`
-  - `keycloak-values.yaml`
-  - `nginx-ingress-values.yaml`
-  - `argocd-values.yaml`
-  - `argo-workflows-values.yaml`
-  - `argo-rollouts-values.yaml`
-  - `mysql-values.yaml`
-  - `oauth2-proxy-values.yaml`
-  - `phpmyadmin-values.yaml`
-  - `vault-values.yaml`
-  - `mysql-keycloak-values.yaml`
 ---
 
-## Links
+## Phase 1: Cluster Setup & Networking
 
+First, we initialize the local Kubernetes environment and configure core DNS and local host resolution.
+
+1.  **Create Cluster**
+    ```bash
+    kind create cluster --config kind-config.yaml
+    ```
+2.  **Update and Restart CoreDNS**
+    ```bash
+    kubectl apply -f coredns-cm.yaml
+    kubectl -n kube-system rollout restart deployment coredns
+    ```
+3.  **Local DNS Resolution**
+    Ensure your `/etc/hosts` contains entries for your application domains pointing to the Kind cluster node IPs.
+    ```bash
+    # Get node IPs
+    kubectl get nodes -o wide
+    cat /etc/hosts
+    ```
+
+---
+
+## Phase 2: Core Infrastructure (Prometheus CRDs & Istio & External Secrets)
+
+Deploy monitoring CRDs, service mesh and external secret management layers.
+
+1.  **Prometheus CRDs**
 ```bash
-Keycloak: https://sso.local.io:32443
-Argo CD: http://cd.local.io:32080
-Argo Workflows: http://jobs.local.io:32080
-Argo Rollouts: http://rollouts.local.io:32080
-Grafana: http://dashboards.local.io:32080
-Loki: http://logs.local.io:32080
-Prometheus: http://metrics.local.io:32080
-Tempo: http://traces.local.io:32080
-OAuth: http://auth.local.io:32080
-PgAdmin: http://pgadmin.local.io:32080
-PhpMyAdmin: http://phpmyadmin.local.io:32080
-MySQL: http://mysql.local.io:32306
-PGSQL: http://pgsql.local.io:32432
-Blackbox: http://blackbox.local.io:32432
+    kubectl create ns monitoring --dry-run=client -o yaml | kubectl apply -f - && kubectl label namespace monitoring istio-injection=enabled --overwrite && for i in alertmanagerconfigs alertmanagers podmonitors probes prometheusagents prometheuses prometheusrules scrapeconfigs servicemonitors thanosrulers; do kubectl apply --server-side -f https://raw.githubusercontent.com/prometheus-community/helm-charts/refs/tags/kube-prometheus-stack-81.2.2/charts/kube-prometheus-stack/charts/crds/crds/crd-${i}.yaml -n monitoring; done
 ```
 
-## Step 1: Add Helm Repositories
-
+2.  **Istio Service Mesh**
 ```bash
-helm repo add bitnami https://charts.bitnami.com/bitnami
-helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-helm repo add runix https://helm.runix.net
-helm repo add argocd https://argoproj.github.io/argo-helm
-helm repo add oauth2-proxy https://oauth2-proxy.github.io/manifests
-helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
-helm repo add grafana https://grafana.github.io/helm-charts
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-helm repo add hashicorp https://helm.releases.hashicorp.com
-helm repo add istio https://istio-release.storage.googleapis.com/charts
-helm repo add cnpg https://cloudnative-pg.github.io/charts
-helm repo add stakater https://stakater.github.io/stakater-charts
-helm repo add cnpg https://cloudnative-pg.github.io/charts
-helm repo update
+    # Install Base, Control Plane (istiod), and Gateway
+    k kustomize istio/base --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+    k kustomize istio/istiod --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+    k kustomize istio/gateway --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+    ```
+
+3.  **External Secrets Operator**
+```bash
+    helm upgrade --install external-secrets external-secrets/external-secrets \
+      --set image.crds.systemAuthDelegator=true \
+      --set installCRDs=true --namespace external-secrets --create-namespace
 ```
 
-## Step 2: Install PostgreSQL
+---
+
+## Phase 3: Install Services
+
+1. **Install Prometheus**
+
+# Please ensure you have Slack Webhook secret secret created in monitoring namespace before applying the Prometheus manifests, otherwise the Prometheus Operator will keep trying to create the Alertmanager instance and fail due to missing secret, which will cause the whole installation to fail.
 
 ```bash
-helm upgrade --install postgres bitnami/postgresql -f postgres-values.yaml --namespace postgres --create-namespace
-
-# Check PGSQL Pod is running
-kubectl get po,svc -n postgres
+	kubectl kustomize prometheus/ --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
 ```
-As Bitnami Images have been moved behind paywall so we will use CloudNative PG Operator to install postgres.
+
+2. **Install CNPG CRDs (required for PGSQL)**
+```bash
+kubectl kustomize cloudnative-pgsql/ --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply --server-side -f -
+```
+
+3. **Install Keycloak Postgres Cluster**
+```bash
+kubectl kustomize keycloak-postgres/ --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+```
+
+4. **Install Keycloak**
+```bash
+kubectl kustomize keycloak/ --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+```
+
+5.  **Conigure Keycloak with Terraform**
+
+Note:  Make sure you have `terraform.tfvars` file updated with correct values before applying the Terraform configuration.
 
 ```bash
-# Install the Helm Repo and update helm locally
-
-# Install CRDs
-helm upgrade --install cnpg cnpg/cloudnative-pg -n cnpg-system --create-namespace
-
-# Create DB secret
-kubectl create secret generic kc-db-secret --from-literal=username=keycloak_admin --from-literal=password=admin123 -n postgres
-
-# Create Keycloak DB
-k apply -f pg.yaml
+cd keycloak-terraform
+terraform init
+terraform plan
+terraform apply -auto-approve
 ```
 
-## Step 3: Install Nginx Ingress
+6. **Install Vault**
+```bash
+kubectl kustomize vault/ --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+```
+
+7. **Configure Vault with Terraform**
+
+Note:  Make sure you have `terraform.tfvars` file updated with correct values before applying the Terraform configuration.
 
 ```bash
-helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx -f nginx-ingress-values.yaml --set tcp.5432="postgres/postgresql:5432" --set tcp.3306="mysql/mysql:3306" --namespace ingress-nginx --create-namespace
-
-# Check Nginx Ingress Pod is running
-kubectl get po,svc,cm -n ingress-nginx
+cd vault-terraform
+terraform init
+terraform plan
+terraform apply -auto-approve
 ```
 
-## Step 4: Install pgAdmin
+8. **Install Grafana Postgres Cluster**
+```bash
+kubectl kustomize grafana-postgres/ --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+```
+
+9. **Install Grafana**
+```bash
+kubectl kustomize grafana/ --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+```
+
+10. **Install Kafka Operator**
+```bash
+kubectl kustomize kafka-operator/ --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+```
+
+11. **Configure Keycloak with Terraform for Oauth in Kafka and Kafka-UI
+
+Note: Make sure you have `terraform.tfvars` file updated with correct values before applying the Terraform configuration.
 
 ```bash
-helm upgrade --install pgadmin4 runix/pgadmin4 -f pgadmin-values.yaml --namespace pgadmin4 --create-namespace
-
-# Check pgAdmin Pod is running
-kubectl get po,svc -n pgadmin4
+cd keycloak-kafka-terraform
+terraform init
+terraform plan
+terraform apply -auto-approve
 ```
 
-## Step 5: Install Keycloak
+12. **Install Kafka cluster with Oauth**
+```bash
+kubectl kustomize kafka-cluster/cluster-with-oauth --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+```
+
+13. **Install Kafka UI with Oauth**
+```bash
+kubectl kustomize kafka-ui/ --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+```
+
+14. **Install Kafka cluster without Oauth**
+```bash
+kubectl kustomize kafka-cluster/cluster-without-oauth --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+```
+
+15. **Install Kafka UI without Oauth**
+```bash
+kubectl kustomize kafka-cluster/cluster-without-oauth/kafka-ui --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+```
+
+16. **Install Keda Operator**
+```bash
+kubectl kustomize /keda/ --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply --server-side --force-conflicts -f -
+```
+
+17. **Install Kiali Operator**
+```bash
+kubectl kustomize kiali/operator --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+```
+
+18. **Install Kiali Server**
+```bash
+kubectl kustomize kiali/server --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+```
+
+19. **Install Loki**
+```bash
+kubectl kustomize loki/ --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+```
+
+20. **Install OpenTelemetry Collector**
+```bash
+kubectl kustomize otel/ --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+```
+
+21. **Install Tempo**
+```bash
+kubectl kustomize tempo/ --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+```
+
+22. **Install Litmus Chaos**
+```bash
+kubectl kustomize litmus/ --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+```
+
+23. **Install Vault with Terraform for PKI set-up**
+
+Note: Make sure you have `terraform.tfvars` file updated with correct values before applying the Terraform configuration.
 
 ```bash
-helm upgrade --install keycloak bitnami/keycloak -f keycloak-values.yaml --namespace keycloak --create-namespace
-
-# Check Keycloak Pod is running
-kubectl get po,svc,cm -n keycloak
+cd vault-pki-with-terraform
+terraform init
+terraform plan
+terraform apply -auto-approve
 ```
 
-## Step 6: Install ArgoCD
-
+24. **Install Cert-Manager**
 ```bash
-helm upgrade --install argocd argocd/argo-cd -f argocd-values.yaml --namespace argocd --create-namespace
-
-# Check ArgoCD Pod is running
-kubectl get po,svc -n arogcd
+kubectl kustomize cert-manager/ --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
 ```
 
-## Step 7: Install Argo Workflows
-
+25. **Install Trust-Manager**
 ```bash
-helm upgrade --install argo-workflows argocd/argo-workflows -f argo-workflows-values.yaml --namespace argo-workflows --create-namespace
-
-# Check Argo Workflows Pod is running
-kubectl get po,svc -n arog-workflows
+kubectl kustomize trust-manager/ --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
 ```
-
-## Step 8: Install Prometheus
-
-```bash
-helm upgrade --install prometheus prometheus-community/prometheus -n prometheus -f prometheus-values.yaml --create-namespace
-
-# Check Prometheus Pod is running
-kubectl get po,svc,ing -n prometheus
-```
-
-## Step 9: Install Loki
-
-```bash
-# You need to install local-path-storage as StorageClass for Loki:
-
-kubectl apply -f local-path-storage.yaml
-
-helm upgrade --install loki grafana/loki -n loki -f loki-values.yaml --create-namespace
-
-# Check Loki Pod is running
-kubectl get po,svc,ing -n loki
-```
-
-## Step 10: Install Promtail
-
-```bash
-helm upgrade --install promtail grafana/promtail -n promtail -f promtail-values.yaml --create-namespace
-
-# Check Promtail Pod is running
-kubectl get po,svc -n promtail
-```
-
-## Step 11: Install Grafana
-
-```bash
-helm upgrade --install grafana grafana/grafana -n grafana -f grafana-values.yaml --create-namespace
-
-# Check Grafana Pod is running
-kubectl get po,svc,ing -n grafana
-```
-
-## Step 12: Install MySQL
-
-```bash
-helm upgrade --install mysql bitnami/mysql -f mysql-values.yaml -n mysql --create-namespace
-
-# Check MySQL Pod is running
-kubectl get po,svc,ing -n mysql
-```
-
-## Step 13: Install Keycloak (for MySQL)
-
-```bash
-helm upgrade --install keycloak bitnami/keycloak -f mysql-keycloak-values.yaml --namespace mysql-keycloak --create-namespace
-
-# Check Keycloak Pod is running
-kubectl get po,svc,ing -n mysql-keycloak
-```
-
-## Step 14: Install PhpMyAdmin
-
-```bash
-helm upgrade --install phpmyadmin bitnami/phpmyadmin -f phpmyadmin-values.yaml -n phpmyadmin --create-namespace
-
-# Check PhpMyAdmin Pod is running
-kubectl get po,svc,ing -n phpmyadmin
-```
-
-## Step 15: Install Vault
-
-```bash
-helm upgrade --install vault hashicorp/vault -f vault-values.yaml -n vault --create-namespace
-
-# Check Vault Pod is running
-kubectl get po,svc,ing -n vault
-```
-
-## Step 16: Install Blackbox
-
-```bash
-helm upgrade --install blackbox-exporter prometheus-community/prometheus-blackbox-exporter -n blackbox --create-namespace -f blackbox-values.yaml
-
-# Check Vault Pod is running
-kubectl get po,svc,ing -n blackbox
-```
-
-## Step 17: Install OAuth2-Proxy
-
-```bash
-# Create Cookie Secret
-dd if=/dev/urandom bs=32 count=1 2>/dev/null | base64 | tr -d -- '\n' | tr -- '+/' '-_' ; echo
-
-helm upgrade --install oauth2 oauth2-proxy/oauth2-proxy -n oauth --create-namespace -f oauth2-proxy-values.yaml
-
-# Check OAuth2-Proxy Pod is running
-kubectl get po,svc,ing -n oauth2
-```
-
-## Step 18: Install Istio
-
-```bash
-# Create namespace
-kubectl create ns istio-system
-
-# Install CRDs
-helm install istio-base istio/base -n istio-system --set defaultRevision=default
-
-# Install Istio Control-plane
-helm upgrade --install istiod istio/istiod -n istio-system -f istiod-values.yaml
-
-# Check Vault Pod is running
-kubectl get po,svc,ing -n istio-system
-
-# Label namespaces to have sidecar and rollout deployments to have sidecar
-kubectl label ns ingress-nginx istio-injection=enabled
-kubectl label ns welcome-app istio-injection=enabled
-
-# Enforce mesh-wide mTLS
-kubectl apply -f istio-mtls.yaml
-```
-
-## Step 19: Install Reloader
-
-```bash
-helm upgrade --install reloader stakater/reloader --create-namspace -n reloader
-
-kubectl get po -n reloader
-```
-
-## Step 20: Install Postgres with CloudNative Postgres Operator
-
-```bash
-alias install-postgres="echo -e 'Installing CRDs\n' \
-    && helm upgrade --install cnpg cnpg/cloudnative-pg -n cnpg-system --create-namespace \
-    && sleep 3s \
-    && echo "" \
-    && echo -e 'Creating postgres namespace\n' \
-    && kubectl create namespace postgres || true \
-    && echo "" \
-    && sleep 2s \
-    && echo -e 'Creating Keycloak DB Secret\n' \
-    && kubectl create secret generic kc-db-secret --from-literal=username=keycloak_admin --from-literal=password=admin123 -n postgres || true \
-    && echo "" \
-    && sleep 3s \
-    && echo -e 'Creating Backstage DB Secret\n' \
-    && kubectl create secret generic backstage-db-secret --from-literal=username=backstage_admin --from-literal=password=admin123 -n postgres || true \
-    && echo "" \
-    && sleep 10s \
-    && echo -e 'Creating Postgres Instance\n' \
-    && kubectl apply -f pg.yaml || true \
-    && echo "" \
-    && sleep 3s \
-    && echo -e 'Waiting for Postgres to be ready\n' \
-    && kubectl wait --for=condition=ready pod -l cnpg.io/cluster=keycloak-db -n postgres --timeout=300s \
-    && echo "" \
-    && kubectl wait --for=condition=ready pod -l cnpg.io/cluster=backstage-db -n postgres --timeout=300s \
-    && echo "" \
-    && echo -e 'Postgres is ready\n'"
-```
-
-<details>
-
-<summary>⚠️ Notes and Attention (click to expand)</summary>
-
-- ✅ **My set-up is 3 Virtual nodes using vagrant**: Check [this](https://github.com/techiescamp/vagrant-kubeadm-kubernetes/tree/main)
-
-- ✅ **Pass TCP port to Nginx Ingress during installation**: Nginx Ingress Chart does not respect tcp port in values file
-(read [this](https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/exposing-tcp-udp-services.md) and [this](https://github.com/kubernetes/ingress-nginx/blob/main/charts/ingress-nginx/values.yaml#L1218))
-
-```bash
-tcp:
-  "5432": "<postgres-namespace>/<postgres-service>:5432"
-```
-
-Error you will get if you define tcp block in values.yaml file
-
-```bash
-Error: INSTALLATION FAILED: 3 errors occurred:
-* ConfigMap in version "v1" cannot be handled as a ConfigMap: json: cannot unmarshal object into Go struct field ConfigMap.data of type string
-* Service in version "v1" cannot be handled as a Service: json: cannot unmarshal string into Go struct field ServicePort.spec.ports.port of type int32
-* Deployment in version "v1" cannot be handled as a Deployment: json: cannot unmarshal string into Go struct field ContainerPort.spec.template.spec.containers.ports.containerPort of type int32
-```
-
-- ✅ **Kind Cluster**: If you're using Kind Cluster then you can use Metallb to expose your Nginx Ingress. (Check [this](https://metallb.universe.tf/installation/#installation-with-helm)). It comes up with its own complexity.
-
-</details>
-
-# Install all the above charts with Helmfile
-
-## Step 1: Download the Latest Release
-
-```bash
-curl -LO https://github.com/helmfile/helmfile/releases/latest/download/helmfile_linux_amd64
-```
-
-## Step 2: Make It Executable
-```bash
-chmod +x helmfile_linux_amd64
-```
-
-## Step 3: Move It to a Directory in Your `PATH`
-```bash
-sudo mv helmfile_linux_amd64 /usr/local/bin/helmfile
-```
-
-## Step 4: Verify Installation
-```bash
-helmfile --version
-```
-
-## Step 5: Install All Charts Defined in Your helmfile.yaml
-```bash
-helmfile apply
-```
-> **ℹ️ Note:**  
-> Running `helmfile apply` will:
->
-> - Add the chart repositories.
-> - Sync each release (performs `helm upgrade --install` behavior).
-> - Create namespaces if they don’t already exist.
-> - Apply each custom `values.yaml` file and any `--set` overrides.
-> - Dry Run with `helmfile diff`
