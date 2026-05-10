@@ -1,5 +1,5 @@
 vault_address = "http://secrets.local.io:32080"
-vault_token   = "hvs.HG1GoNUTkMnBnr6eWsm3ZNHv"
+vault_token   = ""
 
 kubernetes_host = "https://kubernetes.default.svc.cluster.local:443"
 
@@ -32,7 +32,7 @@ intermediates = {
         allow_subdomains = true
         max_ttl          = "168h"
       }
-    }  
+    }
   }
 }
 
