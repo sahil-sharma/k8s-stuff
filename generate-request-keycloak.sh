@@ -11,7 +11,7 @@ WRONG_MASTER_PASSWORD="admin123456"
 
 # ArgoCD Cient ID and Client Secret
 ARGOCD_CLIENT="argocd"
-ARGOCD_CLIENT_SECRET="lMV6Ped1Eoh3MCiOA1MOtyug2wsKiniT"
+ARGOCD_CLIENT_SECRET="onU7UoMok4NKwohOLTlzLcIvzj9vO1VE"
 WRONG_ARGOCD_CLIENT_SECRET="S97tneAqdp"
 
 # Grafana Client ID and Client Secret

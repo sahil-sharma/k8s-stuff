@@ -18,41 +18,41 @@ PLATFORM_REALM = "platform"
 
 # Valid Credentials
 USER = os.getenv("KC_USER", "bob")
-PASS = os.getenv("KC_PASSWORD", "LWrXZdosyQClUGB6")
+PASS = os.getenv("KC_PASSWORD", "98DXLAV7W7dEksHM")
 
 # Client Registry (Fixed mapping)
-CLIENTS = {
+CLIENTS ={
   "argo-workflow": {
     "id": "argo-workflow",
-    "secret": "QuzhXOkZkItLEpasobFpPyZW4zKqwCwS"
+    "secret": "8XGzN2RciMNXaFyCXB7F2nwoblMYM2hd"
   },
   "argocd": {
     "id": "argocd",
-    "secret": "9J7plDFlhPkUBxCcq8RwiXSg0CsUeZrt"
+    "secret": "wUFdh34xj8r0W23uK5Fzk5PLStbSvniX"
   },
   "auth": {
     "id": "auth",
-    "secret": "zshEMowVro3GfzxtnVi5SoKzkqT1SOzb"
+    "secret": "s3xzs45OrsKSU07ge6NavBocfVuUfgbJ"
   },
   "grafana": {
     "id": "grafana",
-    "secret": "L7AeBZgoUA507HNY1YkDgjEKfbDEWbAO"
+    "secret": "zma9p2jbxu5lFsNtWHYZBzHG35YDpvZA"
   },
   "kafka-authz-idp-broker": {
     "id": "kafka-authz-idp-broker",
-    "secret": "guZWBbRnJDcdYXfPzxsfBJnDzbIQ5jDZ"
+    "secret": "G2k5tTwbGCoMxJIOwD4TocUWnZxQxegm"
   },
   "kiali": {
     "id": "kiali",
-    "secret": "qHpDfv0bBIFdLm9TnNKBf8UpPvzGllwe"
+    "secret": "uLYrxq47DAKYxewjQBJJgogAoYqGYgeb"
   },
   "secrets": {
     "id": "secrets",
-    "secret": "zWk4gjQoefGVuFB7OXrL7e22u0UzxkEA"
+    "secret": "pU4pqGfURHPcdXjealSy6zIyUtiKR2Dj"
   },
   "storage": {
     "id": "storage",
-    "secret": "l5ZveHPNF023AgOVSblTvsPmLMUrhkOm"
+    "secret": "5tzmSL00QCZ4kSlw8lFfx6MTFf7izdM7"
   }
 }
 
@@ -92,9 +92,9 @@ async def fire_request(session, stats, valid_pct):
     client_key = random.choice(list(CLIENTS.keys()))
     cfg = CLIENTS[client_key]
     url = f"{KC_URL}/realms/{PLATFORM_REALM}/protocol/openid-connect/token"
-    
+
     is_valid = random.random() < valid_pct
-    
+
     # Ensure these match your LATEST terraform output
     data = {
         "grant_type": "password",
@@ -114,7 +114,7 @@ async def fire_request(session, stats, valid_pct):
             # Debugging: Print body on failure to see why Keycloak is mad
             if resp.status != 200:
                 error_text = await resp.text()
-                # print(f"Error {resp.status}: {error_text}") 
+                # print(f"Error {resp.status}: {error_text}")
             await stats.record(resp.status, time.perf_counter() - start)
     except Exception:
         await stats.record(0, 0)
@@ -133,13 +133,13 @@ async def run_load_test(args):
     stats = Stats()
     limiter = AsyncLimiter(args.rps, 1) if args.rps > 0 else None
     stop_event = asyncio.Event()
-    
+
     # Use a high-performance connector for load testing
     conn = aiohttp.TCPConnector(limit=args.concurrency, ttl_dns_cache=300)
     async with aiohttp.ClientSession(connector=conn) as session:
-        workers = [asyncio.create_task(worker(session, stats, limiter, args.valid_pct, stop_event)) 
+        workers = [asyncio.create_task(worker(session, stats, limiter, args.valid_pct, stop_event))
                    for _ in range(args.concurrency)]
-        
+
         print(f"Testing {KC_URL}...")
         try:
             for _ in range(0, args.duration, args.interval):
@@ -160,6 +160,6 @@ if __name__ == "__main__":
     parser.add_argument("--duration", type=int, default=60, help="Test duration in seconds")
     parser.add_argument("--valid-pct", type=float, default=0.7, help="Ratio of valid (200) vs invalid (401) reqs")
     parser.add_argument("--interval", type=int, default=5, help="Reporting interval")
-    
+
     args = parser.parse_args()
     asyncio.run(run_load_test(args))

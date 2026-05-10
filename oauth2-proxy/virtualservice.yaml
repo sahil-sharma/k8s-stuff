@@ -16,4 +16,4 @@ spec:
         - destination:
             host: oauth2-proxy.oauth2-proxy.svc.cluster.local
             port:
-              number: 41080
+              number: 80

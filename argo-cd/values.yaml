@@ -45,16 +45,16 @@ server:
       nginx.ingress.kubernetes.io/rewrite-target: /
       # nginx.ingress.kubernetes.io/ssl-redirect: "true"
     rules:
-    - host: cd.local.io
-      http:
-        paths:
-        - pathType: Prefix
-          path: "/"
-          backend:
-          service:
-            name: argocd-server
-            port:
-              name: http
+      - host: cd.local.io
+        http:
+          paths:
+            - pathType: Prefix
+              path: "/"
+              backend:
+              service:
+                name: argocd-server
+                port:
+                  name: http
   extraArgs:
     - --insecure
 
@@ -104,7 +104,7 @@ configs:
       # ReadOnly role - just list/get
       p, role:readonly, *, get, */*, allow
       p, role:readonly, *, list, */*, allow
-   
+
   cm:
     admin.enabled: false
     url: http://cd.local.io:32080
@@ -114,6 +114,7 @@ configs:
       clientID: $argo-cd-sso-secret:client-id
       clientSecret: $argo-cd-sso-secret:client-secret
       requestedScopes: ["openid", "profile", "email", "groups"]
+      refreshTokenThreshold: 1m
       logoutURL: http://sso.local.io:32080/realms/platform/protocol/openid-connect/logout
     oidc.tls.insecure.skip.verify: "true"
   repositories:

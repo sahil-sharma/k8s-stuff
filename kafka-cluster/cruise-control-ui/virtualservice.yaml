@@ -9,6 +9,16 @@ spec:
   gateways:
     - cruise-control-gateway
   http:
+    # 1. Send all auth-related traffic to the Proxy
+    - match:
+        - uri:
+            prefix: /oauth2
+      route:
+        - destination:
+            host: oauth2-proxy.oauth2-proxy.svc.cluster.local
+            port:
+              number: 80
+    # 2. Send everything else to Cruise Control UI
     - match:
         - uri:
             prefix: /

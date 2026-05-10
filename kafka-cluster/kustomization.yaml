@@ -6,5 +6,5 @@ namespace: kafka-cluster
 resources:
   - cluster
   - bridge
-  # connect
-  - cruise-control-ui
+  # - connect
+  # - cruise-control-ui
