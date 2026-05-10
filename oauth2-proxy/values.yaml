@@ -2,7 +2,7 @@ config:
   clientID: $CLIENT_ID
   clientSecret: $CLIENT_SECRET
   cookieSecure: false
-  cookieSecret: $COOKIE_SECRET
+  cookieSecret: "fKOWcNTunlyaEpihaqNuYcYa1TYv4YHLKHJ36sSoKNk="
   configFile: |-
     email_domains = ["local.io"]
     provider = "oidc"
@@ -23,7 +23,8 @@ config:
     pass_access_token = true
     pass_user_headers = true
     pass_host_header = false
-    upstreams = ["http://rollouts.local.io:32080/"]
+    # upstreams = ["http://rollouts.local.io:32080/", "http://cruise-control.local.io:32080/"]
+    upstreams = ["static://200"]
     whitelist_domains = [".local.io"]
     cookie_domains = [".local.io"]
     pass_authorization_header = true

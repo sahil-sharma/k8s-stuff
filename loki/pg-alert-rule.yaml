@@ -1,3 +1,31 @@
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: loki-rules-postgres
+#   namespace: loki
+#   labels:
+#     loki-rules: "true"
+# data:
+#   pgsql-alerts.yaml: |
+#     groups:
+#       - name: pgsql-fatal-alerts
+#         interval: 1m
+#         rules:
+#           - alert: PostgreSQLFatal
+#             expr: |
+#               sum by (k8s_namespace_name, k8s_pod_name) (
+#                 count_over_time(
+#                   {k8s_container_name="postgres"} |= "FATAL" [2m]
+#                 )
+#               ) > 0
+#             for: 0m
+#             labels:
+#               severity: critical
+#               team: dba
+#             annotations:
+#               summary: "PostgreSQL FATAL in {{ $labels.k8s_namespace_name }}"
+#               description: "FATAL on pod {{ $labels.k8s_pod_name }} in {{ $labels.k8s_namespace_name }}"
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -8,16 +36,94 @@ metadata:
 data:
   pgsql-alerts.yaml: |
     groups:
-      - name: pgsql-fatal-alerts
-        interval: 1m
-        rules:
-          - alert: PostgreSQLFatal
-            expr: |
-              sum by (k8s_namespace_name) (count_over_time({k8s_namespace_name="grafana-pg", k8s_container_name="postgres"} |= "FATAL" [5m])) > 0
-            for: 0m
-            labels:
-              severity: critical
-              team: dba
-            annotations:
-              summary: "PostgreSQL FATAL error detected"
-              description: "FATAL in {{ $labels.k8s_namespace_name }}"
+    - name: pgsql-critical
+      interval: 1m
+      rules:
+        - alert: PostgreSQLFatal
+          expr: |
+            sum by (k8s_namespace_name, k8s_pod_name) (
+              count_over_time({k8s_container_name="postgres"} |= "FATAL" [5m])
+            ) > 0
+          labels:
+            severity: critical
+            tier: "1"
+          annotations:
+            summary: "PG FATAL in {{ $labels.k8s_namespace_name }}"
+
+        - alert: PostgreSQLPanic
+          expr: |
+            sum by (k8s_namespace_name, k8s_pod_name) (
+              count_over_time({k8s_container_name="postgres"} |= "PANIC" [5m])
+            ) > 0
+          labels:
+            severity: critical
+            tier: "1"
+          annotations:
+            summary: "PG PANIC in {{ $labels.k8s_namespace_name }} — restart likely"
+
+    - name: pgsql-replication
+      interval: 1m
+      rules:
+        - alert: PostgreSQLPromoted
+          expr: |
+            sum by (k8s_namespace_name, k8s_pod_name) (
+              count_over_time({k8s_container_name="postgres"} |= "promoted" [5m])
+            ) > 0
+          labels:
+            severity: warning
+            tier: "2"
+          annotations:
+            summary: "Failover detected in {{ $labels.k8s_namespace_name }}"
+
+        - alert: PostgreSQLArchiveFailing
+          expr: |
+            sum by (k8s_namespace_name, k8s_pod_name) (
+              count_over_time({k8s_container_name="postgres"} |= "archive command failed" [5m])
+            ) > 0
+          labels:
+            severity: critical
+            tier: "2"
+          annotations:
+            summary: "WAL archiving broken in {{ $labels.k8s_namespace_name }}"
+
+    - name: pgsql-performance
+      interval: 1m
+      rules:
+        - alert: PostgreSQLSlowQuerySpike
+          expr: |
+            sum by (k8s_namespace_name, k8s_pod_name) (
+              count_over_time({k8s_container_name="postgres"} |~ "duration: [0-9]{4,} ms" [5m])
+            ) > 10
+          for: 5m
+          labels:
+            severity: warning
+            tier: "3"
+          annotations:
+            summary: "Slow query spike in {{ $labels.k8s_namespace_name }}"
+            description: "{{ $value }} queries >1s in 5m"
+
+        - alert: PostgreSQLLockWaits
+          expr: |
+            sum by (k8s_namespace_name, k8s_pod_name) (
+              count_over_time({k8s_container_name="postgres"} |= "still waiting for" [5m])
+            ) > 5
+          for: 2m
+          labels:
+            severity: warning
+            tier: "3"
+          annotations:
+            summary: "Lock contention in {{ $labels.k8s_namespace_name }}"
+
+    - name: pgsql-capacity
+      interval: 1m
+      rules:
+        - alert: PostgreSQLConnectionRejected
+          expr: |
+            sum by (k8s_namespace_name, k8s_pod_name) (
+              count_over_time({k8s_container_name="postgres"} |~ "too many clients|remaining connection slots" [5m])
+            ) > 0
+          labels:
+            severity: critical
+            tier: "2"
+          annotations:
+            summary: "Connection saturation in {{ $labels.k8s_namespace_name }}"

@@ -18,13 +18,22 @@ spec:
     size: 1Gi
   postgresql:
     parameters:
-      # Log queries taking longer than 100ms
+      # Only log slow queries (e.g., > 250ms) to avoid log flooding
+      # log_min_duration_statement: "250"
       log_min_duration_statement: "0"
-      # Log detailed information about the query
+
+      log_statement: "none" # Keep this at none if you use min_duration_statement
+
+      # Essential for troubleshooting performance, low volume
       log_checkpoints: "on"
-      log_connections: "on"
-      log_disconnections: "on"
       log_lock_waits: "on"
-      # log_statement: "none"
-      # Ensure logs are formatted for easy parsing
+
+      # Reduce noise by disabling connection/disconnection logs
+      log_connections: "off"
+      log_disconnections: "off"
+
+      # Standard logging level (logs errors, fatals, and warnings)
+      log_min_messages: "warning"
+
+      # Important for CNPG instance manager
       log_destination: "csvlog"

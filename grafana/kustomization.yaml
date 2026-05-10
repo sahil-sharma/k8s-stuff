@@ -2,27 +2,25 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 generatorOptions:
-  disableNameSuffixHash: false
-
-namespace: grafana
+  disableNameSuffixHash: true
 
 configMapGenerator:
   - name: kafka-dashboards
     files:
       - strimzi-kafka-metrics.json
-      - strimzi-kafka-bridge-metrics.json
-      - strimzi-kafka-oauth-metrics.json
+      - strimzi-kafka-exporter-metrics.json
   - name: kafka-addons-dashboards
     files:
-      - strimzi-kafka-exporter-metrics.json
+      - strimzi-kafka-bridge-metrics.json
       - strimzi-kafka-connect-metrics.json
+      - strimzi-kafka-oauth-metrics.json
 
 resources:
   - namespace.yaml
   - gateway.yaml
   - virtualservice.yaml
   - peer-authentication.yaml
-  - grafana-external-secret.yaml
+  # - grafana-external-secret.yaml
 
 helmCharts:
   - name: grafana

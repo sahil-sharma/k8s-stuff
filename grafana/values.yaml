@@ -1,5 +1,5 @@
-# adminUser: admin
-# adminPassword: admin123
+adminUser: admin
+adminPassword: admin123
 
 testFramework:
   enabled: false
@@ -52,11 +52,11 @@ grafana.ini:
   log:
     level: info
   auth:
-    disable_login_form: true
+    disable_login_form: false
   auth.anonymous:
     enabled: false
   auth.basic:
-    enabled: false
+    enabled: true
   server:
     root_url: http://dashboards.local.io:32080
   # Tested for Kiali linking but did not work as expected
@@ -65,7 +65,7 @@ grafana.ini:
   #   cookie_samesite: none
   #   cookie_secure: true
   auth.generic_oauth:
-    enabled: true
+    enabled: false
     name: SSO
     client_id: ${OIDC_CLIENT_ID}
     client_secret: ${OIDC_CLIENT_SECRET}
@@ -77,7 +77,8 @@ grafana.ini:
     auth_url: http://sso.local.io:32080/realms/platform/protocol/openid-connect/auth
     token_url: http://sso.local.io:32080/realms/platform/protocol/openid-connect/token
     api_url: http://sso.local.io:32080/realms/platform/protocol/openid-connect/userinfo
-    role_attribute_path: contains(realm_access.roles[*], 'admin') && 'Admin' || contains(realm_access.roles[*], 'editor') && 'Editor' || 'Viewer'
+    role_attribute_path: contains(realm_access.roles[*], 'admin') && 'Admin' ||
+      contains(realm_access.roles[*], 'editor') && 'Editor' || 'Viewer'
     allow_assign_grafana_admin: true
     tls_skip_verify_insecure: true
 
@@ -137,13 +138,13 @@ dashboardProviders:
         type: file
         options:
           path: /var/lib/grafana/dashboards/default
-      - name: "kafka-provider"
+      - name: "kafka-dashboards"
         orgId: 1
         folder: "Kafka"
         type: file
         options:
           path: /var/lib/grafana/dashboards/kafka
-      - name: "kafka-addons-provider"
+      - name: "kafka-addons-dashboards"
         orgId: 1
         folder: "Kafka-Addons"
         type: file
@@ -242,6 +243,7 @@ dashboards:
       gnetId: 15826
       revision: 7
       datasource: Prometheus
+
 #     flask-app:
 #       gnetId: 11074  # Example dashboard ID for a Python app
 #       revision: 1
