@@ -1,0 +1,1 @@
+{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"k8s_auth","Source":"../../modules/vault-k8s-auth-binding","Dir":"../../modules/vault-k8s-auth-binding"},{"Key":"k8s_auth_method","Source":"../../modules/vault-k8s-auth-method","Dir":"../../modules/vault-k8s-auth-method"},{"Key":"pki","Source":"../../modules/vault-pki","Dir":"../../modules/vault-pki"}]}
