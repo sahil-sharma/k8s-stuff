@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: cert-manager
+
+resources:
+  - namespace.yaml
+  - role-and-rolebinding.yaml
+  #- cluster-issuer.yaml
+
+helmCharts:
+  - name: cert-manager
+    releaseName: cert-manager
+    version: v1.20.2
+    repo: https://charts.jetstack.io
+    includeCRDs: true
+    valuesInline:
+      global:
+        leaderElection:
+          namespace: "cert-manager"
+      crds:
+        enabled: true
+        keep: true
