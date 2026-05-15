@@ -7,7 +7,6 @@ tempo:
         wait: 30s
         max_items: 10000
         enable_virtual_node_label: false
-        dimensions: []
         dimensions:
           - messaging.system
           - messaging.destination.name
@@ -38,12 +37,12 @@ tempo:
     size: 1Gi
 
   ingester:
-    trace_idle_period: 30s           # wait 30s before closing a trace (default 10s)
+    trace_idle_period: 30s # wait 30s before closing a trace (default 10s)
     max_block_duration: 5m
-  
+
   distributor:
     log_received_spans:
-      enabled: true 
+      enabled: true
 
 serviceMonitor:
   enabled: true

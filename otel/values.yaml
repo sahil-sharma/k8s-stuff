@@ -95,7 +95,7 @@ config:
       tls:
         insecure: true
     otlphttp/loki:
-      endpoint: http://loki-gateway.loki.svc.cluster.local/otlp
+      endpoint: http://logs.local.io:32080/otlp
       tls:
         insecure: true
     debug:
