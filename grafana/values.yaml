@@ -40,8 +40,6 @@ extraInitContainers:
         echo "Database is ready!"
 
 grafana.ini:
-  dataproxy:
-    timeout: 600
   database:
     type: postgres
     host: grafana-db-rw.grafana-pg.svc.cluster.local:5432
@@ -95,6 +93,7 @@ datasources:
         uid: prometheus_uid
         url: http://metrics.local.io:32080
         isDefault: true
+
       - name: Loki
         type: loki
         access: proxy
@@ -102,14 +101,15 @@ datasources:
         url: http://logs.local.io:32080
         isDefault: false
         jsonData:
-          # derivedFields:
-          #   - name: trace_id
-          #     matcherRegex: "trace_id=(\\w+)"
-          #     url: "${__url}/trace/${__value.raw}"
-          #     datasourceUid: tempo_uid
+          derivedFields:
+            - name: trace_id
+              matcherRegex: '"trace_id":"(\\w+)"'
+              url: "$${__value.raw}"
+              datasourceUid: tempo_uid
           tlsSkipVerify: true
           timeout: 600
           maxLines: 50
+
       - name: Tempo
         type: tempo
         access: proxy
@@ -117,6 +117,41 @@ datasources:
         url: http://traces.local.io:32080
         isDefault: false
         editable: true
+        jsonData:
+          # Links traces → logs in Loki
+          tracesToLogs:
+            datasourceUid: loki_uid
+            filterByTraceID: false
+            filterBySpanID: false
+            mapTagNamesEnabled: true
+            mappedTags:
+              - key: service.name
+                value: k8s_container_name
+            lokiSearch: true
+
+          # Links traces → metrics in Prometheus
+          tracesToMetrics:
+            datasourceUid: prometheus_uid
+            tags:
+              - key: service.name
+                value: service
+
+          # Service Graph — powered by Prometheus metrics from Tempo
+          serviceMap:
+            datasourceUid: prometheus_uid
+
+          # Node Graph — shows span relationships visually
+          nodeGraph:
+            enabled: true
+
+          # TraceQL search
+          search:
+            hide: false
+
+          # Loki search from Tempo
+          lokiSearch:
+            datasourceUid: loki_uid
+
         # jsonData:
         #   tlsSkipVerify: true
         # jsonData:

@@ -2,6 +2,30 @@ tempo:
   metricsGenerator:
     enabled: true
     remoteWriteUrl: "http://metrics.local.io:32080/api/v1/write"
+    processor:
+      service_graphs:
+        wait: 30s
+        max_items: 10000
+        enable_virtual_node_label: false
+        dimensions: []
+        dimensions:
+          - messaging.system
+          - messaging.destination.name
+      span_metrics:
+        dimensions:
+          - messaging.system
+          - messaging.destination.name
+          - messaging.operation
+      local_blocks:
+        filter_server_spans: false
+
+  overrides:
+    defaults:
+      metrics_generator:
+        processors:
+          - service-graphs
+          - span-metrics
+          - local-blocks
 
   storage:
     trace:
@@ -12,6 +36,14 @@ tempo:
   persistence:
     enabled: true
     size: 1Gi
+
+  ingester:
+    trace_idle_period: 30s           # wait 30s before closing a trace (default 10s)
+    max_block_duration: 5m
+  
+  distributor:
+    log_received_spans:
+      enabled: true 
 
 serviceMonitor:
   enabled: true
