@@ -26,8 +26,8 @@ spec:
     spec:
       containers:
         - name: echo-server
-          image: echo-server:v1
-          imagePullPolicy: Never
+          image: sahilwork/echo-server:v1
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8443
           volumeMounts:
