@@ -28,7 +28,7 @@ alertmanager:
     global:
       resolve_timeout: 5m
     route:
-      group_by: [ "alertname", "namespace", "topic" ]
+      group_by: ["alertname", "namespace", "topic"]
       group_wait: 30s
       group_interval: 5m
       repeat_interval: 12h
@@ -43,8 +43,9 @@ alertmanager:
         slack_configs:
           - channel: "#platform-alerts"
             api_url_file: "/etc/alertmanager/secrets/slack-webhook-secret/slack-webhook-url"
-            title: "[{{ .Status | toUpper }}{{ if eq .Status \"firing\" }}:{{ .Alerts.Firing
-              | len }}{{ end }}] {{ .CommonAnnotations.summary }}"
+            title:
+              '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing
+              | len }}{{ end }}] {{ .CommonAnnotations.summary }}'
             text: |
               {{ range .Alerts -}}
               *Alert:* `{{ .Labels.alertname }}`
@@ -73,6 +74,7 @@ alertmanager:
 prometheus:
   enabled: true
   prometheusSpec:
+    enableRemoteWriteReceiver: true
     serviceMonitorNamespaceSelector: {}
     # Discovery: Pick up every ServiceMonitor/Rule in the cluster
     serviceMonitorSelectorNilUsesHelmValues: false
@@ -83,7 +85,7 @@ prometheus:
       volumeClaimTemplate:
         spec:
           storageClassName: "standard"
-          accessModes: [ "ReadWriteOnce" ]
+          accessModes: ["ReadWriteOnce"]
           resources:
             requests:
               storage: 1Gi
