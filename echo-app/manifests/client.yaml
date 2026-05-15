@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: echo-client
+  labels:
+    istio-injection: enabled
+    trust: enabled
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echo-client
+  namespace: echo-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: echo-client
+  template:
+    metadata:
+      labels:
+        app: echo-client
+      annotations:
+        # Tell Istio sidecar to allow the app to handle its own outbound HTTPS logic
+        traffic.sidecar.istio.io/passthroughOutboundIPRanges: "all"
+    spec:
+      containers:
+        - name: echo-client
+          image: echo-client:v1
+          imagePullPolicy: Never
+          env:
+            - name: TARGET
+              value: "https://echo-server.local.io:32443/"
+          volumeMounts:
+            - name: trust
+              mountPath: /etc/trust
+              readOnly: true
+      volumes:
+        - name: trust
+          configMap:
+            name: vault-ca-bundle
+---
