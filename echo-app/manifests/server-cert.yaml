@@ -1,0 +1,35 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: echo-server-tls
+  namespace: echo-server
+spec:
+  commonName: echo-server.echo-server.svc.cluster.local
+  dnsNames:
+    - echo-server.local.io
+    - echo-server.echo-server.svc.cluster.local
+  secretName: echo-server-tls
+  duration: 1h
+  renewBefore: 30m
+  issuerRef:
+    name: vault-issuer
+    kind: ClusterIssuer
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: echo-server-tls
+  namespace: istio-system
+spec:
+  commonName: echo-server.echo-server.svc.cluster.local
+  dnsNames:
+    - echo-server.local.io
+    - echo-server.echo-server.svc.cluster.local
+  secretName: echo-server-tls
+  duration: 1h
+  renewBefore: 30m
+  issuerRef:
+    name: vault-issuer
+    kind: ClusterIssuer
+---
+

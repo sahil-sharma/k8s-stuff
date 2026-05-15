@@ -1,0 +1,109 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: echo-server
+  labels:
+    istio-injection: enabled
+    trust: enabled
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echo-server
+  namespace: echo-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: echo-server
+  template:
+    metadata:
+      labels:
+        app: echo-server
+      annotations:
+        # This tells Istio: "Don't intercept traffic on 8443, let the app handle it"
+        traffic.sidecar.istio.io/includeInboundPorts: "8443"
+    spec:
+      containers:
+        - name: echo-server
+          image: echo-server:v1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8443
+          volumeMounts:
+            - name: tls
+              mountPath: /etc/tls
+              readOnly: true
+      volumes:
+        - name: tls
+          secret:
+            secretName: echo-server-tls
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: echo-server
+  namespace: echo-server
+spec:
+  selector:
+    app: echo-server
+  ports:
+    - port: 8443
+      targetPort: 8443
+---
+apiVersion: networking.istio.io/v1
+kind: Gateway
+metadata:
+  name: echo-server-gw
+  namespace: echo-server
+spec:
+  selector:
+    app: istio-gateway
+  servers:
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      tls:
+        mode: SIMPLE
+        credentialName: echo-server-tls
+      hosts:
+        - echo-server.local.io
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: echo-server-virtualservice
+  namespace: echo-server
+spec:
+  hosts:
+    - echo-server.local.io
+  gateways:
+    - echo-server-gw
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: echo-server.echo-server.svc.cluster.local
+            port:
+              number: 8443
+          headers:
+            request:
+              set:
+                x-forwarded-proto: https
+---
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: echo-server-tls-settings
+  namespace: echo-server
+spec:
+  host: echo-server.echo-server.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: SIMPLE
+      caCertificates: /etc/ssl/certs/ca.crt
+      sni: echo-server.local.io
+---
