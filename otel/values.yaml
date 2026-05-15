@@ -1,4 +1,4 @@
-mode: daemonset
+mode: deployment
 
 presets:
   logsCollection:
@@ -41,35 +41,42 @@ clusterRole:
       verbs: ["get", "watch", "list"]
 
 image:
-  repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-k8s
+  # repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-k8s
+  repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib
   tag: "latest"
 
 config:
   receivers:
-    otlp:
-      protocols:
-        grpc:
-          endpoint: 0.0.0.0:4317
-        http:
-          endpoint: 0.0.0.0:4318
-
     filelog:
       include: [/var/log/pods/*/*/*.log]
-      exclude: [/var/log/pods/loki_*/*/*.log] # Exclude Loki pod logs to avoid log loops
+      exclude: [/var/log/pods/loki_*/*/*.log]
       start_at: end
       include_file_path: true
       include_file_name: false
       operators:
         - type: container
           id: container-parser
-
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+  connectors:
+    servicegraph:
+      latency_histogram_buckets: [100ms, 250ms, 1s, 5s, 10s]
+      dimensions: []
+      store:
+        ttl: 5s
+        max_items: 1000
   processors:
-    batch: {}
+    batch:
+      timeout: 2s
+      send_batch_size: 256
     memory_limiter:
       check_interval: 1s
       limit_percentage: 70
       spike_limit_percentage: 30
-
     k8sattributes:
       extract:
         metadata:
@@ -82,20 +89,21 @@ config:
         - sources:
             - from: resource_attribute
               name: k8s.pod.name
-
   exporters:
     otlp/tempo:
       endpoint: tempo.tempo.svc.cluster.local:4317
       tls:
         insecure: true
-
     otlphttp/loki:
-      endpoint: http://logs.local.io:32080/otlp
+      endpoint: http://loki-gateway.loki.svc.cluster.local/otlp
       tls:
         insecure: true
-      # headers:
-      #   X-Scope-OrgID: "foo"
-
+    debug:
+      verbosity: basic
+    prometheusremotewrite:
+      endpoint: "http://metrics.local.io:32080/api/v1/write"
+      resource_to_telemetry_conversion:
+        enabled: true
   service:
     telemetry:
       metrics:
@@ -105,7 +113,11 @@ config:
       traces:
         receivers: [otlp]
         processors: [batch]
-        exporters: [otlp/tempo]
+        exporters: [otlp/tempo, debug, servicegraph]
+      metrics:
+        receivers: [otlp, servicegraph]
+        processors: [batch]
+        exporters: [prometheusremotewrite]
       logs:
         receivers: [filelog]
         processors: [k8sattributes, memory_limiter, batch]
