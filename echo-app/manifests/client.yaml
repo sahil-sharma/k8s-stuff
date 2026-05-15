@@ -26,8 +26,8 @@ spec:
     spec:
       containers:
         - name: echo-client
-          image: echo-client:v1
-          imagePullPolicy: Never
+          image: sahilwork/echo-client:v1
+          imagePullPolicy: IfNotPresent
           env:
             - name: TARGET
               value: "https://echo-server.local.io:32443/"
