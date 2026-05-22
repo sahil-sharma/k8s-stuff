@@ -44,9 +44,9 @@ kubectl kustomize kafka-ui --enable-helm --load-restrictor=LoadRestrictionsNone 
 
 ### Kafka Cruise-Control UI
 
-Configure cruise-control in your cluster values file like [this](https://github.com/sahil-sharma/k8s-stuff/blob/main/kafka-cluster/cluster-with-oauth/cluster/cluster.yaml#L158-L169)
+Configure cruise-control in your cluster values file like [this](https://github.com/sahil-sharma/k8s-stuff/blob/main/kafka-cluster/cluster-with-oauth/cluster/cluster.yaml#L158-L169).
 
 ```bash
 # Install Kafka Cruise-Control for managing kafka cluster
-kubectl kustomize cruise-control-ui --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+kubectl kustomize cruise-control-ui --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
 ```
