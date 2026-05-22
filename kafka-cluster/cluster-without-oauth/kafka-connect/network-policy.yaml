@@ -1,0 +1,41 @@
+# apiVersion: networking.k8s.io/v1
+# kind: NetworkPolicy
+# metadata:
+#   name: allow-kafka-ui-to-connect
+#   namespace: kafka-cluster
+# spec:
+#   podSelector:
+#     matchLabels:
+#       strimzi.io/cluster: strimzi-connect
+#       strimzi.io/kind: KafkaConnect
+#   ingress:
+#     - from:
+#         - namespaceSelector:
+#             matchLabels:
+#               kubernetes.io/metadata.name: kafka-ui
+#       ports:
+#         - port: 8083
+#           protocol: TCP
+#   policyTypes:
+#     - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-istio-gateway-to-kafka-connect
+  namespace: kafka-cluster
+spec:
+  podSelector:
+    matchLabels:
+      strimzi.io/cluster: strimzi-connect
+      strimzi.io/kind: KafkaConnect
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: istio-system
+      ports:
+        - port: 8083
+          protocol: TCP
+  policyTypes:
+    - Ingress

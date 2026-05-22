@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - network-policy.yaml
+  - values.yaml
+  - gateway.yaml
+  - virtualservice.yaml
+  - connect-metrics-configmap.yaml
+  - connect-prometheus-rule.yaml

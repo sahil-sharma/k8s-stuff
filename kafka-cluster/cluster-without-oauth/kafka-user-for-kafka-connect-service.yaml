@@ -1,0 +1,38 @@
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaUser
+metadata:
+  name: kafka-connect-user
+  namespace: kafka-cluster
+  labels:
+    strimzi.io/cluster: my-cluster
+spec:
+  authentication:
+    type: scram-sha-512
+  authorization:
+    type: simple
+    acls:
+      # 1. Access to the business data topics
+      - resource:
+          type: topic
+          name: "*"
+          patternType: literal
+        operations: [Read, Write, Describe, Create]
+
+      # 2. Access to Kafka Connect internal topics
+      - resource:
+          type: group
+          name: "*"
+          patternType: literal
+        operations: [Read, Describe]
+
+      # 3. Cluster-level describe for metadata
+      - resource:
+          type: cluster
+        operations: [Describe]
+
+      # 4. Explicit permissions for transactional IDs (often needed by Debezium/Source Connectors)
+      - resource:
+          type: transactionalId
+          name: "*"
+          patternType: literal
+        operations: [Write, Describe]

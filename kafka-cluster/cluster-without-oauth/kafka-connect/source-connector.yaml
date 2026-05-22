@@ -1,0 +1,20 @@
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaConnector
+metadata:
+  name: postgres-source-connector
+  namespace: kafka-cluster
+  labels:
+    strimzi.io/cluster: strimzi-connect
+spec:
+  class: io.debezium.connector.postgresql.PostgresConnector
+  tasksMax: 1
+  config:
+    database.hostname: app-db-rw.app-pg.svc.cluster.local
+    database.port: "5432"
+    database.user: "app_admin"
+    database.password: "admin123"
+    database.dbname: "app_db"
+    topic.prefix: "cdc"
+    table.include.list: "public.customers"
+    plugin.name: "pgoutput"
+    publication.autocreate.mode: "filtered"

@@ -1,0 +1,64 @@
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaConnect
+metadata:
+  name: strimzi-connect
+  namespace: kafka-cluster
+  annotations:
+    strimzi.io/use-connector-resources: "true"
+spec:
+  version: 4.1.1
+  replicas: 1
+  image: sahilwork/kafka-connect:v1
+  bootstrapServers: my-cluster-kafka-bootstrap.kafka-cluster.svc:9094
+  template:
+    pod:
+      metadata:
+        annotations:
+          traffic.sidecar.istio.io/excludeOutboundPorts: "9092,9094"
+          # traffic.sidecar.istio.io/excludeInboundPorts: "8083"
+  authentication:
+    type: scram-sha-512
+    username: kafka-connect-user
+    passwordSecret:
+      secretName: kafka-connect-user
+      password: password
+
+  groupId: connect-cluster
+  offsetStorageTopic: connect-cluster-offsets
+  configStorageTopic: connect-cluster-configs
+  statusStorageTopic: connect-cluster-status
+
+  # build:
+  #   output:
+  #     type: docker
+  #     image: sahilwork/kafka-connect:v1
+  #     pushSecret: registry-push-secret
+  #   plugins:
+  #     - name: debezium-postgres
+  #       artifacts:
+  #         - type: tgz
+  #           url: https://repo1.maven.org/maven2/io/debezium/debezium-connector-postgres/3.5.1.Final/debezium-connector-postgres-3.5.1.Final-plugin.tar.gz
+  #     - name: confluent-jdbc
+  #       artifacts:
+  #         - type: zip
+  #           url: https://api.hub.confluent.io/api/plugins/confluentinc/kafka-connect-jdbc/versions/10.9.3/archive
+
+  config:
+    config.storage.replication.factor: -1
+    offset.storage.replication.factor: -1
+    status.storage.replication.factor: -1
+    security.protocol: SASL_PLAINTEXT
+    sasl.mechanism: SCRAM-SHA-512
+    sasl.jaas.config: >
+      org.apache.kafka.common.security.scram.ScramLoginModule required
+      username="kafka-connect-user"
+      password="${file:/opt/kafka/connect-user-password/password}";
+    socket.connection.setup.timeout.max.ms: 30000
+    socket.connection.setup.timeout.ms: 30000
+
+  metricsConfig:
+    type: jmxPrometheusExporter
+    valueFrom:
+      configMapKeyRef:
+        name: connect-metrics
+        key: metrics-config.yaml

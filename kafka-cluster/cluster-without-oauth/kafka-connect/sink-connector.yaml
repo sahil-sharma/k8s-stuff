@@ -1,0 +1,36 @@
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaConnector
+metadata:
+  name: postgres-sink-connector
+  namespace: kafka-cluster
+  labels:
+    strimzi.io/cluster: strimzi-connect
+spec:
+  class: io.confluent.connect.jdbc.JdbcSinkConnector
+  tasksMax: 1
+  config:
+    connection.url: "jdbc:postgresql://app-db-rw.app-pg.svc.cluster.local:5432/app_db"
+    connection.user: "app_admin"
+    connection.password: "admin123"
+    topics: "a_topic"
+    insert.mode: "insert"
+    table.name.format: "orders"
+
+    # Mapping field names automatically from schema-less JSON
+    pk.mode: "none"
+    auto.create: "false"
+    auto.evolve: "false"
+
+    # Value converter explicitly using the schema envelope wrapper format
+    value.converter: org.apache.kafka.connect.json.JsonConverter
+    value.converter.schemas.enable: "true"
+
+    # Key converter hardened to allow plain strings without crashing
+    key.converter: org.apache.kafka.connect.storage.StringConverter
+    key.converter.schemas.enable: "false"
+
+    # Sending bad records to DLQ topic
+    errors.tolerance: "all"
+    errors.deadletterqueue.topic.name: "x_topic-dlq"
+    errors.deadletterqueue.topic.replication.factor: "1"
+    errors.deadletterqueue.context.headers.enable: "true"
