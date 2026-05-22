@@ -166,57 +166,47 @@ terraform apply -auto-approve
 kubectl kustomize kafka-cluster/cluster-with-oauth --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
 ```
 
-13. **Install Kafka UI with Oauth**
-```bash
-kubectl kustomize kafka-ui/ --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
-```
-
-14. **Install Kafka cluster without Oauth**
+13. **Install Kafka cluster without Oauth**
 ```bash
 kubectl kustomize kafka-cluster/cluster-without-oauth --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
 ```
 
-15. **Install Kafka UI without Oauth**
-```bash
-kubectl kustomize kafka-cluster/cluster-without-oauth/kafka-ui --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
-```
-
-16. **Install Keda Operator**
+14. **Install Keda Operator**
 ```bash
 kubectl kustomize /keda/ --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply --server-side --force-conflicts -f -
 ```
 
-17. **Install Kiali Operator**
+15. **Install Kiali Operator**
 ```bash
 kubectl kustomize kiali/operator --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
 ```
 
-18. **Install Kiali Server**
+16. **Install Kiali Server**
 ```bash
 kubectl kustomize kiali/server --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
 ```
 
-19. **Install Loki**
+17. **Install Loki**
 ```bash
 kubectl kustomize loki/ --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
 ```
 
-20. **Install OpenTelemetry Collector**
+18. **Install OpenTelemetry Collector**
 ```bash
 kubectl kustomize otel/ --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
 ```
 
-21. **Install Tempo**
+19. **Install Tempo**
 ```bash
 kubectl kustomize tempo/ --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
 ```
 
-22. **Install Litmus Chaos**
+20. **Install Litmus Chaos**
 ```bash
 kubectl kustomize litmus/ --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
 ```
 
-23. **Install Vault with Terraform for PKI set-up**
+21. **Install Vault with Terraform for PKI set-up**
 
 > Note: Make sure you have `terraform.tfvars` file updated with correct values before applying the Terraform configuration.
 
@@ -227,12 +217,17 @@ terraform plan
 terraform apply -auto-approve
 ```
 
-24. **Install Cert-Manager**
+22. **Install Cert-Manager**
 ```bash
 kubectl kustomize cert-manager/ --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
 ```
 
-25. **Install Trust-Manager**
+23. **Install Trust-Manager**
 ```bash
 kubectl kustomize trust-manager/ --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+```
+
+24. **Install Boutique Shop application**
+```bash
+kubectl kustomize boutique-app --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
 ```
