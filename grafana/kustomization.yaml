@@ -20,6 +20,7 @@ resources:
   - gateway.yaml
   - virtualservice.yaml
   - peer-authentication.yaml
+  - secret.yaml
   # - grafana-external-secret.yaml
 
 helmCharts:

@@ -10,6 +10,9 @@ envs:
     KAFKA_PASSWORD:
       name: kafka-ui-kafka-creds
       keyName: password
+    KAFKA_CONNECT_PASSWORD:
+      name: kafka-ui-kafka-connect-creds
+      keyName: KAFKA_CONNECT_PASSWORD
 
 yamlApplicationConfig:
   kafka:
@@ -23,8 +26,12 @@ yamlApplicationConfig:
             org.apache.kafka.common.security.scram.ScramLoginModule required
             username="kafka-ui"
             password="${KAFKA_PASSWORD}";
-          socket.connection.setup.timeout.max.ms: 30000
-          socket.connection.setup.timeout.ms: 30000
+          socket.connection.setup.timeout.max.ms: 50000
+          socket.connection.setup.timeout.ms: 50000
+        kafkaConnect:
+          - name: strimzi-connect
+            address: http://kafka-connect.local.io:32080
+            # address: http://strimzi-connect-connect-api.kafka-cluster.svc.cluster.local:8083
 
   auth:
     type: LOGIN_FORM

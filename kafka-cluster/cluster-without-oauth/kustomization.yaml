@@ -19,5 +19,6 @@ resources:
   - prometheus-topic-operator-rule.yaml
   - kafka-user-for-kafka-ui.yaml
   - role-and-rolebinding-for-external-secrets.yaml
+  - kafka-user-for-kafka-connect-service.yaml
   # Install Kakfa UI to visualize the cluster and manage topics and users
-  - kafka-ui/
+  # - kafka-ui/

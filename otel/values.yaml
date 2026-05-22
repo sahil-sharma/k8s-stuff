@@ -47,7 +47,7 @@ image:
 
 config:
   receivers:
-    filelog:
+    file_log:
       include: [/var/log/pods/*/*/*.log]
       exclude: [/var/log/pods/loki_*/*/*.log]
       start_at: end
@@ -55,7 +55,17 @@ config:
       include_file_name: false
       operators:
         - type: container
-          id: container-parser
+        # - type: json_parser
+        #   #id: container-parser
+        #   timestamp:
+        #   parse_from: attributes.time
+        #   layout: "%Y-%m-%dT%H:%M:%S.%LZ"
+        # - type: move
+        #   from: attributes.trace_id
+        #   to: body.trace_id
+        # - type: move
+        #   from: attributes.span_id
+        #   to: body.span_id
     otlp:
       protocols:
         grpc:
@@ -94,12 +104,10 @@ config:
       endpoint: tempo.tempo.svc.cluster.local:4317
       tls:
         insecure: true
-    otlphttp/loki:
-      endpoint: http://logs.local.io:32080/otlp
+    otlp_http/loki:
+      endpoint: http://loki-gateway.loki.svc.cluster.local/otlp
       tls:
         insecure: true
-    debug:
-      verbosity: basic
     prometheusremotewrite:
       endpoint: "http://metrics.local.io:32080/api/v1/write"
       resource_to_telemetry_conversion:
@@ -113,12 +121,12 @@ config:
       traces:
         receivers: [otlp]
         processors: [batch]
-        exporters: [otlp/tempo, debug, servicegraph]
+        exporters: [otlp/tempo, servicegraph]
       metrics:
         receivers: [otlp, servicegraph]
         processors: [batch]
         exporters: [prometheusremotewrite]
       logs:
-        receivers: [filelog]
+        receivers: [file_log]
         processors: [k8sattributes, memory_limiter, batch]
-        exporters: [otlphttp/loki]
+        exporters: [otlp_http/loki]

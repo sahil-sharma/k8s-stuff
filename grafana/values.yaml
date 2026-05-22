@@ -22,7 +22,11 @@ resources:
 persistence:
   enabled: false
 
-envFromSecret: grafana-sso-secret
+# Secret for SSO working with Keycloak, but it can be left out if you just want basic auth with the default admin user
+# envFromSecret: grafana-sso-secret
+
+# Use the DB_PASSWORD from the grafana-db-secret for the database connection
+envFromSecret: grafana-db-secret
 
 # Init container to wait for DB
 extraInitContainers:
@@ -277,6 +281,10 @@ dashboards:
     kubernetes-cluster-metrics:
       gnetId: 15826
       revision: 7
+      datasource: Prometheus
+    cert-manager:
+      gnetId: 20340
+      revision: 1
       datasource: Prometheus
 
 #     flask-app:
