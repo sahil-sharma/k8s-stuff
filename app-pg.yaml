@@ -12,7 +12,7 @@ metadata:
 type: Opaque
 stringData:
   username: app_admin
-  password: admin123
+  password: <CHANGE_ME>
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
