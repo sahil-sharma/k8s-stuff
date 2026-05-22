@@ -20,8 +20,8 @@ resources:
   - gateway.yaml
   - virtualservice.yaml
   - peer-authentication.yaml
-  - secret.yaml
-  # - grafana-external-secret.yaml
+  - secret.yaml # Deploy this if not using SSO and want to use basic auth with Grafana
+# - grafana-external-secret.yaml # Deploy this if you want to use External Secrets to manage Grafana credentials
 
 helmCharts:
   - name: grafana
