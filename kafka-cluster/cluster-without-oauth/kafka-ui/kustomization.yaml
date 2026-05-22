@@ -9,7 +9,6 @@ resources:
   - gateway.yaml
   - virtualservice.yaml
   - external-secret.yaml
-  # - configmap.yaml
 
 helmCharts:
   - name: kafka-ui
