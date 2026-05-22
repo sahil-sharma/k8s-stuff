@@ -1,13 +1,41 @@
-## Install and manage Kafka clusters via Strimzi Kafka Operator with External Secrets support
+## Install and manage Kafka clusters via Strimzi Kafka Operator
 
-> Ensure External Secret and Strimzi Kafka Operator is already installed
+> Make sure Kafka Operator CRDs and controller is already installed. Check [kafka-operator](https://github.com/sahil-sharma/k8s-stuff/tree/main/kafka-operator) folder.
 
-> Kafka cluster broker: http://kafka.local.io:32080
+### Cluster with Oauth support
+
+If you want to install kafka-cluster with Oauth support with Keycloak then install kafka cluster from cluster-with-oauth folder
 
 ```bash
-# Install Kafka cluster
-k kustomize . --enable-helm --load-restrictor=LoadRestrictionsNone | k apply -f -
+cd cluster-with-oauth
 
-# Delete Kafka cluster
-k kustomize . --enable-helm --load-restrictor=LoadRestrictionsNone | k delete -f -
+# Install Kafka Cluster
+kubectl kustomize cluster --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+
+# Install Kafka Bridge
+kubectl kustomize bridge --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+
+# Install Kafka Connect
+kubectl kustomize connect --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+
+# Install Kafka kafbat UI
+kubectl kustomize kafka-ui --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+```
+
+### Cluster without Oauth support
+
+```bash
+cd cluster-with-oauth
+
+# Install Kafka Cluster
+kubectl kustomize cluster --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+
+# Install Kafka Bridge
+kubectl kustomize bridge --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+
+# Install Kafka Connect
+kubectl kustomize connect --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+
+# Install Kafka kafbat UI
+kubectl kustomize kafka-ui --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
 ```
