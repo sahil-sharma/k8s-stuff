@@ -134,7 +134,7 @@ CREATE TABLE orders (
 exit
 ```
 
-### Part 4: The Climax — Testing Payload Safety Net
+### Part 4: Testing Payload Safety Net
 
 #### Scenario A: The Valid Payload (Structured Envelope)
 Drop this exact JSON payload directly into your designated sink topic using your cluster's Kafka-UI utility.
