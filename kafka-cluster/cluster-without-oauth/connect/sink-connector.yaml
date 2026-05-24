@@ -32,5 +32,5 @@ spec:
     # Sending bad records to DLQ topic
     errors.tolerance: "all"
     errors.deadletterqueue.topic.name: "x_topic-dlq"
-    errors.deadletterqueue.topic.replication.factor: "1"
+    errors.deadletterqueue.topic.replication.factor: "3"
     errors.deadletterqueue.context.headers.enable: "true"
