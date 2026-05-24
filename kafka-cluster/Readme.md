@@ -1,4 +1,4 @@
-## Install and manage Kafka clusters via Strimzi Kafka Operator
+## Install and manage Kafka cluster via Strimzi Kafka Operator
 
 > Make sure Kafka Operator CRDs and controller is already installed. Check [kafka-operator](https://github.com/sahil-sharma/k8s-stuff/tree/main/kafka-operator) folder for installation.
 
@@ -51,7 +51,7 @@ Configure cruise-control in your cluster values file like [this](https://github.
 kubectl kustomize cruise-control-ui --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
 ```
 
-### Patt-1: Kafka Connect set-up
+### Part-1: Kafka Connect set-up
 
 When installing `kafka-connect` we need to follow few steps:
 
