@@ -51,7 +51,9 @@ Configure cruise-control in your cluster values file like [this](https://github.
 kubectl kustomize cruise-control-ui --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
 ```
 
-### Part-1: Kafka Connect set-up
+### Kafka Connect
+
+#### Part-1: Install Kafka-Connect
 
 When installing `kafka-connect` we need to follow few steps:
 
@@ -87,7 +89,7 @@ SELECT * FROM customers;
 exit
 ```
 
-### Part-2: Spin Up CDC (Source Connector)
+#### Part-2: Spin Up CDC (Source Connector)
 
 ```bash
 # 1. Start tracking database transaction mutations via Debezium
@@ -97,14 +99,15 @@ kubectl apply -f cluster-without-oauth/connect/source-connector.yaml
 kubectl get kctr
 ```
 
-### Execute an update query inside your database
+#### Execute an update query inside your database
+
 ```bash
 UPDATE public.customers SET email = 'bob@austria.at' WHERE id = 2;
 ```
 
 You can see the data being shown in respective `kafta-topic`. Debezium instantly caught that row update straight from the Postgres WAL log and pushed it as a structured message to our Kafka topic automatically.
 
-### Part 3: Deploy Sink Connector & Target Table
+#### Part 3: Deploy Sink Connector & Target Table
 
 Now we switch perspectives to the consumer side, creating an independent `orders` system.
 
@@ -134,9 +137,10 @@ CREATE TABLE orders (
 exit
 ```
 
-### Part 4: Testing Payload Safety Net
+#### Part 4: Testing Payload Safety Net
 
-#### Scenario A: The Valid Payload (Structured Envelope)
+**Scenario A: The Valid Payload (Structured Envelope)**
+
 Drop this exact JSON payload directly into your designated sink topic using your cluster's Kafka-UI utility.
 
 ```bash
@@ -162,14 +166,14 @@ Drop this exact JSON payload directly into your designated sink topic using your
 
 Verify that the valid event safely crosses the pipeline and drops into the database:
 
-### Run verification query
+#### Run verification query
 
 ```bash
 kubectl run -i --rm --restart=Never --tty ubuntu-test-pod --image=ubuntu:24.04 -n default -- \
 psql -h app-db-rw.app-pg -d app_db -U app_admin -W -c "SELECT * FROM orders;"
 ```
 
-#### Scenario B: Plain Schema-less JSON
+**Scenario B: Plain Schema-less JSON**
 
 Now, simulate a misconfigured publisher client bypassing your serialization guidelines by plain, raw JSON over the wire:
 
