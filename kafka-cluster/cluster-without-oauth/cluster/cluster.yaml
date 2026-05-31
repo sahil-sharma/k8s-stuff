@@ -27,6 +27,22 @@ spec:
   storage:
     type: persistent-claim
     size: 1Gi
+  template:
+    pod:
+      metadata:
+        annotations:
+          traffic.sidecar.istio.io/excludeInboundPorts: "9090,9091,9092,9093,9094"
+          traffic.sidecar.istio.io/excludeOutboundPorts: "9090,9091,9092,9093,9094"
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: strimzi.io/pool-name
+                    operator: In
+                    values:
+                      - broker
+              topologyKey: "kubernetes.io/hostname"
 ---
 apiVersion: kafka.strimzi.io/v1
 kind: Kafka
