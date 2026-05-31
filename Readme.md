@@ -231,3 +231,13 @@ kubectl kustomize trust-manager/ --enable-helm --load-restrictor=LoadRestriction
 ```bash
 kubectl kustomize boutique-app --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
 ```
+
+25. **Install Kyverno**
+```bash
+kubectl kustomize kyverno --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+```
+
+26. **Install Kyverno Policy Reporter**
+```bash
+kubectl kustomize kyverno/policy-reporter --enable-helm --load-restrictor=LoadRestrictionsNone | kubectl apply -f -
+```
