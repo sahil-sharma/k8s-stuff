@@ -1,0 +1,85 @@
+# Kyverno base values - shared across all environments
+# Chart version: 3.8.1 / App version: v1.18.1
+
+# -- ArgoCD compatibility: disable Helm post-delete hook
+# -- AKS: prevent Admission Enforcer from removing Kyverno webhooks
+
+webhooksCleanup:
+  # -- Create a helm pre-delete hook to cleanup webhooks.
+  enabled: false
+
+crds:
+  migration:
+    enabled: true
+
+config:
+  preserve: false
+  webhookAnnotations:
+    admissions.enforcer/disabled: "true"
+  resourceFiltersExcludeNamespaces:
+    - kyverno
+    - kube-system
+    - kube-public
+    - kube-node-lease
+    - cert-manager
+    - external-secrets
+    - istio
+    - local-path-storage
+
+# -- Webhook labels for ArgoCD visibility
+# webhookLabels:
+#   app.kubernetes.io/managed-by: argocd
+
+# -- Admission controller (required)
+admissionController:
+  replicas: 1
+  serviceMonitor:
+    enabled: false
+  rbac:
+    clusterRole:
+      extraResources:
+        - apiGroups: [""]
+          resources: ["*"]
+          verbs: [get, list, watch]
+
+# -- Background controller (mutate-existing & generate rules)
+backgroundController:
+  replicas: 1
+  serviceMonitor:
+    enabled: false
+  rbac:
+    clusterRole:
+      extraResources:
+        - apiGroups: [""]
+          resources: ["*"]
+          verbs: [get, list, watch]
+
+# -- Reports controller (policy reports)
+reportsController:
+  replicas: 1
+  serviceMonitor:
+    enabled: false
+  rbac:
+    clusterRole:
+      extraResources:
+        - apiGroups: [""]
+          resources: ["*"]
+          verbs: [get, list, watch]
+
+  # rbac:
+  #   clusterRole:
+  #     extraResources:
+  #       - apiGroups:
+  #           - k8s.nginx.org
+  #         resources:
+  #           - virtualservers
+  #         verbs:
+  #           - get
+  #           - list
+  #           - watch
+
+# -- Cleanup controller
+cleanupController:
+  replicas: 1
+  serviceMonitor:
+    enabled: false

@@ -1,0 +1,12 @@
+# Policy Reporter with UI
+# Chart version: 3.7.4
+
+# -- Full name override for consistent naming
+fullnameOverride: policy-reporter
+
+# -- Enable the UI dashboard
+ui:
+  enabled: true
+  replicaCount: 1
+  server:
+    port: 8080
