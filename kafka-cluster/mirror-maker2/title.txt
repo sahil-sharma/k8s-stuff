@@ -1,7 +1,0 @@
-From Cluster-1 to Cluster-2: Kafka Live Migration Patterns with Strimzi
-
-Description: How do you migrate a Kafka cluster — producers, consumers, offsets, and all — without stopping the world? This session dives into MirrorMaker 2's replication architecture (MirrorSourceConnector, MirrorCheckpointConnector, offset translation) and shows how Strimzi's KafkaMirrorMaker2 CRD makes it operable on Kubernetes. We cover both one-directional identity-policy migration and bidirectional active/active replication, the trade-offs of each, and a concrete phased runbook: producer stop → consumer drain → offset sync verification → flip → reverse mirror for rollback. Attendees leave with a repeatable playbook and a clear mental model of where migrations go wrong.
-Audience: Kubernetes platform engineers, cloud-native architects, anyone running Strimzi or Apache Kafka on K8s
-Level: Intermediate
-
-Duration: 35 min talk + 10 min Q&A
