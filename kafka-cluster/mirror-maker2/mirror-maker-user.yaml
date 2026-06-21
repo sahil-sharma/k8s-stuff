@@ -1,0 +1,55 @@
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaUser
+metadata:
+  name: cluster-1-user-mm2
+  namespace: kafka-cluster
+  labels:
+    strimzi.io/cluster: my-cluster
+spec:
+  authentication:
+    type: scram-sha-512
+  authorization:
+    type: simple
+    acls:
+      # UI needs to read all topics and groups for display
+      - resource:
+          type: topic
+          name: "*"
+          patternType: literal
+        operations: [Create, Read, Write, Describe, DescribeConfigs, Alter, AlterConfigs]
+      - resource:
+          type: group
+          name: "*"
+          patternType: literal
+        operations: [Read, Describe]
+      - resource:
+          type: cluster
+        operations: [Describe, DescribeConfigs]
+---
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaUser
+metadata:
+  name: cluster-2-user-mm2
+  namespace: kafka-cluster-2
+  labels:
+    strimzi.io/cluster: my-cluster-2
+spec:
+  authentication:
+    type: scram-sha-512
+  authorization:
+    type: simple
+    acls:
+      # UI needs to read all topics and groups for display
+      - resource:
+          type: topic
+          name: "*"
+          patternType: literal
+        operations: [Create, Read, Write, Describe, DescribeConfigs, Alter, AlterConfigs]
+      - resource:
+          type: group
+          name: "*"
+          patternType: literal
+        operations: [Read, Describe]
+      - resource:
+          type: cluster
+        operations: [Describe, DescribeConfigs]

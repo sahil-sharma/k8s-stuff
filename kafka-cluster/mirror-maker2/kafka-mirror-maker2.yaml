@@ -1,0 +1,61 @@
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaMirrorMaker2
+metadata:
+  name: kafka-mirror-maker-2
+  namespace: cluster-2
+spec:
+  version: 4.1.2
+  replicas: 1
+  target:
+    alias: cluster-2
+    bootstrapServers: cluster-2-kafka-bootstrap.cluster-2.svc:9094
+    authentication:
+      type: scram-sha-512
+      username: cluster-2-user-mm2
+      passwordSecret:
+        secretName: cluster-2-user-mm2
+        password: password
+    groupId: mirror-maker-2-group
+    configStorageTopic: mirror-maker-2-config
+    offsetStorageTopic: mirror-maker-2-offset
+    statusStorageTopic: mirror-maker-2-status
+    config:
+      # -1 means it will use the default replication factor configured in the broker
+      config.storage.replication.factor: -1
+      offset.storage.replication.factor: -1
+      status.storage.replication.factor: -1
+  mirrors:
+    - source:
+        bootstrapServers: cluster-1-kafka-bootstrap.cluster-1.svc:9094
+        alias: cluster-1
+        authentication:
+          type: scram-sha-512
+          username: cluster-1-user-mm2
+          passwordSecret:
+            secretName: cluster-1-mm2-creds
+            password: password
+      sourceConnector:
+        tasksMax: 1
+        config:
+          # -1 means it will use the default replication factor configured in the broker
+          replication.factor: -1
+          offset-syncs.topic.replication.factor: -1
+          replication.policy.class: "org.apache.kafka.connect.mirror.IdentityReplicationPolicy"
+          sync.topic.acls.enabled: "false"
+          refresh.topics.interval.seconds: 60
+      checkpointConnector:
+        tasksMax: 1
+        config:
+          # -1 means it will use the default replication factor configured in the broker
+          checkpoints.topic.replication.factor: -1
+          replication.policy.class: "org.apache.kafka.connect.mirror.IdentityReplicationPolicy"
+          sync.group.offsets.enabled: "true"
+          refresh.groups.interval.seconds: 60
+      topicsPattern: ".*"
+      groupsPattern: ".*"
+  metricsConfig:
+    type: jmxPrometheusExporter
+    valueFrom:
+      configMapKeyRef:
+        name: mirror-maker-2-metrics
+        key: metrics-config.yml
