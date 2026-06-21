@@ -1,0 +1,11 @@
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: kafka-internal-mtls-disable
+  namespace: cluster-2
+spec:
+  selector:
+    matchLabels:
+      strimzi.io/cluster: cluster-2
+  mtls:
+    mode: DISABLE
