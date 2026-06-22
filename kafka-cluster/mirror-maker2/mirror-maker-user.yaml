@@ -2,9 +2,9 @@ apiVersion: kafka.strimzi.io/v1
 kind: KafkaUser
 metadata:
   name: cluster-1-user-mm2
-  namespace: kafka-cluster
+  namespace: cluster-1
   labels:
-    strimzi.io/cluster: my-cluster
+    strimzi.io/cluster: cluster-1
 spec:
   authentication:
     type: scram-sha-512
@@ -16,7 +16,8 @@ spec:
           type: topic
           name: "*"
           patternType: literal
-        operations: [Create, Read, Write, Describe, DescribeConfigs, Alter, AlterConfigs]
+        operations:
+          [Create, Read, Write, Describe, DescribeConfigs, Alter, AlterConfigs]
       - resource:
           type: group
           name: "*"
@@ -30,9 +31,9 @@ apiVersion: kafka.strimzi.io/v1
 kind: KafkaUser
 metadata:
   name: cluster-2-user-mm2
-  namespace: kafka-cluster-2
+  namespace: cluster-2
   labels:
-    strimzi.io/cluster: my-cluster-2
+    strimzi.io/cluster: cluster-2
 spec:
   authentication:
     type: scram-sha-512
@@ -44,7 +45,8 @@ spec:
           type: topic
           name: "*"
           patternType: literal
-        operations: [Create, Read, Write, Describe, DescribeConfigs, Alter, AlterConfigs]
+        operations:
+          [Create, Read, Write, Describe, DescribeConfigs, Alter, AlterConfigs]
       - resource:
           type: group
           name: "*"
