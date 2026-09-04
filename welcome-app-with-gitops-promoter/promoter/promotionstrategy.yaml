@@ -1,0 +1,18 @@
+apiVersion: promoter.argoproj.io/v1alpha1
+kind: PromotionStrategy
+metadata:
+  name: welcome-app
+  namespace: promoter-system
+spec:
+  gitRepositoryRef:
+    name: k8s-stuff
+  activeCommitStatuses:
+    - key: argocd-health
+    - key: http-ok
+  environments:
+    - branch: environment/dev
+      autoMerge: true
+    - branch: environment/staging
+      autoMerge: true
+    - branch: environment/prod
+      autoMerge: false

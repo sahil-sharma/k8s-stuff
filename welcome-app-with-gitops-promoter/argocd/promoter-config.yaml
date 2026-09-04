@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: promoter-config
+  namespace: argo-cd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/sahil-sharma/k8s-stuff.git
+    targetRevision: main
+    path: promoter
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: promoter-system
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}

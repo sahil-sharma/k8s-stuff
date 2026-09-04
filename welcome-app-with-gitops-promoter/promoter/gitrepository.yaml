@@ -1,0 +1,11 @@
+apiVersion: promoter.argoproj.io/v1alpha1
+kind: GitRepository
+metadata:
+  name: k8s-stuff
+  namespace: promoter-system
+spec:
+  github:
+    owner: sahil-sharma
+    name: k8s-stuff
+  scmProviderRef:
+    name: github

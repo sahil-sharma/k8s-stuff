@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: routing
+  namespace: argo-cd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/sahil-sharma/k8s-stuff.git
+    targetRevision: main
+    path: routing
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argo-cd
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}

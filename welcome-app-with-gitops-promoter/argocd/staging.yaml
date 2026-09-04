@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: staging-welcome-app
+  namespace: argo-cd
+  labels:
+    app-name: welcome-app
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: staging
+  sourceHydrator:
+    drySource:
+      repoURL: https://github.com/sahil-sharma/k8s-stuff.git
+      path: welcome-app/overlays/staging
+      targetRevision: main
+    hydrateTo:
+      targetBranch: environment/staging-next
+    syncSource:
+      targetBranch: environment/staging
+      path: welcome-app/overlays/staging
+  syncPolicy:
+    automated: {prune: true, selfHeal: true, allowEmpty: true}
+    syncOptions: [CreateNamespace=true]

@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dev-welcome-app
+  namespace: argo-cd
+  labels:
+    app-name: welcome-app
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: dev
+  sourceHydrator:
+    drySource:
+      repoURL: https://github.com/sahil-sharma/k8s-stuff.git
+      path: welcome-app/overlays/dev
+      targetRevision: main
+    hydrateTo:
+      targetBranch: environment/dev-next
+    syncSource:
+      targetBranch: environment/dev
+      path: welcome-app/overlays/dev
+  syncPolicy:
+    automated: {prune: true, selfHeal: true, allowEmpty: true}
+    syncOptions: [CreateNamespace=true]

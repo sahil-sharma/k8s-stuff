@@ -1,0 +1,11 @@
+apiVersion: promoter.argoproj.io/v1alpha1
+kind: ArgoCDCommitStatus
+metadata:
+  name: argocd-health
+  namespace: promoter-system
+spec:
+  promotionStrategyRef:
+    name: welcome-app
+  applicationSelector:
+    matchLabels:
+      app-name: welcome-app

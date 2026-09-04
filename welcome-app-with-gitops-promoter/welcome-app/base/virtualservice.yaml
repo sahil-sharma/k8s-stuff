@@ -1,0 +1,15 @@
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: welcome-app
+spec:
+  hosts:
+    - welcome.local.io
+  gateways:
+    - welcome-gateway
+  http:
+    - route:
+        - destination:
+            host: welcome-app-service
+            port:
+              number: 8080
