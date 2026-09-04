@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: welcome-app-service
+  namespace: welcome-app
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: welcome-app
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: welcome-app
+  name: welcome-app-deployment
+  namespace: welcome-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: welcome-app
+  template:
+    metadata:
+      labels:
+        app: welcome-app
+    spec:
+      containers:
+        - image: bonyscott/welcome-app:23762ef
+          name: welcome-app
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              cpu: 500m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: welcome-app
+spec:
+  gateways:
+    - welcome-gateway
+  hosts:
+    - dev.welcome.local.io
+  http:
+    - route:
+        - destination:
+            host: welcome-app-service
+            port:
+              number: 8080
