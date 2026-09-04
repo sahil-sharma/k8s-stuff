@@ -13,13 +13,13 @@ spec:
   sourceHydrator:
     drySource:
       repoURL: https://github.com/sahil-sharma/k8s-stuff.git
-      path: welcome-app/overlays/staging
+      path: welcome-app-with-gitops-promoter/welcome-app/overlays/staging
       targetRevision: main
     hydrateTo:
       targetBranch: environment/staging-next
     syncSource:
       targetBranch: environment/staging
-      path: welcome-app/overlays/staging
+      path: welcome-app-with-gitops-promoter/welcome-app/overlays/staging
   syncPolicy:
-    automated: {prune: true, selfHeal: true, allowEmpty: true}
+    automated: { prune: true, selfHeal: true, allowEmpty: true }
     syncOptions: [CreateNamespace=true]

@@ -13,13 +13,13 @@ spec:
   sourceHydrator:
     drySource:
       repoURL: https://github.com/sahil-sharma/k8s-stuff.git
-      path: welcome-app/overlays/prod
+      path: welcome-app-with-gitops-promoter/welcome-app/overlays/prod
       targetRevision: main
     hydrateTo:
       targetBranch: environment/prod-next
     syncSource:
       targetBranch: environment/prod
-      path: welcome-app/overlays/prod
+      path: welcome-app-with-gitops-promoter/welcome-app/overlays/prod
   syncPolicy:
-    automated: {prune: true, selfHeal: true, allowEmpty: true}
+    automated: { prune: true, selfHeal: true, allowEmpty: true }
     syncOptions: [CreateNamespace=true]
