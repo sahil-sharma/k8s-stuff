@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: welcome-app-deployment
-  namespace: welcome-app
   labels:
     app: welcome-app
 spec:
