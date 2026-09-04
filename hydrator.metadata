@@ -1,7 +1,7 @@
 {
   "repoURL": "https://github.com/sahil-sharma/k8s-stuff",
-  "drySha": "5088227335c70013881f4d6c90233152569ad232",
+  "drySha": "dafca3633735180189a94f078e967c27fc0e0096",
   "author": "Sahil Sharma <sahil.sharma@protonmail.com>",
-  "date": "2026-09-04T12:51:56Z",
-  "subject": "remove quotes from GH APP ID"
+  "date": "2026-09-04T13:30:17Z",
+  "subject": "change namespace in overlays"
 }
