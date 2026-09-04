@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitops-promoter
+  namespace: argo-cd
+spec:
+  project: default
+  source:
+    repoURL: https://argoproj-labs.github.io/gitops-promoter-helm/
+    chart: gitops-promoter
+    targetRevision: 0.15.0
+    helm:
+      valuesObject:
+        apiserver:
+          enabled: true
+          certs:
+            mode: insecure
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: promoter-system
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false
+    syncOptions:
+      - CreateNamespace=true

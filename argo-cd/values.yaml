@@ -7,6 +7,9 @@ global:
 redis-ha:
   enabled: false
 
+commitServer:
+  enabled: true
+
 redis:
   exporter:
     enabled: true
@@ -30,12 +33,20 @@ server:
   extensions:
     enabled: true
     extensionList:
+      - name: extension-gitops-promoter
+        env:
+          - name: EXTENSION_NAME
+            value: gitops-promoter
+          - name: EXTENSION_URL
+            value: https://github.com/argoproj-labs/gitops-promoter/releases/download/v0.37.0/gitops-promoter-argocd-extension.tar.gz
+          - name: EXTENSION_CHECKSUM_URL
+            value: https://github.com/argoproj-labs/gitops-promoter/releases/download/v0.37.0/gitops-promoter_0.37.0_checksums.txt
       - name: rollout-extension
         env:
           - name: EXTENSION_URL
             value: https://github.com/argoproj-labs/rollout-extension/releases/download/v0.3.4/extension.tar
-  deploymentAnnotations:
-    secret.reloader.stakater.com/reload: "argo-cd-sso-secret"
+  # deploymentAnnotations:
+  #   secret.reloader.stakater.com/reload: "argo-cd-sso-secret"
 
   ingress:
     enabled: false
@@ -78,10 +89,12 @@ notifications:
 configs:
   rbac:
     create: true
-    scopes: "[groups]"
+    # scopes: "[groups]"
     policy.default: readonly
     policy.csv: |
       # === Role Bindings ===
+      p, role: readonly, extensions, invoke, metrics, allow
+
       g, devops, role:admin
       g, engineering, role:eng
       g, data, role:readonly
@@ -105,18 +118,22 @@ configs:
       p, role:readonly, *, get, */*, allow
       p, role:readonly, *, list, */*, allow
 
+  params:
+    hydrator.enabled: "true"
+    proxy.extension: "true"
+
   cm:
-    admin.enabled: false
+    admin.enabled: true
     url: http://cd.local.io:32080
-    oidc.config: |
-      name: SSO
-      issuer: http://sso.local.io:32080/realms/platform
-      clientID: $argo-cd-sso-secret:client-id
-      clientSecret: $argo-cd-sso-secret:client-secret
-      requestedScopes: ["openid", "profile", "email", "groups"]
-      refreshTokenThreshold: 1m
-      logoutURL: http://sso.local.io:32080/realms/platform/protocol/openid-connect/logout
-    oidc.tls.insecure.skip.verify: "true"
+    # oidc.config: |
+    #   name: SSO
+    #   issuer: http://sso.local.io:32080/realms/platform
+    #   clientID: $argo-cd-sso-secret:client-id
+    #   clientSecret: $argo-cd-sso-secret:client-secret
+    #   requestedScopes: ["openid", "profile", "email", "groups"]
+    #   refreshTokenThreshold: 1m
+    #   logoutURL: http://sso.local.io:32080/realms/platform/protocol/openid-connect/logout
+    # oidc.tls.insecure.skip.verify: "true"
   repositories:
     pgadmin:
       type: helm
