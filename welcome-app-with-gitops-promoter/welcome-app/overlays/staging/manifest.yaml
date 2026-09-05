@@ -47,7 +47,7 @@ metadata:
   namespace: staging
 spec:
   gateways:
-    - welcome-gateway
+    - argo-cd/welcome-gateway
   hosts:
     - staging.welcome.local.io
   http:
