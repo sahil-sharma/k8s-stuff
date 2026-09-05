@@ -47,7 +47,7 @@ metadata:
   namespace: prod
 spec:
   gateways:
-    - welcome-gateway
+    - argo-cd/welcome-gateway
   hosts:
     - welcome.local.io
   http:
