@@ -8,12 +8,12 @@ spec:
     name: welcome-app
   key: http-ok
   reportOn: active
-  descriptionTemplate: 'HTTP check for {{ .Branch }}: {{ .Phase }}'
+  descriptionTemplate: "HTTP check for {{ .Branch }}: {{ .Phase }}"
   httpRequest:
     urlTemplate: >-
-      {{- if eq .Branch "environment/dev" -}}http://welcome-app.dev.svc.cluster.local:8080
-      {{- else if eq .Branch "environment/staging" -}}http://welcome-app.staging.svc.cluster.local:8080
-      {{- else -}}http://welcome-app.prod.svc.cluster.local:8080{{- end -}}
+      {{- if eq .Branch "environment/dev" -}}http://welcome-app-service.dev.svc.cluster.local:8080
+      {{- else if eq .Branch "environment/staging" -}}http://welcome-app-service.staging.svc.cluster.local:8080
+      {{- else -}}http://welcome-app-service.prod.svc.cluster.local:8080{{- end -}}
     methodTemplate: GET
     timeout: 10s
   success:
