@@ -6,7 +6,7 @@ spec:
   hosts:
     - welcome.local.io
   gateways:
-    - welcome-gateway
+    - argo-cd/welcome-gateway
   http:
     - route:
         - destination:
