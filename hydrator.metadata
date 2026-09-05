@@ -1,7 +1,7 @@
 {
   "repoURL": "https://github.com/sahil-sharma/k8s-stuff",
-  "drySha": "dafca3633735180189a94f078e967c27fc0e0096",
+  "drySha": "ee4b8b945d0099df481c0d95f638dfdd7b36b49a",
   "author": "Sahil Sharma <sahil.sharma@protonmail.com>",
-  "date": "2026-09-04T13:30:17Z",
-  "subject": "change namespace in overlays"
+  "date": "2026-09-05T09:52:22Z",
+  "subject": "add namespace for gateway"
 }
