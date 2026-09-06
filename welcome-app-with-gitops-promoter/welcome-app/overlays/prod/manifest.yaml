@@ -1,6 +1,7 @@
 apiVersion: v1
 data:
   APP_ENV_NAME: production
+  SOME_ENV_NAME: some-env-name-value
   WEBHOOK_TEST_KEY: webhook-triggered-successfully
 kind: ConfigMap
 metadata:
