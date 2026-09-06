@@ -1,7 +1,7 @@
 {
   "repoURL": "https://github.com/sahil-sharma/k8s-stuff",
-  "drySha": "fa07951c1379e68c76bf95634f5aae63a1686cb3",
+  "drySha": "64655199d8011a35b2ae30c54b2a12dc6f10296b",
   "author": "Sahil Sharma <sahil.sharma@protonmail.com>",
-  "date": "2026-09-06T13:00:33Z",
-  "subject": "update configMap behavior"
+  "date": "2026-09-06T17:01:04Z",
+  "subject": "add reloader annotation"
 }

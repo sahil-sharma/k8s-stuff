@@ -22,6 +22,8 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  annotations:
+    reloader.stakater.com/auto: "true"
   labels:
     app: welcome-app
   name: welcome-app-deployment
