@@ -11,6 +11,7 @@ replicas:
 
 configMapGenerator:
   - name: welcome-app-config
+    behavior: merge
     literals:
       - APP_ENV_NAME="production"
 
