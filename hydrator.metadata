@@ -1,7 +1,7 @@
 {
   "repoURL": "https://github.com/sahil-sharma/k8s-stuff",
-  "drySha": "fa07951c1379e68c76bf95634f5aae63a1686cb3",
+  "drySha": "4b04f1cfa41501df75abaf650d5c559e06a02647",
   "author": "Sahil Sharma <sahil.sharma@protonmail.com>",
-  "date": "2026-09-06T13:00:33Z",
-  "subject": "update configMap behavior"
+  "date": "2026-09-06T16:05:33Z",
+  "subject": "add extra env"
 }
