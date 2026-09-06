@@ -1,6 +1,6 @@
 {
   "repoURL": "https://github.com/sahil-sharma/k8s-stuff",
-  "drySha": "64655199d8011a35b2ae30c54b2a12dc6f10296b",
+  "drySha": "bae7a6f10a677ac6de46ccffd4f9cd4090642847",
   "commands": [
     "kustomize build ./welcome-app-with-gitops-promoter/welcome-app/overlays/prod"
   ]

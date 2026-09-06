@@ -1,7 +1,7 @@
 {
   "repoURL": "https://github.com/sahil-sharma/k8s-stuff",
-  "drySha": "64655199d8011a35b2ae30c54b2a12dc6f10296b",
+  "drySha": "bae7a6f10a677ac6de46ccffd4f9cd4090642847",
   "author": "Sahil Sharma <sahil.sharma@protonmail.com>",
-  "date": "2026-09-06T17:01:04Z",
-  "subject": "add reloader annotation"
+  "date": "2026-09-06T17:02:38Z",
+  "subject": "add another env to prod"
 }
