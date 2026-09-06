@@ -4,10 +4,6 @@ metadata:
   name: welcome-app
   namespace: promoter-system
 spec:
-  pullRequest:
-    labels:
-      team: devops
-      type: promotion
   gitRepositoryRef:
     name: k8s-stuff
   activeCommitStatuses:
