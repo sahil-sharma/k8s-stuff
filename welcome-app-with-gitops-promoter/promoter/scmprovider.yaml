@@ -9,13 +9,3 @@ spec:
   github:
     appID: 4828136
 ---
-apiVersion: promoter.argoproj.io/v1alpha1
-kind: ScmProvider
-metadata:
-  name: github
-  namespace: dev
-spec:
-  secretRef:
-    name: github-app-promoter
-  github:
-    appID: 4828136
