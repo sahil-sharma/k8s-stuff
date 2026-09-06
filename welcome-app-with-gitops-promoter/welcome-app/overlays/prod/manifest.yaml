@@ -1,4 +1,13 @@
 apiVersion: v1
+data:
+  APP_ENV_NAME: production
+  WEBHOOK_TEST_KEY: webhook-triggered-successfully
+kind: ConfigMap
+metadata:
+  name: welcome-app-config
+  namespace: prod
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: welcome-app-service
@@ -28,7 +37,10 @@ spec:
         app: welcome-app
     spec:
       containers:
-        - image: bonyscott/welcome-app:23762ef
+        - envFrom:
+            - configMapRef:
+                name: welcome-app-config
+          image: bonyscott/welcome-app:working
           name: welcome-app
           ports:
             - containerPort: 8080
