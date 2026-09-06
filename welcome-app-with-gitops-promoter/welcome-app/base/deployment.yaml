@@ -4,6 +4,8 @@ metadata:
   name: welcome-app-deployment
   labels:
     app: welcome-app
+  annotations:
+    reloader.stakater.com/auto: "true"
 spec:
   replicas: 2
   selector:
