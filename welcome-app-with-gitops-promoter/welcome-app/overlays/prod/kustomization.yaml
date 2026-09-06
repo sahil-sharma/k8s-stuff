@@ -14,6 +14,7 @@ configMapGenerator:
     behavior: merge
     literals:
       - APP_ENV_NAME="production"
+      - SOME_ENV_NAME="some-env-name-value"
 
 patches:
   - target:
