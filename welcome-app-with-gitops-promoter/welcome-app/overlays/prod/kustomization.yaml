@@ -15,6 +15,7 @@ configMapGenerator:
     literals:
       - APP_ENV_NAME="production"
       - SOME_ENV_NAME="some-env-name-value"
+      - ANOTHER_ENV_NAME="another-env-name-value"
 
 patches:
   - target:
