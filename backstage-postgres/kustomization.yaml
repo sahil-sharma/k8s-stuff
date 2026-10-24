@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - namespace.yaml
+  - db-secret.yaml
+  - values.yaml
+  # - gateway.yaml
+  # - virtualservice.yaml
+  # - peerauthentication.yaml
+  # - pod-monitor.yaml
+  # - alert-rule.yaml

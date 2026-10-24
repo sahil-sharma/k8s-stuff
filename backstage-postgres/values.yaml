@@ -1,0 +1,32 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: backstage-db
+  namespace: backstage-pg
+spec:
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:17
+  bootstrap:
+    initdb:
+      database: backstage
+      owner: backstage_admin
+      secret:
+        name: backstage-db-secret
+      postInitApplicationSQL:
+        - ALTER USER backstage_admin WITH CREATEDB;
+  storage:
+    storageClass: standard
+    size: 1Gi
+  postgresql:
+    parameters:
+      # Log queries taking longer than 100ms
+      log_min_duration_statement: "0"
+      # Log detailed information about the query
+      log_checkpoints: "on"
+      log_connections: "on"
+      log_disconnections: "on"
+      log_lock_waits: "on"
+      log_statement: "none"
+      # Ensure logs are formatted for easy parsing
+      log_line_prefix: "%m [%p] %u@%d "
+      log_destination: "csvlog"
