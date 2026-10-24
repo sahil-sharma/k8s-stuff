@@ -31,7 +31,7 @@ server:
     enabled: true
   replicas: 1
   extensions:
-    enabled: true
+    enabled: false
     extensionList:
       - name: extension-gitops-promoter
         env:
@@ -94,6 +94,9 @@ configs:
     policy.csv: |
       # === Role Bindings ===
       p, role: readonly, extensions, invoke, metrics, allow
+      p, role:backstage, applications, get, */*, allow
+      p, role:backstage, projects, get, */*, allow
+      g, backstage, role:backstage
 
       g, devops, role:admin
       g, engineering, role:eng
@@ -118,13 +121,19 @@ configs:
       p, role:readonly, *, get, */*, allow
       p, role:readonly, *, list, */*, allow
 
+  secret:
+    extra:
+      accounts.backstage.password: $2a$10$aJoaVQciDsReHDWj89/.8.aCwTMkx.r1I4Lj6vr/1LwLphJV06hI6
+
   params:
     hydrator.enabled: "true"
     proxy.extension: "true"
 
   cm:
+    timeout.reconciliation: 30s
     admin.enabled: true
     url: http://cd.local.io:32080
+    accounts.backstage: login
     # oidc.config: |
     #   name: SSO
     #   issuer: http://sso.local.io:32080/realms/platform
