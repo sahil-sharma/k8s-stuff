@@ -1,0 +1,168 @@
+backstage:
+  image:
+    registry: ""
+    repository: platform-idp
+    tag: v2
+    pullPolicy: Never
+
+  readinessProbe:
+    httpGet:
+      path: /.backstage/health/v1/readiness
+      port: 7007
+      scheme: HTTP
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    failureThreshold: 3
+
+  livenessProbe:
+    httpGet:
+      path: /.backstage/health/v1/liveness
+      port: 7007
+      scheme: HTTP
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    failureThreshold: 3
+
+  startupProbe:
+    httpGet:
+      path: /.backstage/health/v1/liveness
+      port: 7007
+      scheme: HTTP
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    failureThreshold: 15
+
+  command: ["node", "packages/backend"]
+
+  extraEnvVars:
+    - name: K8S_SA_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: backstage-k8s-reader-token
+          key: token
+
+  # extraEnvVarsSecrets:
+  #  - backstage-integrations # GITHUB_TOKEN, K8S_SA_TOKEN, ARGOCD_TOKEN (Part 2)
+
+  appConfig:
+    app:
+      title: Platform IdP
+      baseUrl: http://idp.local.io:32080
+      packages: all
+
+    backend:
+      baseUrl: http://idp.local.io:32080
+      listen:
+        port: 7007
+      csp:
+        connect-src: ["'self'", "http:", "https:"]
+        upgrade-insecure-requests: false
+      cors:
+        origin: http://idp.local.io:32080
+        methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+        credentials: true
+      database:
+        client: pg
+        pluginDivisionMode: schema
+        connection:
+          host: backstage-db-rw.backstage-pg.svc.cluster.local
+          port: 5432
+          database: backstage
+          user: backstage_admin
+          password: admin123
+          ssl:
+            rejectUnauthorized: false
+
+    #integrations:
+    #  github:
+    #    - host: github.com
+    #      token: ${GITHUB_TOKEN}
+
+    auth:
+      environment: development
+      session:
+        secret: f05dca9cad3e812b28ab2312ef0ed5a592e1e44630e0744dd0c732b1eaf0e85e # openssl rand -hex 32
+      providers:
+        guest: {}
+        oidc:
+          development:
+            metadataUrl: http://sso.local.io:32080/realms/master/.well-known/openid-configuration
+            clientId: backstage
+            clientSecret: elyGxA1YokMBuFXTILPW1lwDosNqtsH6QAtUKnUf7e52OHADXNOo6eYQtZczXeCe5SreoDV9V6yGEaLyEq69qF
+            prompt: login
+            signIn:
+              resolvers:
+                - resolver: emailMatchingUserEntityProfileEmail
+                - resolver: emailLocalPartMatchingUserEntityName
+
+    catalog:
+      rules:
+        - allow:
+            [Component, System, API, Resource, Location, Template, User, Group]
+      # locations:
+      #   - type: url
+      #     target: https://github.com/__GH_USER__/platform/blob/main/catalog-info.yaml
+      providers:
+        keycloakOrg:
+          default:
+            baseUrl: http://sso.local.io:32080
+            loginRealm: master
+            realm: master
+            clientId: backstage
+            clientSecret: elyGxA1YokMBuFXTILPW1lwDosNqtsH6QAtUKnUf7e52OHADXNOo6eYQtZczXeCe5SreoDV9V6yGEaLyEq69qF
+            schedule:
+              frequency: { minutes: 5 }
+              timeout: { minutes: 3 }
+              initialDelay: { seconds: 15 }
+
+    scaffolder:
+      defaultAuthor:
+        name: backstage-scaffolder
+        email: backstage-scaffolder@users.noreply.github.com
+      defaultCommitMessage: Created by Backstage golden path
+
+    techdocs:
+      builder: local
+      generator:
+        runIn: local
+      publisher:
+        type: local
+
+    kubernetes:
+      serviceLocatorMethod:
+        type: multiTenant
+      clusterLocatorMethods:
+        - type: config
+          clusters:
+            - name: kind-test-cluster
+              url: https://kubernetes.default.svc
+              authProvider: serviceAccount
+              serviceAccountToken: ${K8S_SA_TOKEN}
+              caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+              skipMetricsLookup: true # kind has no metrics-server
+
+    argocd:
+      appLocatorMethods:
+        - type: config
+          instances:
+            - name: kind
+              url: http://argocd-server.argocd.svc.cluster.local # backend -> Argo CD (in-cluster)
+              frontendUrl: http://cd.local.io:32080 # deep links opened in your browser
+              username: backstage
+              password: ${ARGOCD_PASSWORD}
+
+service:
+  type: ClusterIP
+  ports:
+    backend: 7007
+    name: http-backend
+    targetPort: backend
+
+ingress:
+  enabled: false
+
+postgresql:
+  enabled: false
+
+serviceAccount:
+  create: false

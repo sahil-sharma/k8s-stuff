@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+generatorOptions:
+  disableNameSuffixHash: false
+
+resources:
+  - namespace.yaml
+  - gateway.yaml
+  - virtualservice.yaml
+  - peer-authentication.yaml
+  - backstage-k8s-reader.yaml
+
+helmCharts:
+  - name: backstage
+    releaseName: backstage
+    namespace: backstage
+    repo: https://backstage.github.io/charts
+    version: 2.10.2
+    valuesFile: values.yaml
