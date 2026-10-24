@@ -3,7 +3,7 @@ kind: Namespace
 metadata:
   name: echo-client
   labels:
-    istio-injection: enabled
+    # istio-injection: enabled
     trust: enabled
 ---
 apiVersion: apps/v1
