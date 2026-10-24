@@ -21,8 +21,8 @@ nodes:
     labels:
       workload: app
       tier: application
-  - role: worker
-    image: kindest/node:v1.34.0
-    labels:
-      workload: chaos
-      tier: tooling
+  # - role: worker
+  #   image: kindest/node:v1.34.0
+  #   labels:
+  #     workload: chaos
+  #     tier: tooling
