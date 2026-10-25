@@ -3,7 +3,6 @@ kind: Kustomization
 
 resources:
   - namespace.yaml
-  - gateway.yaml
   - virtualservice.yaml
   - peerauthentication.yaml
   - destination-rule.yaml

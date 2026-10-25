@@ -7,7 +7,7 @@ spec:
   hosts:
     - sso.local.io
   gateways:
-    - gateway
+    - istio-system/main-cluster-gateway
   http:
     - match:
         - uri:
@@ -17,4 +17,3 @@ spec:
             host: keycloakx-http.keycloak.svc.cluster.local
             port:
               number: 80
----

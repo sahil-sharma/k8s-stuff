@@ -104,13 +104,11 @@ ingress:
 
 extraEnv: |
   - name: KC_HOSTNAME
-    value: "http://sso.local.io:32080"
+    value: "https://sso.local.io"
   - name: KC_HOSTNAME_PORT
-    value: "32080"
+    value: "443"
   - name: KC_HOSTNAME_STRICT
     value: "false"
-  - name: KC_PROXY
-    value: "edge"
   - name: KC_BOOTSTRAP_ADMIN_USERNAME
     value: admin
   - name: KC_BOOTSTRAP_ADMIN_PASSWORD
