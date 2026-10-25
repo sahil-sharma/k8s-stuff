@@ -7,7 +7,7 @@ spec:
   hosts:
     - cd.local.io
   gateways:
-    - gateway
+    - istio-system/main-cluster-gateway
   http:
     - match:
         - uri:
