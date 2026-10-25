@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1
+kind: Gateway
+metadata:
+  name: main-cluster-gateway
+  namespace: istio-system
+spec:
+  selector:
+    app: istio-gateway # Matches your gateway deployment selector
+  servers:
+    - port: { number: 8080, name: http, protocol: HTTP }
+      hosts: ["*.local.io"]
+      tls:
+        httpsRedirect: true # Automatically forces HTTP -> HTTPS (port 443)
+
+    - port: { number: 8443, name: https, protocol: HTTPS }
+      hosts: ["*.local.io"]
+      tls:
+        mode: SIMPLE
+        credentialName: wildcard-tls-secret # Pulls from istio-system namespace
