@@ -39,10 +39,11 @@ variable "clients" {
     token_claim_name      = optional(string)
     realm_role_claim_name = optional(string)
 
-    enable_authorization   = optional(bool, false)
-    enable_standard_flow   = optional(bool, false)
-    enable_direct_grant    = optional(bool, false)
-    enable_service_account = optional(bool, false)
+    enable_authorization         = optional(bool, false)
+    enable_standard_flow         = optional(bool, false)
+    enable_direct_grant          = optional(bool, false)
+    enable_service_account       = optional(bool, false)
+    service_account_client_roles = optional(list(string), [])
   }))
 }
 

@@ -57,10 +57,26 @@ resource "keycloak_openid_client" "clients" {
   }
 }
 
+# Fetch the built-in realm-management client to reference its client roles
+data "keycloak_openid_client" "realm_management" {
+  realm_id  = keycloak_realm.realm.id
+  client_id = "realm-management"
+}
+
 locals {
   client_roles_flat = flatten([
     for client in var.clients : [
       for role in lookup(client, "roles", []) : {
+        client_id = client.client_id
+        role_name = role
+      }
+    ]
+  ])
+
+  # Flatten service account client roles across all clients that define them
+  service_account_client_roles_flat = flatten([
+    for client in var.clients : [
+      for role in lookup(client, "service_account_client_roles", []) : {
         client_id = client.client_id
         role_name = role
       }
@@ -76,4 +92,16 @@ resource "keycloak_role" "client_roles" {
   realm_id  = keycloak_realm.realm.id
   client_id = keycloak_openid_client.clients[each.value.client_id].id
   name      = each.value.role_name
+}
+
+# Assign client roles (like realm-management roles) to the client's service account
+resource "keycloak_openid_client_service_account_role" "service_account_client_roles" {
+  for_each = {
+    for r in local.service_account_client_roles_flat : "${r.client_id}:${r.role_name}" => r
+  }
+
+  realm_id                = keycloak_realm.realm.id
+  service_account_user_id = keycloak_openid_client.clients[each.value.client_id].service_account_user_id
+  client_id               = data.keycloak_openid_client.realm_management.id
+  role                    = each.value.role_name
 }

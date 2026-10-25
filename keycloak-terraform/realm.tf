@@ -1,10 +1,13 @@
 resource "keycloak_realm" "realm" {
-  realm                    = var.realm_config.realm
-  enabled                  = var.realm_config.enabled
-  display_name             = var.realm_config.display_name
-  ssl_required             = var.realm_config.ssl_required
-  access_token_lifespan    = "1h"
-  sso_session_idle_timeout = "24h"
+  realm                          = var.realm_config.realm
+  enabled                        = var.realm_config.enabled
+  display_name                   = var.realm_config.display_name
+  ssl_required                   = var.realm_config.ssl_required
+  access_token_lifespan          = "1h"
+  sso_session_idle_timeout       = "24h"
+  login_with_email_allowed       = true
+  duplicate_emails_allowed       = false
+  registration_email_as_username = true
 }
 
 resource "keycloak_realm_events" "realm_events" {

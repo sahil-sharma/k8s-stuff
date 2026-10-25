@@ -24,7 +24,6 @@ resource "keycloak_openid_client_default_scopes" "default_groups_scope" {
   client_id = keycloak_openid_client.clients[each.key].id
 
   default_scopes = [
-    "openid",
     "email",
     "roles",
     "profile",
