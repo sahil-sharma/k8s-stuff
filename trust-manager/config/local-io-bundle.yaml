@@ -1,0 +1,13 @@
+apiVersion: trust.cert-manager.io/v1alpha1
+kind: Bundle
+metadata:
+  name: local-io-bundle
+spec:
+  sources:
+    - configMap:
+        name: mkcert-root-ca-src
+        key: ca.crt
+    # - useDefaultCAs: true     # only if trust-manager was installed with the default CA package
+  target:
+    configMap:
+      key: ca-bundle.crt
