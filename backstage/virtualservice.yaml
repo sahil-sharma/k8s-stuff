@@ -7,7 +7,7 @@ spec:
   hosts:
     - idp.local.io
   gateways:
-    - gateway
+    - istio-system/main-cluster-gateway
   http:
     - match:
         - uri:

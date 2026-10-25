@@ -1,8 +1,8 @@
 backstage:
   image:
-    registry: ""
-    repository: platform-idp
-    tag: v2
+    registry: docker.io
+    repository: sahilwork/platform-idp
+    tag: v4
     pullPolicy: Never
 
   readinessProbe:
@@ -35,11 +35,23 @@ backstage:
   command: ["node", "packages/backend"]
 
   extraEnvVars:
+    - name: NODE_EXTRA_CA_CERTS
+      value: "/etc/ssl/certs/local-ca.crt"
     - name: K8S_SA_TOKEN
       valueFrom:
         secretKeyRef:
           name: backstage-k8s-reader-token
           key: token
+
+  extraVolumes:
+    - name: custom-ca-bundle
+      configMap:
+        name: local-io-bundle
+
+  extraVolumeMounts:
+    - name: custom-ca-bundle
+      mountPath: /etc/ssl/certs/local-ca.crt
+      subPath: ca-bundle.crt
 
   # extraEnvVarsSecrets:
   #  - backstage-integrations # GITHUB_TOKEN, K8S_SA_TOKEN, ARGOCD_TOKEN (Part 2)
@@ -47,18 +59,18 @@ backstage:
   appConfig:
     app:
       title: Platform IdP
-      baseUrl: http://idp.local.io:32080
+      baseUrl: https://idp.local.io
       packages: all
 
     backend:
-      baseUrl: http://idp.local.io:32080
+      baseUrl: https://idp.local.io
       listen:
         port: 7007
       csp:
-        connect-src: ["'self'", "http:", "https:"]
+        connect-src: ["'self'", "https:"]
         upgrade-insecure-requests: false
       cors:
-        origin: http://idp.local.io:32080
+        origin: https://idp.local.io
         methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
         credentials: true
       database:
@@ -86,9 +98,9 @@ backstage:
         guest: {}
         oidc:
           development:
-            metadataUrl: http://sso.local.io:32080/realms/master/.well-known/openid-configuration
+            metadataUrl: https://sso.local.io/realms/master/.well-known/openid-configuration
             clientId: backstage
-            clientSecret: elyGxA1YokMBuFXTILPW1lwDosNqtsH6QAtUKnUf7e52OHADXNOo6eYQtZczXeCe5SreoDV9V6yGEaLyEq69qF
+            clientSecret: vMn7JAb8hqvV3zAefcvOEfhbBc27KPomQe3Iz8eC6SjKaupQRvWQF1Wr69gcbOsKzojg2hVTw12FeOdtnIgyyb
             prompt: login
             signIn:
               resolvers:
@@ -105,11 +117,11 @@ backstage:
       providers:
         keycloakOrg:
           default:
-            baseUrl: http://sso.local.io:32080
+            baseUrl: https://sso.local.io
             loginRealm: master
             realm: master
             clientId: backstage
-            clientSecret: elyGxA1YokMBuFXTILPW1lwDosNqtsH6QAtUKnUf7e52OHADXNOo6eYQtZczXeCe5SreoDV9V6yGEaLyEq69qF
+            clientSecret: vMn7JAb8hqvV3zAefcvOEfhbBc27KPomQe3Iz8eC6SjKaupQRvWQF1Wr69gcbOsKzojg2hVTw12FeOdtnIgyyb
             schedule:
               frequency: { minutes: 5 }
               timeout: { minutes: 3 }
@@ -128,18 +140,18 @@ backstage:
       publisher:
         type: local
 
-    kubernetes:
-      serviceLocatorMethod:
-        type: multiTenant
-      clusterLocatorMethods:
-        - type: config
-          clusters:
-            - name: kind-test-cluster
-              url: https://kubernetes.default.svc
-              authProvider: serviceAccount
-              serviceAccountToken: ${K8S_SA_TOKEN}
-              caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-              skipMetricsLookup: true # kind has no metrics-server
+    # kubernetes:
+    #   serviceLocatorMethod:
+    #     type: multiTenant
+    #   clusterLocatorMethods:
+    #     - type: config
+    #       clusters:
+    #         - name: kind-test-cluster
+    #           url: https://kubernetes.default.svc
+    #           authProvider: serviceAccount
+    #           serviceAccountToken: ${K8S_SA_TOKEN}
+    #           caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    #           skipMetricsLookup: true # kind has no metrics-server
 
     argocd:
       appLocatorMethods:

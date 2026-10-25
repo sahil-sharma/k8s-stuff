@@ -6,7 +6,6 @@ generatorOptions:
 
 resources:
   - namespace.yaml
-  - gateway.yaml
   - virtualservice.yaml
   - peer-authentication.yaml
   - backstage-k8s-reader.yaml
