@@ -1,0 +1,10 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata: { name: wildcard-local-io, namespace: istio-system }
+spec:
+  secretName: wildcard-tls-secret
+  issuerRef: { name: mkcert-ca, kind: ClusterIssuer }
+  dnsNames:
+    ["*.local.io", "local.io", "*.welcome.local.io", "*.storage.local.io"]
+  duration: 2160h # 90 days
+  renewBefore: 360h # 15 days
