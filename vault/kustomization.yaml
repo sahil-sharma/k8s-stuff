@@ -6,7 +6,6 @@ generatorOptions:
 
 resources:
   - namespace.yaml
-  - gateway.yaml
   - virtualservice.yaml
   - peer-authentication.yaml
   - role-and-rolebinding.yaml
@@ -16,5 +15,5 @@ helmCharts:
     releaseName: vault
     namespace: vault
     repo: https://helm.releases.hashicorp.com
-    version: 0.32.0
+    version: 0.34.1
     valuesFile: values.yaml
