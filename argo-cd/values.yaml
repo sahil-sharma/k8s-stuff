@@ -50,22 +50,7 @@ server:
 
   ingress:
     enabled: false
-    tls: false
-    ingressClassName: nginx
-    annotations:
-      nginx.ingress.kubernetes.io/rewrite-target: /
-      # nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    rules:
-      - host: cd.local.io
-        http:
-          paths:
-            - pathType: Prefix
-              path: "/"
-              backend:
-              service:
-                name: argocd-server
-                port:
-                  name: http
+
   extraArgs:
     - --insecure
 
@@ -90,13 +75,10 @@ configs:
   rbac:
     create: true
     # scopes: "[groups]"
-    policy.default: readonly
+    policy.default: role:readonly
     policy.csv: |
       # === Role Bindings ===
-      p, role: readonly, extensions, invoke, metrics, allow
-      p, role:backstage, applications, get, */*, allow
-      p, role:backstage, projects, get, */*, allow
-      g, backstage, role:backstage
+      p, role:readonly, extensions, invoke, metrics, allow
 
       g, devops, role:admin
       g, engineering, role:eng
@@ -105,6 +87,11 @@ configs:
       # === Role Definitions ===
       # Admin role - full access
       p, role:admin, *, *, */*, allow
+
+      p, role:backstage, applications, get, */*, allow
+      p, role:backstage, applications, list, */*, allow
+      p, role:backstage, logs, get, */*, allow
+      g, backstage, role:backstage
 
       # Engineer role - get/list/create/update but NOT delete
       p, role:eng, applications, get, */*, allow
@@ -123,7 +110,8 @@ configs:
 
   secret:
     extra:
-      accounts.backstage.password: $2a$10$aJoaVQciDsReHDWj89/.8.aCwTMkx.r1I4Lj6vr/1LwLphJV06hI6
+      accounts.backstage.password: $2a$10$WwWlp4pAjgR3kIeJ/WNuceRNXPqd1xJ4v6JyID/qUHh/zVYGnZ4H6
+      accounts.backstage.passwordMtime: 2026-10-25T17:04:42Z
 
   params:
     hydrator.enabled: "true"
@@ -131,18 +119,20 @@ configs:
 
   cm:
     timeout.reconciliation: 30s
-    admin.enabled: true
-    url: http://cd.local.io:32080
+    admin.enabled: false
+    url: https://cd.local.io
     accounts.backstage: login
-    # oidc.config: |
-    #   name: SSO
-    #   issuer: http://sso.local.io:32080/realms/platform
-    #   clientID: $argo-cd-sso-secret:client-id
-    #   clientSecret: $argo-cd-sso-secret:client-secret
-    #   requestedScopes: ["openid", "profile", "email", "groups"]
-    #   refreshTokenThreshold: 1m
-    #   logoutURL: http://sso.local.io:32080/realms/platform/protocol/openid-connect/logout
-    # oidc.tls.insecure.skip.verify: "true"
+    oidc.config: |
+      name: SSO
+      issuer: https://sso.local.io/realms/platform
+      # clientID: $argo-cd-sso-secret:client-id
+      # clientSecret: $argo-cd-sso-secret:client-secret
+      clientID: argocd
+      clientSecret: vbJ51nhbg4OmMiHCTK1F67Y1dgdmNGXL
+      requestedScopes: ["openid", "profile", "email", "groups"]
+      refreshTokenThreshold: 1m
+      logoutURL: https://sso.local.io/realms/platform/protocol/openid-connect/logout
+    oidc.tls.insecure.skip.verify: "true"
   repositories:
     pgadmin:
       type: helm
@@ -176,7 +166,7 @@ configs:
       project: default
     prometheus:
       type: helm
-      name: grafana
+      name: prometheus
       url: https://prometheus-community.github.io/helm-charts
       project: default
     otel-collector:
