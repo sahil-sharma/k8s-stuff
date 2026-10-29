@@ -1,0 +1,38 @@
+
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: go-welcome-app-virtualservice
+  namespace: go-welcome-app
+spec:
+  hosts:
+    - welcome.local.io
+  gateways:
+    - istio-system/main-cluster-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /welcome
+      route:
+        - destination:
+            host: go-welcome-app-service.go-welcome-app.svc.cluster.local
+            port:
+              number: 80
+
+    - match:
+        - uri:
+            prefix: /external
+      route:
+        - destination:
+            host: go-welcome-app-service.go-welcome-app.svc.cluster.local
+            port:
+              number: 80
+
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: go-welcome-app-service.go-welcome-app.svc.cluster.local
+            port:
+              number: 80
