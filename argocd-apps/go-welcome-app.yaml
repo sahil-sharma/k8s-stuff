@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: go-welcome-app
-  namespace: argocd
+  namespace: argo-cd
 spec:
   project: default
   destination:
@@ -12,7 +12,6 @@ spec:
     repoURL: https://github.com/sahil-sharma/k8s-stuff
     targetRevision: main
     path: apps/go-welcome-app
-    kustomize: {}
   revisionHistoryLimit: 2
   syncPolicy:
     automated:
