@@ -40,12 +40,13 @@ resource "vault_kubernetes_auth_backend_role" "k8s_roles" {
 
 # 4. OIDC Auth Backend
 resource "vault_jwt_auth_backend" "oidc" {
-  path               = "oidc"
-  type               = "oidc"
-  oidc_discovery_url = var.oidc_discovery_url
-  oidc_client_id     = var.oidc_clients["secrets"].client_id
-  oidc_client_secret = var.oidc_clients["secrets"].client_secret
-  default_role       = "reader"
+  path                  = "oidc"
+  type                  = "oidc"
+  oidc_discovery_url    = var.oidc_discovery_url
+  oidc_discovery_ca_pem = file("${path.module}/local-ca.pem")
+  oidc_client_id        = var.oidc_clients["secrets"].client_id
+  oidc_client_secret    = var.oidc_clients["secrets"].client_secret
+  default_role          = "reader"
 
   tune {
     listing_visibility = "unauth"

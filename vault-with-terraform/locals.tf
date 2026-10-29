@@ -3,8 +3,9 @@ locals {
 
   # Mapping Service Accounts to Namespaces for the 'eso-read' policy
   k8s_roles = {
-    "welcome-app-role"              = { sa = "welcome-app-service-account", ns = "welcome-app" }
+    "go-welcome-app-role"           = { sa = "go-welcome-app-service-account", ns = "go-welcome-app" }
     "argocd-sso-secret-role"        = { sa = "argo-cd-sso-sa", ns = "argo-cd" }
+    "backstage-sso-secret-role"     = { sa = "backstage-sa", ns = "backstage" }
     "grafana-sso-secret-role"       = { sa = "grafana-sso-sa", ns = "grafana" }
     "kiali-sso-secret-role"         = { sa = "kiali-sso-sa", ns = "kiali-operator" }
     "minio-sso-secret-role"         = { sa = "minio-sso-sa", ns = "minio" }
@@ -18,8 +19,8 @@ locals {
 
   # Common redirect URIs for OIDC roles
   oidc_redirects = [
-    "http://secrets.local.io:32080/ui/vault/auth/oidc/oidc/callback",
-    "http://secrets.local.io:32080/oidc/callback",
+    "https://secrets.local.io/ui/vault/auth/oidc/oidc/callback",
+    "https://secrets.local.io/oidc/callback",
     "http://vault.vault:8250/oidc/callback"
   ]
 }
