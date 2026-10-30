@@ -8,30 +8,91 @@ This repository contains the manifests and Terraform configurations to bootstrap
 
 | Service | URL |
 | :--- | :--- |
-| **Identity & Access (SSO)** | [http://sso.local.io](http://sso.local.io) |
-| **Vault Secrets** | [http://secrets.local.io](http://secrets.local.io) |
-| **OAuth2 Proxy** | [http://auth.local.io](http://auth.local.io) |
-| **Grafana Dashboards** | [http://dashboards.local.io](http://dashboards.local.io) |
-| **Prometheus Metrics** | [http://metrics.local.io](http://metrics.local.io) |
-| **Loki Logs** | [http://logs.local.io](http://logs.local.io) |
-| **Tempo Traces** | [http://traces.local.io](http://traces.local.io) |
-| **Kiali (Mesh Traffic)** | [http://traffic.local.io](http://traffic.local.io) |
-| **ArgoCD** | [http://cd.local.io](http://cd.local.io) |
-| **Argo Workflows** | [http://jobs.local.io](http://jobs.local.io) |
-| **Argo Rollouts** | [http://rollouts.local.io](http://rollouts.local.io) |
-| **Kafka UI** | [http://kafka-ui.local.io](http://kafka-ui.local.io) |
-| **Kafka Cluster (Bridge)** | [http://kafka-bridge.local.io](http://kafka-bridge.local.io) |
-| **Kafka Connect** | [http://kafka-connect.local.io](http://kafka-connect.local.io) |
-| **Kafka Cruise Control** | [http://cruise-control.local.io](http://cruise-control.local.io) |
-| **Litmus Chaos** | [http://chaos.local.io](http://chaos.local.io) |
-| **OTEL Collector** | [http://collector.local.io](http://collector.local.io) |
-| **MinIO Storage** | [http://storage.local.io](http://storage.local.io) |
-| **MinIO Console** | [http://console.storage.local.io](http://console.storage.local.io) |
-| **Backstage (IDP)** | [http://idp.local.io](http://idp.local.io) |
-| **Boutique App** | [http://store.local.io](http://store.local.io) |
-| **Echo Server** | [http://echo-server.local.io](http://echo-server.local.io) |
+| **Identity & Access (SSO)** | [https://sso.local.io](https://sso.local.io) |
+| **Vault Secrets** | [https://secrets.local.io](https://secrets.local.io) |
+| **OAuth2 Proxy** | [https://auth.local.io](https://auth.local.io) |
+| **Grafana Dashboards** | [https://dashboards.local.io](https://dashboards.local.io) |
+| **Prometheus Metrics** | [https://metrics.local.io](https://metrics.local.io) |
+| **Loki Logs** | [https://logs.local.io](https://logs.local.io) |
+| **Tempo Traces** | [https://traces.local.io](https://traces.local.io) |
+| **Kiali (Mesh Traffic)** | [https://traffic.local.io](https://traffic.local.io) |
+| **ArgoCD** | [https://cd.local.io](https://cd.local.io) |
+| **Argo Workflows** | [https://jobs.local.io](https://jobs.local.io) |
+| **Argo Rollouts** | [https://rollouts.local.io](https://rollouts.local.io) |
+| **Kafka UI** | [https://kafka-ui.local.io](https://kafka-ui.local.io) |
+| **Kafka Cluster (Bridge)** | [https://kafka-bridge.local.io](https://kafka-bridge.local.io) |
+| **Kafka Connect** | [https://kafka-connect.local.io](https://kafka-connect.local.io) |
+| **Kafka Cruise Control** | [https://cruise-control.local.io](https://cruise-control.local.io) |
+| **Litmus Chaos** | [https://chaos.local.io](https://chaos.local.io) |
+| **OTEL Collector** | [https://collector.local.io](https://collector.local.io) |
+| **MinIO Storage** | [https://storage.local.io](https://storage.local.io) |
+| **MinIO Console** | [https://console.storage.local.io](https://console.storage.local.io) |
+| **Backstage (IDP)** | [https://idp.local.io](https://idp.local.io) |
+| **Boutique App** | [https://store.local.io](https://store.local.io) |
+| **Echo Server** | [https://echo-server.local.io](https://echo-server.local.io) |
+| **Welcome App** | [https://welcome.local.io](https://welcome.local.io) |
 
 ---
+
+## Phase 0: Setting up [mkcert](https://github.com/filosottile/mkcert) to generate locally trusted SSL certificates
+
+1. **Install mkcert** 
+Follow the official mkcert GH [page](https://github.com/filosottile/mkcert) for its installation.
+
+2. **Install the Local Certificate Authority (CA)**
+
+```bash
+mkcert -install
+```
+This command:
+
+> Creates a local CA if one doesn't already exist.
+>
+> Installs the CA certificate into your operating system's trust store.
+>
+> Configures supported browser trust stores.
+
+Verify the CA location:
+
+```bash
+mkcert -CAROOT
+rootCA.pem is the public root CA certificate
+rootCA-key.pem is the private CA key
+```
+
+Never commit or share rootCA-key.pem. Anyone with access to this private key can generate certificates trusted by machines that trust this CA.
+
+3. **Generate the Wildcard Certificate**
+
+```bash
+mkdir -p $HOME/local-io-certs
+cd $HOME/local-io-certs
+mkcert "*.local.io" local.io
+```
+
+The command generates two files:
+
+```bash
+local.io+1.pem
+local.io+1-key.pem
+```
+
+For consistency, you can explicitly name the output files:
+
+```bash
+mkcert \
+  -cert-file local-wildcard.pem \
+  -key-file local-wildcard-key.pem \
+  "*.local.io" local.io
+```
+
+The resulting files will be:
+
+```bash
+ls $HOME/local-io-certs
+├── local-wildcard.pem (SSL certificate)
+└── local-wildcard-key.pem (Private key)
+```
 
 ## Phase 1: Cluster Setup & Networking
 
