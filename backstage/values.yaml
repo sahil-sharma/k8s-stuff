@@ -140,18 +140,18 @@ backstage:
       publisher:
         type: local
 
-    # kubernetes:
-    #   serviceLocatorMethod:
-    #     type: multiTenant
-    #   clusterLocatorMethods:
-    #     - type: config
-    #       clusters:
-    #         - name: kind-test-cluster
-    #           url: https://kubernetes.default.svc
-    #           authProvider: serviceAccount
-    #           serviceAccountToken: ${K8S_SA_TOKEN}
-    #           caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-    #           skipMetricsLookup: true # kind has no metrics-server
+    kubernetes:
+      serviceLocatorMethod:
+        type: multiTenant
+      clusterLocatorMethods:
+        - type: config
+          clusters:
+            - name: kind-test-cluster
+              url: https://kubernetes.default.svc
+              authProvider: serviceAccount
+              serviceAccountToken: ${K8S_SA_TOKEN}
+              caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+              skipMetricsLookup: true # kind has no metrics-server
 
     argocd:
       appLocatorMethods:
@@ -162,6 +162,16 @@ backstage:
               frontendUrl: http://cd.local.io:32080 # deep links opened in your browser
               username: backstage
               password: ${ARGOCD_PASSWORD}
+
+    vault:
+      baseUrl: http://vault.vault.svc.cluster.local:8200      # in-cluster
+      publicUrl: https://secrets.local.io:32443               # links in the browser (your Vault UI host)
+      secretEngine: apps                                       # your KV v2 mount
+      kvVersion: 2
+      auth:
+        type: kubernetes
+        role: backstage-plugin-role
+        authPath: kubernetes
 
 service:
   type: ClusterIP
@@ -177,4 +187,5 @@ postgresql:
   enabled: false
 
 serviceAccount:
-  create: false
+  create: true
+  name: backstage
