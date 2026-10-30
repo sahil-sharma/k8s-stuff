@@ -77,3 +77,22 @@ resource "vault_jwt_auth_backend_role" "oidc_roles" {
 
   token_ttl = 3600
 }
+
+resource "vault_kubernetes_auth_backend_role" "backstage_plugin" {
+  backend                          = vault_auth_backend.kubernetes.path
+  role_name                        = "backstage-plugin-role"
+  bound_service_account_names      = ["backstage"]
+  bound_service_account_namespaces = ["backstage"]
+  token_policies                   = ["backstage-plugin"]
+  audience                         = "https://kubernetes.default.svc.cluster.local"
+  token_ttl                        = 3600
+}
+
+resource "vault_kubernetes_auth_backend_role" "eso_apps" {
+  backend                          = vault_auth_backend.kubernetes.path
+  role_name                        = "eso-apps-role"
+  bound_service_account_names      = ["external-secrets"]
+  bound_service_account_namespaces = ["external-secrets"]
+  token_policies                   = ["eso-read"]
+  audience                         = "https://kubernetes.default.svc.cluster.local"
+}
