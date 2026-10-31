@@ -110,7 +110,7 @@ configs:
 
   secret:
     extra:
-      accounts.backstage.password: $2a$10$lMua1GwSAJSgv6wXPUIR6OCzrnCf0.cT60DVquY4GJBsEhJ3DBRTq
+      accounts.backstage.password: $2a$10$2oITAO.ECIgXV3qR.7j.uOgad0ThHZLpkARH2EVR6E/LyxgOioIsi
 
   params:
     hydrator.enabled: "true"
