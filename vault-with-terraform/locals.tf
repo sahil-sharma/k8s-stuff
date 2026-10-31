@@ -5,7 +5,8 @@ locals {
   k8s_roles = {
     "go-welcome-app-role"           = { sa = "go-welcome-app-service-account", ns = "go-welcome-app" }
     "argocd-sso-secret-role"        = { sa = "argo-cd-sso-sa", ns = "argo-cd" }
-    "backstage-sso-secret-role"     = { sa = "backstage-sa", ns = "backstage" }
+    "backstage-sso-secret-role"     = { sa = "backstage-sso-sa", ns = "backstage" }
+    "backstage-plugin-role"         = { sa = "backstage", ns = "backstage" }
     "grafana-sso-secret-role"       = { sa = "grafana-sso-sa", ns = "grafana" }
     "kiali-sso-secret-role"         = { sa = "kiali-sso-sa", ns = "kiali-operator" }
     "minio-sso-secret-role"         = { sa = "minio-sso-sa", ns = "minio" }

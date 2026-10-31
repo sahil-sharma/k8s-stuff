@@ -37,24 +37,36 @@ EOT
 resource "vault_policy" "backstage_plugin" {
   name   = "backstage-plugin"
   policy = <<EOT
-path "apps/metadata/*" { capabilities = ["list"] }
-path "apps/data/*"     { capabilities = ["create", "update", "patch"] }
+path "secret/*" {
+  capabilities = ["read", "list"]
+}
+path "secret" {
+  capabilities = ["list"]
+}
+path "apps/*" {
+  capabilities = ["read", "list"]
+}
+path "apps/metadata/*" {
+  capabilities = ["list"]
+}
+path "apps/data/*" {
+  capabilities = ["create", "read", "update", "patch", "list"]
+}
+
+# Allow preflight capability checks
+path "sys/capabilities-self" {
+  capabilities = ["update"]
+}
 EOT
 }
 
 resource "vault_policy" "backstage_list" {
   name   = "backstage-list"
   policy = <<EOT
-  path "apps/*" { capabilities = ["read","list"] }
-  path "apps/metadata/*" { capabilities = ["list"] }
-  path "database/*" { capabilities = ["read","list"] }
-  path "database/metadata/*" { capabilities = ["list"] }
-  path "globals/*" { capabilities = ["read","list"] }
-  path "globals/metadata/*" { capabilities = ["list"] }
-  path "sso/*" { capabilities = ["read","list"] }
-  path "sso/metadata/*" { capabilities = ["list"] }
-EOT
+   path "apps/metadata/*" { capabilities = ["list"] }
+   EOT
 }
+
 
 # --- Data Reader Policy ---
 resource "vault_policy" "data_reader" {
@@ -80,4 +92,11 @@ path "auth/token/renew-self" { capabilities = ["update"] }
 path "auth/token/revoke-self" { capabilities = ["update"] }
 path "sys/capabilities-self" { capabilities = ["update"] }
 EOT
+}
+resource "vault_policy" "go_app_team" {
+  name   = "go-app-team"
+  policy = <<EOT
+   path "apps/metadata/go-welcome-app/*" { capabilities = ["read","list"] }
+   path "apps/data/go-welcome-app/*"     { capabilities = ["read"] }
+   EOT
 }

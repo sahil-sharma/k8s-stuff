@@ -10,6 +10,7 @@ resource "vault_mount" "kv" {
 # 2. Kubernetes Auth Backend
 resource "vault_auth_backend" "kubernetes" {
   type = "kubernetes"
+  path = "kubernetes"
 }
 
 # Fetch the CA Cert from K8s
@@ -36,6 +37,8 @@ resource "vault_kubernetes_auth_backend_role" "k8s_roles" {
   bound_service_account_namespaces = [each.value.ns]
   token_policies                   = ["eso-read"]
   audience                         = "https://kubernetes.default.svc.cluster.local"
+
+  depends_on = [vault_auth_backend.kubernetes]
 }
 
 resource "vault_kubernetes_auth_backend_role" "backstage_vault" {
@@ -45,6 +48,8 @@ resource "vault_kubernetes_auth_backend_role" "backstage_vault" {
   bound_service_account_namespaces = ["backstage"]
   token_policies                   = ["backstage-list"]
   token_ttl                        = 3600
+
+  depends_on = [vault_auth_backend.kubernetes]
 }
 
 # 4. OIDC Auth Backend
@@ -95,6 +100,8 @@ resource "vault_kubernetes_auth_backend_role" "backstage_plugin" {
   token_policies                   = ["backstage-plugin"]
   audience                         = "https://kubernetes.default.svc.cluster.local"
   token_ttl                        = 3600
+
+  depends_on = [vault_auth_backend.kubernetes]
 }
 
 resource "vault_kubernetes_auth_backend_role" "eso_apps" {
@@ -104,4 +111,18 @@ resource "vault_kubernetes_auth_backend_role" "eso_apps" {
   bound_service_account_namespaces = ["external-secrets"]
   token_policies                   = ["eso-read"]
   audience                         = "https://kubernetes.default.svc.cluster.local"
+
+  depends_on = [vault_auth_backend.kubernetes]
+}
+
+resource "vault_jwt_auth_backend_role" "go_app_team" {
+  backend               = "oidc"
+  role_name             = "go-app-team"
+  role_type             = "oidc"
+  user_claim            = "preferred_username"
+  groups_claim          = "groups"
+  bound_claims          = { groups = "go-app-team" }
+  allowed_redirect_uris = local.oidc_redirects
+  token_policies        = ["go-app-team"]
+  token_ttl             = 3600
 }
