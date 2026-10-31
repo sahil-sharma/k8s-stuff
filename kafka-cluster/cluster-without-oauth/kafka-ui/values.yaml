@@ -7,31 +7,47 @@ podAnnotations:
 
 envs:
   secretMappings:
-    KAFKA_PASSWORD:
-      name: kafka-ui-kafka-creds
+    CLUSTER_1_PASSWORD:
+      name: cluster-1-kafka-ui-secret
       keyName: password
-    KAFKA_CONNECT_PASSWORD:
-      name: kafka-ui-kafka-connect-creds
-      keyName: KAFKA_CONNECT_PASSWORD
+    CLUSTER_2_PASSWORD:
+      name: cluster-2-kafka-ui-secret
+      keyName: password
+
+    # KAFKA_CONNECT_PASSWORD:
+    #   name: kafka-ui-kafka-connect-creds
+    #   keyName: KAFKA_CONNECT_PASSWORD
 
 yamlApplicationConfig:
   kafka:
     clusters:
-      - name: my-cluster
-        bootstrapServers: my-cluster-kafka-bootstrap.kafka-cluster.svc:9094
+      - name: cluster-1
+        bootstrapServers: cluster-1-kafka-bootstrap.cluster-1.svc:9094
         properties:
           security.protocol: SASL_PLAINTEXT
           sasl.mechanism: SCRAM-SHA-512
           sasl.jaas.config: >
             org.apache.kafka.common.security.scram.ScramLoginModule required
             username="kafka-ui"
-            password="${KAFKA_PASSWORD}";
+            password="${CLUSTER_1_PASSWORD}";
           socket.connection.setup.timeout.max.ms: 50000
           socket.connection.setup.timeout.ms: 50000
         kafkaConnect:
           - name: strimzi-connect
             address: http://kafka-connect.local.io:32080
             # address: http://strimzi-connect-connect-api.kafka-cluster.svc.cluster.local:8083
+
+      - name: cluster-2
+        bootstrapServers: cluster-2-kafka-bootstrap.cluster-2.svc:9094
+        properties:
+          security.protocol: SASL_PLAINTEXT
+          sasl.mechanism: SCRAM-SHA-512
+          sasl.jaas.config: >
+            org.apache.kafka.common.security.scram.ScramLoginModule required
+            username="kafka-ui"
+            password="${CLUSTER_2_PASSWORD}";
+          socket.connection.setup.timeout.max.ms: 50000
+          socket.connection.setup.timeout.ms: 50000
 
   auth:
     type: LOGIN_FORM

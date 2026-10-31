@@ -16,3 +16,5 @@ resources:
   - prometheus-cluster-operator-rule.yaml
   - prometheus-cluster-entity-operator-rule.yaml
   - prometheus-topic-operator-rule.yaml
+  - kafka-user-for-kafka-ui.yaml
+  - kafka-user-for-mirror-maker2.yaml

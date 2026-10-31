@@ -14,7 +14,7 @@ data:
           }
           prometheus :9153
           hosts {
-             10.96.169.115 welcome.local.io sso.local.io secrets.local.io kcdb.local.io cd.local.io metrics.local.io logs.local.io dashboards.local.io auth.local.io rollouts.local.io idp.local.io jobs.local.io storage.local.io console.storage.local.io app.local.io appdb.local.io kafka.local.io kafka-ui.local.io grafanadb.local.io traffic.local.io traces.local.io collector.local.io cruise-control.local.io dev-portal.local.io dex.local.io chaos.local.io store.local.io kafka-connect.local.io policy-check.local.io staging.welcome.local.io dev.welcome.local.io promoter-webhook.welcome.local.io
+             10.96.167.88 welcome.local.io sso.local.io secrets.local.io kcdb.local.io cd.local.io metrics.local.io logs.local.io dashboards.local.io auth.local.io rollouts.local.io idp.local.io jobs.local.io storage.local.io console.storage.local.io app.local.io appdb.local.io kafka.local.io kafka-ui.local.io grafanadb.local.io traffic.local.io traces.local.io collector.local.io cruise-control.local.io dev-portal.local.io dex.local.io chaos.local.io store.local.io kafka-connect.local.io policy-check.local.io staging.welcome.local.io dev.welcome.local.io promoter-webhook.welcome.local.io
              fallthrough
           }
           forward . /etc/resolv.conf {

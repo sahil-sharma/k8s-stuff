@@ -20,7 +20,7 @@ spec:
       serviceAccountName: go-welcome-app-service-account
       containers:
         - name: go-welcome-app
-          image: bonyscott/welcome-app:23762ef
+          image: sahilwork/go-welcome-app:3b02b99
           ports:
             - containerPort: 8080
           resources:
@@ -31,5 +31,5 @@ spec:
               cpu: "500m"
               memory: "256Mi"
           envFrom:
-          - secretRef:
-              name: go-welcome-app-secret
+            - secretRef:
+                name: go-welcome-app-secret

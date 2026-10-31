@@ -3,4 +3,5 @@ kind: Namespace
 metadata:
   name: kafka-operator
   labels:
-    istio-injection: enabled
+    strimzi.io/kind: Kafka
+    #istio-injection: enabled

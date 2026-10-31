@@ -42,6 +42,20 @@ path "apps/data/*"     { capabilities = ["create", "update", "patch"] }
 EOT
 }
 
+resource "vault_policy" "backstage_list" {
+  name   = "backstage-list"
+  policy = <<EOT
+  path "apps/*" { capabilities = ["read","list"] }
+  path "apps/metadata/*" { capabilities = ["list"] }
+  path "database/*" { capabilities = ["read","list"] }
+  path "database/metadata/*" { capabilities = ["list"] }
+  path "globals/*" { capabilities = ["read","list"] }
+  path "globals/metadata/*" { capabilities = ["list"] }
+  path "sso/*" { capabilities = ["read","list"] }
+  path "sso/metadata/*" { capabilities = ["list"] }
+EOT
+}
+
 # --- Data Reader Policy ---
 resource "vault_policy" "data_reader" {
   name   = "data-reader"

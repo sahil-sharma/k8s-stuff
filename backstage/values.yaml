@@ -53,8 +53,9 @@ backstage:
       mountPath: /etc/ssl/certs/local-ca.crt
       subPath: ca-bundle.crt
 
-  # extraEnvVarsSecrets:
-  #  - backstage-integrations # GITHUB_TOKEN, K8S_SA_TOKEN, ARGOCD_TOKEN (Part 2)
+  extraEnvVarsSecrets:
+    - backstage-integrations # Holds secrets for GitHub, DockerHub, and K8s Stuff (GitHub) tokens
+    - backstage-sso-secret # Holds secrets for OIDC configuration
 
   appConfig:
     app:
@@ -85,43 +86,52 @@ backstage:
           ssl:
             rejectUnauthorized: false
 
-    #integrations:
-    #  github:
-    #    - host: github.com
-    #      token: ${GITHUB_TOKEN}
+    integrations:
+      github:
+        - host: github.com
+          token: ${GITHUB_TOKEN}
 
     auth:
       environment: development
       session:
         secret: f05dca9cad3e812b28ab2312ef0ed5a592e1e44630e0744dd0c732b1eaf0e85e # openssl rand -hex 32
       providers:
-        guest: {}
-        oidc:
+        oidc: # Keycloak sign-in
           development:
-            metadataUrl: https://sso.local.io/realms/master/.well-known/openid-configuration
-            clientId: backstage
-            clientSecret: vMn7JAb8hqvV3zAefcvOEfhbBc27KPomQe3Iz8eC6SjKaupQRvWQF1Wr69gcbOsKzojg2hVTw12FeOdtnIgyyb
+            metadataUrl: https://sso.local.io/realms/platform/.well-known/openid-configuration
+            clientId: ${BACKSTAGE_OIDC_CLIENT_ID}
+            clientSecret: ${BACKSTAGE_OIDC_CLIENT_SECRET}
             prompt: login
             signIn:
               resolvers:
                 - resolver: emailMatchingUserEntityProfileEmail
                 - resolver: emailLocalPartMatchingUserEntityName
 
+        github: # not a sign-in method: user token for the GitHub Actions tab
+          development:
+            clientId: ${GITHUB_OAUTH_CLIENT_ID}
+            clientSecret: ${GITHUB_OAUTH_CLIENT_SECRET}
+
+    permission:
+      enabled: true
+
     catalog:
       rules:
         - allow:
             [Component, System, API, Resource, Location, Template, User, Group]
-      # locations:
-      #   - type: url
-      #     target: https://github.com/__GH_USER__/platform/blob/main/catalog-info.yaml
+      locations:
+        - type: url
+          target: https://github.com/sahil-sharma/idp-service-templates/blob/main/catalog-info.yaml
+        - type: url
+          target: https://github.com/sahil-sharma/go-welcome-app/blob/main/catalog-info.yaml
       providers:
         keycloakOrg:
           default:
             baseUrl: https://sso.local.io
-            loginRealm: master
-            realm: master
-            clientId: backstage
-            clientSecret: vMn7JAb8hqvV3zAefcvOEfhbBc27KPomQe3Iz8eC6SjKaupQRvWQF1Wr69gcbOsKzojg2hVTw12FeOdtnIgyyb
+            loginRealm: platform
+            realm: platform
+            clientId: ${BACKSTAGE_OIDC_CLIENT_ID}
+            clientSecret: ${BACKSTAGE_OIDC_CLIENT_SECRET}
             schedule:
               frequency: { minutes: 5 }
               timeout: { minutes: 3 }
@@ -132,6 +142,13 @@ backstage:
         name: backstage-scaffolder
         email: backstage-scaffolder@users.noreply.github.com
       defaultCommitMessage: Created by Backstage golden path
+      defaultEnvironment: # templates use these; developers never see them
+        parameters:
+          githubOwner: sahil-sharma
+          dockerhubUser: sahilwork
+        secrets:
+          DOCKERHUB_TOKEN: ${DOCKERHUB_TOKEN}
+          K8S_STUFF_TOKEN: ${K8S_STUFF_TOKEN}
 
     techdocs:
       builder: local
@@ -158,15 +175,15 @@ backstage:
         - type: config
           instances:
             - name: kind
-              url: http://argocd-server.argocd.svc.cluster.local # backend -> Argo CD (in-cluster)
-              frontendUrl: http://cd.local.io:32080 # deep links opened in your browser
+              url: http://argo-cd-argocd-server.argo-cd.svc.cluster.local # backend -> Argo CD (in-cluster)
+              frontendUrl: https://cd.local.io # deep links opened in your browser
               username: backstage
               password: ${ARGOCD_PASSWORD}
 
     vault:
-      baseUrl: http://vault.vault.svc.cluster.local:8200      # in-cluster
-      publicUrl: https://secrets.local.io:32443               # links in the browser (your Vault UI host)
-      secretEngine: apps                                       # your KV v2 mount
+      baseUrl: http://vault.vault.svc.cluster.local:8200 # in-cluster
+      publicUrl: https://secrets.local.io # links in the browser (your Vault UI host)
+      secretEngine: apps # your KV v2 mount
       kvVersion: 2
       auth:
         type: kubernetes

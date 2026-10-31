@@ -38,6 +38,15 @@ resource "vault_kubernetes_auth_backend_role" "k8s_roles" {
   audience                         = "https://kubernetes.default.svc.cluster.local"
 }
 
+resource "vault_kubernetes_auth_backend_role" "backstage_vault" {
+  backend                          = "kubernetes"
+  role_name                        = "backstage-vault-role"
+  bound_service_account_names      = ["backstage"]
+  bound_service_account_namespaces = ["backstage"]
+  token_policies                   = ["backstage-list"]
+  token_ttl                        = 3600
+}
+
 # 4. OIDC Auth Backend
 resource "vault_jwt_auth_backend" "oidc" {
   path                  = "oidc"

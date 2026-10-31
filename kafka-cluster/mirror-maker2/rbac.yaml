@@ -14,7 +14,13 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: eso-kafka-reader
-    namespace: kafka-cluster-2
+    namespace: cluster-1
+  - kind: ServiceAccount
+    name: eso-kafka-reader
+    namespace: cluster-2
+  - kind: ServiceAccount
+    name: eso-kafka-reader
+    namespace: kafka-ui
 roleRef:
   kind: ClusterRole
   name: eso-secret-reader

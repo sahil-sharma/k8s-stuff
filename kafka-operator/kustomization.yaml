@@ -13,7 +13,7 @@ helmCharts:
     releaseName: strimzi-cluster-operator
     namespace: kafka-operator
     repo: oci://quay.io/strimzi-helm
-    version: 0.50.0
+    version: 1.0.1
     includeCRDs: true
     valuesInline:
       watchAnyNamespace: true

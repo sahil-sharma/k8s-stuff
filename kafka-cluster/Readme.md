@@ -187,3 +187,5 @@ Now, simulate a misconfigured publisher client bypassing your serialization guid
 ```
 
 Ordinarily, because our global cluster profile mandates `schemas.enable=true`, this schema-less message would trigger a fatal `DataException` and completely crash our connector task thread, halting all order traffic. But look at our console logs and Grafana dashboard: our task stays `Running`, the message safely bypassed the bottleneck into our Dead Letter Queue (`x_topic-dlq`), and our business continuity remains untouched!
+
+### Kafka Mirror Maker2

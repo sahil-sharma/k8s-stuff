@@ -22,10 +22,10 @@ spec:
         - name: consumer
           image: kafka-app:v1
           imagePullPolicy: Never
-          command: [ "./consumer" ]
+          command: ["./consumer"]
           env:
             - name: KAFKA_BOOTSTRAP_SERVERS
-              value: "my-cluster-kafka-bootstrap.kafka-cluster.svc.cluster.local:9094"
+              value: "cluster-1-kafka-bootstrap.cluster-1.svc.cluster.local:9094"
             - name: KAFKA_TOPIC
               value: "a_topic"
             - name: KAFKA_CONSUMER_GROUP

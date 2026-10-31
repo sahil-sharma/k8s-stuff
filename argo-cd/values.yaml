@@ -110,7 +110,7 @@ configs:
 
   secret:
     extra:
-      accounts.backstage.password: $2a$10$WwWlp4pAjgR3kIeJ/WNuceRNXPqd1xJ4v6JyID/qUHh/zVYGnZ4H6
+      accounts.backstage.password: $2a$10$QO1xPwaoQatjK0NJJn8zx.Vej1HDbJV8HwsB9augnzI43ySgc7Gui
       accounts.backstage.passwordMtime: 2026-10-25T17:04:42Z
 
   params:
@@ -174,13 +174,13 @@ configs:
       name: otel-collector
       url: https://open-telemetry.github.io/opentelemetry-helm-charts
       project: default
-    flask-app:
-      type: git
-      url: https://github.com/sahil-sharma/k8s-stuff.git
-      name: flask-app
-      project: default
-    welcome-app:
-      type: git
-      url: https://github.com/sahil-sharma/go-welcome-app.git
-      name: go-welcome-app
-      project: default
+    # flask-app:
+    #   type: git
+    #   url: https://github.com/sahil-sharma/k8s-stuff.git
+    #   name: flask-app
+    #   project: default
+    # welcome-app:
+    #   type: git
+    #   url: https://github.com/sahil-sharma/go-welcome-app.git
+    #   name: go-welcome-app
+    #   project: default
