@@ -20,7 +20,7 @@ spec:
       serviceAccountName: go-welcome-app-service-account
       containers:
         - name: go-welcome-app
-          image: sahilwork/go-welcome-app:0cd6289
+          image: sahilwork/go-welcome-app:d60e51c
           ports:
             - containerPort: 8080
           resources:
