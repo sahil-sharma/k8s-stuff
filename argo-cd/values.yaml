@@ -45,8 +45,8 @@ server:
         env:
           - name: EXTENSION_URL
             value: https://github.com/argoproj-labs/rollout-extension/releases/download/v0.3.4/extension.tar
-  # deploymentAnnotations:
-  #   secret.reloader.stakater.com/reload: "argo-cd-sso-secret"
+  deploymentAnnotations:
+    secret.reloader.stakater.com/reload: "argo-cd-sso-secret"
 
   ingress:
     enabled: false
@@ -110,8 +110,7 @@ configs:
 
   secret:
     extra:
-      accounts.backstage.password: $2a$10$QO1xPwaoQatjK0NJJn8zx.Vej1HDbJV8HwsB9augnzI43ySgc7Gui
-      accounts.backstage.passwordMtime: 2026-10-25T17:04:42Z
+      accounts.backstage.password: $2a$10$lMua1GwSAJSgv6wXPUIR6OCzrnCf0.cT60DVquY4GJBsEhJ3DBRTq
 
   params:
     hydrator.enabled: "true"
@@ -125,10 +124,8 @@ configs:
     oidc.config: |
       name: SSO
       issuer: https://sso.local.io/realms/platform
-      # clientID: $argo-cd-sso-secret:client-id
-      # clientSecret: $argo-cd-sso-secret:client-secret
-      clientID: argocd
-      clientSecret: vbJ51nhbg4OmMiHCTK1F67Y1dgdmNGXL
+      clientID: $argo-cd-sso-secret:client-id
+      clientSecret: $argo-cd-sso-secret:client-secret
       requestedScopes: ["openid", "profile", "email", "groups"]
       refreshTokenThreshold: 1m
       logoutURL: https://sso.local.io/realms/platform/protocol/openid-connect/logout
@@ -174,13 +171,8 @@ configs:
       name: otel-collector
       url: https://open-telemetry.github.io/opentelemetry-helm-charts
       project: default
-    # flask-app:
-    #   type: git
-    #   url: https://github.com/sahil-sharma/k8s-stuff.git
-    #   name: flask-app
-    #   project: default
-    # welcome-app:
-    #   type: git
-    #   url: https://github.com/sahil-sharma/go-welcome-app.git
-    #   name: go-welcome-app
-    #   project: default
+    go-welcome-app:
+      type: git
+      url: https://github.com/sahil-sharma/go-welcome-app.git
+      name: go-welcome-app
+      project: default
