@@ -110,7 +110,7 @@ configs:
 
   secret:
     extra:
-      accounts.backstage.password: $2a$10$2oITAO.ECIgXV3qR.7j.uOgad0ThHZLpkARH2EVR6E/LyxgOioIsi
+      accounts.backstage.password: $2a$10$s0qH/8kPvLZtyuEGs1IsB.J8Pv7.Vl.cIJYYdjxqNRastPkdM441.
 
   params:
     hydrator.enabled: "true"
@@ -176,3 +176,24 @@ configs:
       url: https://github.com/sahil-sharma/go-welcome-app.git
       name: go-welcome-app
       project: default
+
+extraObjects:
+  - apiVersion: argoproj.io/v1alpha1
+    kind: Application
+    metadata:
+      name: go-welcome-app
+      namespace: argo-cd # Should match the namespace where Argo CD is installed
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/sahil-sharma/k8s-stuff
+        targetRevision: main
+        path: apps/go-welcome-app
+      destination:
+        namespace: go-welcome-app
+        server: https://kubernetes.default.svc
+      syncPolicy:
+        automated:
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
