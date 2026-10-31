@@ -114,9 +114,8 @@ resource "vault_kubernetes_auth_backend_role" "eso_apps" {
 
   depends_on = [vault_auth_backend.kubernetes]
 }
-
 resource "vault_jwt_auth_backend_role" "go_app_team" {
-  backend               = "oidc"
+  backend               = vault_jwt_auth_backend.oidc.path
   role_name             = "go-app-team"
   role_type             = "oidc"
   user_claim            = "preferred_username"
