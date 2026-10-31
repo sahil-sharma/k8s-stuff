@@ -9,6 +9,7 @@ resources:
   - virtualservice.yaml
   - peer-authentication.yaml
   - backstage-k8s-reader.yaml
+  - backstage-sso-secret.yaml
 
 helmCharts:
   - name: backstage
