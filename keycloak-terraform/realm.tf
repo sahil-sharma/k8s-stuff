@@ -7,7 +7,7 @@ resource "keycloak_realm" "realm" {
   sso_session_idle_timeout       = "24h"
   login_with_email_allowed       = true
   duplicate_emails_allowed       = false
-  registration_email_as_username = true
+  registration_email_as_username = false
 }
 
 resource "keycloak_realm_events" "realm_events" {
