@@ -3,7 +3,7 @@ backstage:
     registry: docker.io
     repository: sahilwork/platform-idp
     tag: v4
-    pullPolicy: Never
+    pullPolicy: IfNotPresent
 
   readinessProbe:
     httpGet:
