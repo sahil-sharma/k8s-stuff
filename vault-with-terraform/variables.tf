@@ -21,11 +21,6 @@ variable "oidc_client_names" {
 
 # --- SENSITIVE DATA FOR VALUES ---
 variable "oidc_clients" {
-  type = map(object({
-    client_id     = string
-    client_secret = string
-    cookie_secret = optional(string)
-    db_password   = optional(string)
-  }))
+  type      = map(map(string))
   sensitive = true
 }
