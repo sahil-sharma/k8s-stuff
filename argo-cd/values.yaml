@@ -110,7 +110,7 @@ configs:
 
   secret:
     extra:
-      accounts.backstage.password: $2a$10$s0qH/8kPvLZtyuEGs1IsB.J8Pv7.Vl.cIJYYdjxqNRastPkdM441.
+      accounts.backstage.password: ${argo-cd-sso-secret:hash-password-for-backstage-user}
 
   params:
     hydrator.enabled: "true"
